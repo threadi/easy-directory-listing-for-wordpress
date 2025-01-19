@@ -1,0 +1,14 @@
+{
+	"name": "@easy-directory-listing-for-wordpress/directory-view",
+	"version": "1.0.0",
+	"description": "Provides a simple react-driven directory view for WordPress-backend.",
+	"author": "Thomas Zwirner",
+	"license": "GPL-2.0-or-later",
+	"scripts": {
+		"start": "wp-scripts start src/index.js --output-path=build/",
+		"build": "wp-scripts build src/index.js --output-path=build/"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "~27.9"
+	}
+}

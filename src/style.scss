@@ -1,0 +1,77 @@
+#easy-directory-listing-for-wordpress {
+	background-color: #fff;
+	border: 1px solid #ccc;
+	margin-top: 1em;
+	padding: 1em;
+	> *:not(:last-child) {
+		margin-top: 0;
+		margin-bottom: 1em;
+	}
+	.errors {
+		background-color: #ccc;
+		padding: 1em;
+		ul, li, p { margin: 0 }
+	}
+}
+
+#easy-directory-listing-for-wordpress-options {
+	border-bottom: 1px solid #ccc;
+	margin: 0 0 1em;
+	padding-bottom: 1em;
+	button {
+		margin-right: 1em;
+	}
+}
+
+#easy-directory-listing-for-wordpress-listing-view {
+	display: flex;
+	width: 100%;
+}
+
+#easy-directory-listing-for-wordpress-listing {
+	flex-basis: 16%;
+	border-right: 1px solid #ccc;
+}
+
+#easy-directory-listing-for-wordpress-details {
+	flex-basis: 84%;
+}
+
+#easy-directory-listing-for-wordpress-listing, #easy-directory-listing-for-wordpress-details {
+	list-style: none;
+	ul {
+		margin: 0;
+		padding-top: 0.2em;
+		padding-left: 0.4em;
+	}
+	li:before {
+		content: "\f18f";
+		font-family: dashicons, sans-sarif;
+		font-size: 1.2em;
+		vertical-align: middle;
+		margin-right: 0.4em;
+	}
+	button {
+		height: auto;
+		padding: 0
+	}
+}
+
+#easy-directory-listing-for-wordpress-details table {
+	border-collapse: collapse;
+	table-layout: fixed;
+	width: 100%;
+
+	th, td {
+		border: 1px solid #ccc;
+		padding: 4px 8px;
+	}
+
+	th {
+		text-align: left;
+	}
+
+	.actions { width: 72px }
+	.type { width: 24px; }
+	.filepreview { width: 32px }
+}
