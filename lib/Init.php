@@ -49,6 +49,13 @@ class Init {
 	 */
 	private bool $preview = true;
 
+    /**
+     * The page hook.
+     *
+     * @var string
+     */
+    private string $page_hook = '';
+
 	/**
 	 * Instance of actual object.
 	 *
@@ -143,6 +150,11 @@ class Init {
 	 * @return void
 	 */
 	public function add_scripts(): void {
+        // bail if page hook is set and does not match the hook.
+        if( ! empty( $this->get_page_hook() ) && $hook !== $this->get_page_hook() ) {
+            return;
+        }
+
 		// define paths: adjust if necessary.
 		$path = $this->get_path() . 'vendor/threadi/easy-directory-listing-for-wordpress/';
 		$url  = $this->get_url() . 'vendor/threadi/easy-directory-listing-for-wordpress/';
@@ -252,4 +264,24 @@ class Init {
 	public function set_preview_state( bool $state ): void {
 		$this->preview = $state;
 	}
+
+    /**
+     * Return the page hook.
+     *
+     * @return string
+     */
+    private function get_page_hook(): string {
+        return $this->page_hook;
+    }
+
+    /**
+     * Set the page hook where the scripts should be loaded.
+     *
+     * @param string $page_hook The page hook.
+     *
+     * @return void
+     */
+    public function set_page_hook( string $page_hook ): void {
+        $this->page_hook = $page_hook;
+    }
 }
