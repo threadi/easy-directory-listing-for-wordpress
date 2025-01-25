@@ -8,9 +8,9 @@
 namespace easyDirectoryListingForWordPress;
 
 // prevent direct access.
-use WP_Term;
-
 defined( 'ABSPATH' ) || exit;
+
+use WP_Term;
 
 /**
  * Object to handle the taxonomy.
@@ -363,4 +363,43 @@ class Taxonomy {
 		update_term_meta( $term_id, 'password', Crypt::get_instance()->encrypt( (string)filter_input( INPUT_POST, 'password', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) );
 		update_term_meta( $term_id, 'api_key', Crypt::get_instance()->encrypt( (string)filter_input( INPUT_POST, 'api_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) );
 	}
+
+    /**
+     * Run this on uninstallation.
+     *
+     * @return void
+     */
+    public function uninstall(): void {
+        global $wpdb;
+
+        // get all terms with direct db access.
+        $terms = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+            $wpdb->prepare(
+                'SELECT ' . $wpdb->terms . '.term_id
+                    FROM ' . $wpdb->terms . '
+                    INNER JOIN
+                        ' . $wpdb->term_taxonomy . '
+                        ON
+                         ' . $wpdb->term_taxonomy . '.term_id = ' . $wpdb->terms . '.term_id
+                    WHERE ' . $wpdb->term_taxonomy . '.taxonomy = %s',
+                array( $this->get_name() )
+            )
+        );
+
+        // delete them.
+        foreach ( $terms as $term ) {
+            $wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+                $wpdb->terms,
+                array(
+                    'term_id' => $term->term_id,
+                )
+            );
+        }
+
+        // delete all taxonomy-entries.
+        $wpdb->delete( $wpdb->term_taxonomy, array( 'taxonomy' => $this->get_name() ), array( '%s' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
+        // cleanup options.
+        delete_option( $this->get_name() . '_children' );
+    }
 }
