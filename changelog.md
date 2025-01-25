@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.1] - 25.01.2025
+
+### Optimized
+
+- Remove terms on uninstallation of plugin which uses this library
+
 ## [2.0.0] - 25.01.2025
 
 ### Added
