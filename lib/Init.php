@@ -49,12 +49,19 @@ class Init {
 	 */
 	private bool $preview = true;
 
-    /**
-     * The page hook.
-     *
-     * @var string
-     */
-    private string $page_hook = '';
+	/**
+	 * The page hook.
+	 *
+	 * @var string
+	 */
+	private string $page_hook = '';
+
+	/**
+	 * The menu slug.
+	 *
+	 * @var string
+	 */
+	private string $menu_slug = '';
 
 	/**
 	 * Instance of actual object.
@@ -94,8 +101,15 @@ class Init {
 	 * @return void
 	 */
 	public function init(): void {
+		// define constants.
+		define( 'EDLFW_HASH', 'edlfw_hash' );
+		define( 'EDLFW_SODIUM_HASH', 'edlfw_sodium_hash' );
+
 		// add scripts.
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_scripts' ) );
+
+		// initialize the taxonomy.
+		Taxonomy::get_instance()->init();
 
 		// initialize the supported listing.
 		Directory_Listings::get_instance()->init();
@@ -147,13 +161,15 @@ class Init {
 	/**
 	 * Add the directory listing script.
 	 *
+	 * @param string $hook The used hook.
+	 *
 	 * @return void
 	 */
-	public function add_scripts(): void {
-        // bail if page hook is set and does not match the hook.
-        if( ! empty( $this->get_page_hook() ) && $hook !== $this->get_page_hook() ) {
-            return;
-        }
+	public function add_scripts( string $hook ): void {
+		// bail if page hook is set and does not match the hook.
+		if( ! empty( $this->get_page_hook() ) && ! in_array( $hook, array( $this->get_page_hook(), 'edit-tags.php', 'term.php' ), true ) ) {
+			return;
+		}
 
 		// define paths: adjust if necessary.
 		$path = $this->get_path() . 'vendor/threadi/easy-directory-listing-for-wordpress/';
@@ -265,23 +281,43 @@ class Init {
 		$this->preview = $state;
 	}
 
-    /**
-     * Return the page hook.
-     *
-     * @return string
-     */
-    private function get_page_hook(): string {
-        return $this->page_hook;
-    }
+	/**
+	 * Return the page hook.
+	 *
+	 * @return string
+	 */
+	public function get_page_hook(): string {
+		return $this->page_hook;
+	}
 
-    /**
-     * Set the page hook where the scripts should be loaded.
-     *
-     * @param string $page_hook The page hook.
-     *
-     * @return void
-     */
-    public function set_page_hook( string $page_hook ): void {
-        $this->page_hook = $page_hook;
-    }
+	/**
+	 * Set the page hook where the scripts should be loaded.
+	 *
+	 * @param string $page_hook The page hook.
+	 *
+	 * @return void
+	 */
+	public function set_page_hook( string $page_hook ): void {
+		$this->page_hook = $page_hook;
+	}
+
+	/**
+	 * Return the menu slug.
+	 *
+	 * @return string
+	 */
+	public function get_menu_slug(): string {
+		return $this->menu_slug;
+	}
+
+	/**
+	 * Set the menu slug where the listing should be output.
+	 *
+	 * @param string $menu_slug The menu slug.
+	 *
+	 * @return void
+	 */
+	public function set_menu_slug( string $menu_slug ): void {
+		$this->menu_slug = $menu_slug;
+	}
 }

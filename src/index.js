@@ -32,6 +32,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
   const [ password, setPassword ] = useState( '' );
   const [ apiKey, setApiKey ] = useState( '' );
   const [ errors, setErrors ] = useState( false );
+  const [ saveCredentials, setSaveCredentials ] = useState( false );
 
   // get configuration.
   let config = props.config;
@@ -61,7 +62,9 @@ const EDLFW_Directory_Viewer = ( props ) => {
       password: password,
       api_key: apiKey,
       listing_base_object_name: config.listing_base_object_name,
-      nonce: config.nonce
+      saveCredentials: saveCredentials,
+      nonce: config.nonce,
+      term: config.term
     }
     apiFetch( { path: edlfwJsVars.get_directory_endpoint, method: 'POST', data: params } ).then( (directoryListingFromResponse) => {
       if( directoryListingFromResponse.errors ) {
@@ -76,18 +79,18 @@ const EDLFW_Directory_Viewer = ( props ) => {
   }, [actualDirectory, enabled] );
 
   // show login form if directory is not enabled and login should be requested.
-  if( ! enabled && config.requires_login ) {
+  if( ! enabled && config.requires_login && ! config.term ) {
     return (
       <>
-        <EDLFW_LOGIN_FORM errors={errors} url={url} setUrl={setUrl} login={login} setLogin={setLogin} password={password} setPassword={setPassword} setEnabled={setEnabled} />
+        <EDLFW_LOGIN_FORM errors={errors} url={url} setUrl={setUrl} login={login} setLogin={setLogin} password={password} setPassword={setPassword} setEnabled={setEnabled} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
       </>)
   }
 
   // show API form if directory is not enabled and API should be requested.
-  if( ! enabled && config.requires_simple_api ) {
+  if( ! enabled && config.requires_simple_api && ! config.term ) {
     return (
       <>
-        <EDLFW_SIMPLE_API_FORM errors={errors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} />
+        <EDLFW_SIMPLE_API_FORM errors={errors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
       </>)
   }
 
@@ -136,7 +139,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
             </tr>
             </thead>
             <tbody>
-              <EDLFW_Files_Listing directoryToList={actualDirectory} config={config} url={url} login={login} password={password} />
+              <EDLFW_Files_Listing directoryToList={actualDirectory} config={config} url={url} login={login} password={password} term={config.term} />
             </tbody>
           </table>
         </div>
@@ -186,10 +189,11 @@ const EDLFW_Directory_Listing = ( { directoryToList, setActualDirectory, setActu
  * @param url
  * @param login
  * @param password
+ * @param term
  * @returns {*}
  * @constructor
  */
-const EDLFW_Files_Listing = ( { directoryToList, config, url, login, password } ) => {
+const EDLFW_Files_Listing = ( { directoryToList, config, url, login, password, term } ) => {
   return (directoryToList.map( file => {
     if( file.dir ) {
       return '';
