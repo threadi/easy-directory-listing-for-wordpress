@@ -75,3 +75,11 @@
 	.type { width: 24px; }
 	.filepreview { width: 32px }
 }
+
+body.taxonomy-edlfw_archive {
+	#col-left { display: none }
+	#col-right { float: none;width: auto; }
+	#col-right .col-wrap { padding: 0 }
+	.term-slug-wrap, .term-description-wrap { display: none }
+	.term-name-wrap .description { display: none }
+}

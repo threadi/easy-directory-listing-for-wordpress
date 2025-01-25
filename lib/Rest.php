@@ -103,6 +103,21 @@ class Rest {
 		// get params.
 		$params = $request->get_params();
 
+		// get term, if set.
+		$term_id = absint( $params['term'] );
+		if( $term_id > 0 ) {
+			// get the term data.
+			$term_data = Taxonomy::get_instance()->get_entry( $term_id );
+
+			// if term could be loaded, set the credentials.
+			if( ! empty( $term_data ) ) {
+				$params['directory'] = $term_data['directory'];
+				$params['login'] = $term_data['login'];
+				$params['password'] = $term_data['password'];
+				$params['api_key'] = $term_data['api_key'];
+			}
+		}
+
 		// bail if directory param is missing.
 		if ( empty( $params['directory'] ) ) {
 			return array();
@@ -169,6 +184,15 @@ class Rest {
 			return array( 'errors' => $this->get_errors_for_response( $listing_base_object->get_errors() ) );
 		}
 
+		// save the credentials if this is enabled.
+		if( $params['saveCredentials'] ) {
+			// get the taxonomy object.
+			$taxonomy_obj = Taxonomy::get_instance();
+
+			// add the credentials.
+			$taxonomy_obj->add( $listing_base_object->get_name(), $params['directory'], $params['login'], $params['password'], $params['api_key'] );
+		}
+
 		// get the directory listing and collect all files and directories as array.
 		$subs = $listing_base_object->get_directory_listing( $directory );
 
@@ -178,14 +202,9 @@ class Rest {
 				'dir'   => $directory,
 				'title' => basename( $directory ),
 				'count' => count( $subs ),
-				'sub'   => $subs,
+				'sub'   => $subs
 			),
 		);
-
-		// bail if list is empty.
-		if ( empty( $listing ) ) {
-			return array();
-		}
 
 		/**
 		 * Filter the resulting list of files and directories.

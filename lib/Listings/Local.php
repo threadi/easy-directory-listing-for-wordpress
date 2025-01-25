@@ -73,7 +73,7 @@ class Local extends Directory_Listing_Base {
 	public function init(): void {
 		$this->label = __( 'Local server directory' );
 		$this->title = __( 'Choose file from local server directory' );
-		add_filter( 'eml_service_local_hide_file', array( $this, 'hide_files' ), 10, 2 );
+		add_filter( Init::get_instance()->get_prefix() . '_service_local_hide_file', array( $this, 'hide_files' ), 10, 2 );
 	}
 
 	/**
@@ -128,7 +128,7 @@ class Local extends Directory_Listing_Base {
 			 *
 			 * @noinspection PhpConditionAlreadyCheckedInspection
 			 */
-			if ( apply_filters( 'eml_service_local_hide_file', $false, $filename, $directory ) ) {
+			if ( apply_filters( Init::get_instance()->get_prefix() . '_service_local_hide_file', $false, $filename, $directory ) ) {
 				continue;
 			}
 

@@ -84,4 +84,46 @@ class Directory_Listings {
 		 */
 		return apply_filters( Init::get_instance()->get_prefix() . '_directory_listing_objects', $list );
 	}
+
+	/**
+	 * Return a directory listing object by its name.
+	 *
+	 * @param string $name
+	 *
+	 * @return false|Directory_Listing_Base
+	 */
+	public function get_directory_listing_object_by_name( string $name ): false|Directory_Listing_Base {
+		// get the possible listing objects.
+		foreach ( $this->get_directory_listings_objects() as $obj ) {
+			// bail if object is not a listing object.
+			if ( ! $obj instanceof Directory_Listing_Base ) {
+				continue;
+			}
+
+			// bail if name does not match.
+			if( $name !== $obj->get_name() ) {
+				continue;
+			}
+
+			// return this object as result.
+			return $obj;
+		}
+
+		// return false if no object could be found.
+		return false;
+	}
+
+	/**
+	 * Return the archive URL for our taxonomy.
+	 *
+	 * @return string
+	 */
+	public function get_directory_archive_url(): string {
+		return add_query_arg(
+			array(
+				'taxonomy' => Taxonomy::get_instance()->get_name()
+			),
+			get_admin_url() . 'edit-tags.php'
+		);
+	}
 }
