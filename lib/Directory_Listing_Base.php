@@ -325,7 +325,7 @@ class Directory_Listing_Base {
 	 *
 	 * @return void
 	 */
-	protected function add_error( WP_Error $error ): void {
+	public function add_error( WP_Error $error ): void {
 		$this->errors[] = $error;
 	}
 
