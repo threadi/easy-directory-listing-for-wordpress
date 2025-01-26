@@ -10,6 +10,7 @@ import { Button } from '@wordpress/components';
 import { human_file_size } from './helper';
 import {EDLFW_LOGIN_FORM} from "./forms/login_form";
 import {EDLFW_SIMPLE_API_FORM} from "./forms/simple_api";
+import {EDLFW_FILE_FORM} from "./forms/file";
 
 /**
  * Define the Easy Directory Listing for WordPress.
@@ -48,7 +49,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
   }
 
   // enable listing if login and API should not be requested.
-  if( ! enabled && ! config.requires_login && ! config.requires_simple_api && ! errors ) {
+  if( ! enabled && ! config.requires_login && ! config.requires_simple_api && ! errors && config.directory ) {
     setUrl( config.directory );
     setEnabled( true );
   }
@@ -91,6 +92,14 @@ const EDLFW_Directory_Viewer = ( props ) => {
     return (
       <>
         <EDLFW_SIMPLE_API_FORM errors={errors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
+      </>)
+  }
+
+  // show simple directory form.
+  if( ! enabled && ! config.directory && ! config.term ) {
+    return (
+      <>
+        <EDLFW_FILE_FORM errors={errors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
       </>)
   }
 

@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.0.2] - 26.01.2025
+
+### Added
+
+- Added form for simple URL input
+
+### Optimized
+
+- Optimized some code fragments
+
 ## [2.0.1] - 25.01.2025
 
 ### Optimized

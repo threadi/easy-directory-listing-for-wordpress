@@ -104,7 +104,7 @@ class Rest {
 		$params = $request->get_params();
 
 		// get term, if set.
-		$term_id = absint( $params['term'] );
+		$term_id = ! empty( $params['term'] ) ? absint( $params['term'] ) : 0;
 		if( $term_id > 0 ) {
 			// get the term data.
 			$term_data = Taxonomy::get_instance()->get_entry( $term_id );
@@ -195,6 +195,17 @@ class Rest {
 
 		// get the directory listing and collect all files and directories as array.
 		$subs = $listing_base_object->get_directory_listing( $directory );
+
+		// bail if nothing could be loaded.
+		if( empty( $subs ) ) {
+			// create error object.
+			$error = new WP_Error();
+			$error->add( 'empty_directory', __( 'Loaded an empty directory.' ) );
+			$listing_base_object->add_error( $error );
+
+			// return the list of errors.
+			return array( 'errors' => $this->get_errors_for_response( $listing_base_object->get_errors() ) );
+		}
 
 		// build basic return array.
 		$listing = array(
