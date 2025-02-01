@@ -1,7 +1,6 @@
 /**
  * Import dependencies.
  */
-const { __ } = wp.i18n;
 import {
   Button,
   __experimentalInputControl as InputControl
@@ -33,10 +32,11 @@ export const EDLFW_FILE_FORM = ( { errors, setEnabled, url, setUrl } ) => {
 
   return (
     <>
-      <h2>{__( 'Enter the path to a local file' )}</h2>
+      <h2>{edlfwJsVars.form_file.title}</h2>
+      {edlfwJsVars.form_file.description.length > 0 && <p>{edlfwJsVars.form_file.description}</p>}
       {errors && <EDLFW_ERRORS errors={errors}/>}
-      <InputControl label={__( 'File' )} value={url} onChange={(value) => setUrl( value )}/>
-      <Button variant="primary" onClick={() => do_login()}>Use file</Button>
+      <InputControl label={edlfwJsVars.form_file.url.label} value={url} onChange={(value) => setUrl( value )}/>
+      <Button variant="primary" onClick={() => do_login()} disabled={ url.length === 0 }>{edlfwJsVars.form_file.button.label}</Button>
     </>
   )
 }

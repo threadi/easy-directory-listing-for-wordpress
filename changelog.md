@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.1.0] - 01.02.2025
+
+## Added
+
+- All texts are now translatable by the WordPress-plugin which uses this package via set_translations() on Init-object
+
+## Optimized
+
+- Button to submit is active if all fields are filled
+- Directory archive can now be disabled
+
 ## [2.0.2] - 26.01.2025
 
 ### Added

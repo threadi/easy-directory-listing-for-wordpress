@@ -8,9 +8,9 @@
 namespace easyDirectoryListingForWordPress;
 
 // prevent direct access.
-use easyDirectoryListingForWordPress\Listings\Local;
-
 defined( 'ABSPATH' ) || exit;
+
+use easyDirectoryListingForWordPress\Listings\Local;
 
 /**
  * Object to handle the supported directory listing objects.

@@ -71,6 +71,27 @@ class Init {
 	private static ?Init $instance = null;
 
 	/**
+	 * List of translations this package delivers.
+	 *
+	 * @var array
+	 */
+	private array $translations = array();
+
+	/**
+	 * List of custom translations the calling plugin uses.
+	 *
+	 * @var array
+	 */
+	private array $custom_translations = array();
+
+	/**
+	 * The archive state (true to enable it, false to disable it).
+	 * 
+	 * @var bool 
+	 */
+	private bool $archive_state = true;
+
+	/**
 	 * Constructor, not used as this a Singleton object.
 	 */
 	private function __construct() {}
@@ -215,8 +236,11 @@ class Init {
 		wp_localize_script(
 			'easy-directory-listing-for-wordpress',
 			'edlfwJsVars',
-			array(
-				'get_directory_endpoint' => str_replace( '/wp-json/', '', $endpoint_parsed_url['path'] ),
+			array_merge(
+				array(
+					'get_directory_endpoint' => str_replace( '/wp-json/', '', $endpoint_parsed_url['path'] ),
+				),
+				$this->get_translations()
 			)
 		);
 	}
@@ -319,5 +343,142 @@ class Init {
 	 */
 	public function set_menu_slug( string $menu_slug ): void {
 		$this->menu_slug = $menu_slug;
+	}
+
+	/**
+	 * Set all basic translations.
+	 *
+	 * @return void
+	 */
+	private function get_basic_translations(): void {
+		$this->translations = array(
+			'is_loading' => 'Please wait, list is loading.',
+			'could_not_load' => 'Directory could not be loaded.',
+			'reload' => 'Reload',
+			'import_directory' => 'Import active directory',
+			'actions'          => 'Actions',
+			'filename'         => 'Filename',
+			'filesize'         => 'Size',
+			'date'             => 'Date',
+			'config_missing' => 'Configuration for Directory Listing missing!',
+			'nonce_missing' => 'Secure token for Directory Listing missing!',
+			'empty_directory' => 'Loaded an empty directory.',
+			'error_title' => 'The following error occurred:',
+			'errors_title' => 'The following errors occurred:',
+			'directory_archive' => array(
+				'connect_now' => 'Connect now',
+				'labels' => array(
+					'name'          => 'Directory Credentials',
+					'singular_name' => 'Directory Credential',
+					'search_items'  => 'Search Directory Credential',
+					'edit_item'     => 'Edit Directory Credential',
+					'update_item'   => 'Update Directory Credential',
+					'menu_name'     => 'Directory Credentials',
+				),
+				'type' => 'Type',
+				'connect' => 'Connect',
+				'type_not_loaded' => 'Type could not be loaded!',
+				'login' => 'Login',
+				'password' => 'Password',
+				'api_key' => 'API Key',
+			),
+			'form_file' => array(
+				'title' => 'Enter the path to a local file',
+				'description' => '',
+				'url' => array(
+					'label' => 'File',
+				),
+				'button' => array(
+					'label' => 'Show file'
+				)
+			),
+			'form_api' => array(
+				'title' => 'Enter your credentials',
+				'description' => '',
+				'url' => array(
+					'label' => 'Login',
+				),
+				'key' => array(
+					'label' => 'Password',
+				),
+				'save_credentials' => array(
+					'label' => 'Save this credentials in directory archive'
+				),
+				'button' => array(
+					'label' => 'Show directory',
+				),
+			),
+			'form_login' => array(
+				'title' => 'Enter your credentials',
+				'description' => '',
+				'url' => array(
+					'label' => 'URL',
+				),
+				'login' => array(
+					'label' => 'Login',
+				),
+				'password' => array(
+					'label' => 'Password',
+				),
+				'save_credentials' => array(
+					'label' => 'Save this credentials in directory archive'
+				),
+				'button' => array(
+					'label' => 'Show directory',
+				),
+			),
+			'services' => array(
+				'local' => array(
+					'label' => 'Local server directory',
+					'title' => 'Choose file from local server directory'
+				)
+			)
+		);
+	}
+
+	/**
+	 * Return the translations for this listing.
+	 *
+	 * @return array
+	 */
+	public function get_translations(): array {
+		if( empty( $this->translations ) ) {
+			// initialize all basic translations.
+			$this->get_basic_translations();
+		}
+
+		// return the translations as mix of basic and custom translations.
+		return array_replace_recursive( $this->translations, $this->custom_translations );
+	}
+
+	/**
+	 * Set custom translations.
+	 *
+	 * @param array $translations List of translations.
+	 *
+	 * @return void
+	 */
+	public function set_translations( array $translations ): void {
+		$this->custom_translations = $translations;
+	}
+
+	/**
+	 * Return the state of the archive.
+	 * 
+	 * @return bool
+	 */
+	public function is_archive_enabled(): bool {
+		return $this->archive_state;
+	}
+	
+	/**
+	 * Set archive state.
+	 * 
+	 * @param bool $archive_state The new state of the archive.
+	 *
+	 * @return void
+	 */
+	public function set_archive_state( bool $archive_state ): void {
+		$this->archive_state = $archive_state;
 	}
 }

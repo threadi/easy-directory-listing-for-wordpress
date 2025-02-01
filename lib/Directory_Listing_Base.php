@@ -226,24 +226,6 @@ class Directory_Listing_Base {
 	}
 
 	/**
-	 * Return translatable labels.
-	 *
-	 * @return array
-	 */
-	public function get_i18n(): array {
-		return array(
-			'is_loading'       => __( 'Please wait, list is loading.' ),
-			'could_not_load'   => __( 'Directory could not be loaded.' ),
-			'reload'           => __( 'Reload' ),
-			'import_directory' => __( 'Import active directory' ),
-			'actions'          => __( 'Actions' ),
-			'filename'         => __( 'Filename' ),
-			'filesize'         => __( 'Size', ),
-			'date'             => __( 'Date' ),
-		);
-	}
-
-	/**
 	 * Return config for display of listing in backend.
 	 *
 	 * @return array
@@ -254,10 +236,10 @@ class Directory_Listing_Base {
 			'listing_base_object_name' => $this->get_name(),
 			'requires_login'           => $this->is_login_required(),
 			'requires_simple_api'      => $this->is_simple_api_required(),
-			'i18n'                     => $this->get_i18n(),
 			'nonce'                    => wp_create_nonce( $this->get_nonce_name() ),
 			'actions'                  => $this->get_actions(),
 			'global_actions'           => $this->get_global_actions(),
+			'archive' => Init::get_instance()->is_archive_enabled(),
 		);
 	}
 
@@ -280,7 +262,7 @@ class Directory_Listing_Base {
 			$this->global_actions = array(
 				array(
 					'action' => 'setActualDirectory(false);directoryListing(false);',
-					'label'  => __( 'Reload' ),
+					'label'  => Init::get_instance()->get_translations()['reload'],
 				),
 			);
 		}

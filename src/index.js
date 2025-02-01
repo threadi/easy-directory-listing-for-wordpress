@@ -1,7 +1,6 @@
 /**
  * Embed necessary dependencies.
  */
-const { __ } = wp.i18n;
 import './style.scss';
 import { render } from "react-dom";
 import { useState, useEffect } from "@wordpress/element"
@@ -40,12 +39,12 @@ const EDLFW_Directory_Viewer = ( props ) => {
 
   // bail if no configuration is set.
   if (!config) {
-    return (<><p>{__( 'Configuration for Directory Listing missing!' )}</p></>)
+    return (<><p>{edlfwJsVars.config_missing}</p></>)
   }
 
   // bail if nonce is missing
   if (!config.nonce) {
-    return (<><p>{__( 'Secure token for Directory Listing missing!' )}</p></>)
+    return (<><p>{edlfwJsVars.nonce_missing}</p></>)
   }
 
   // enable listing if login and API should not be requested.
@@ -83,7 +82,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
   if( ! enabled && config.requires_login && ! config.term ) {
     return (
       <>
-        <EDLFW_LOGIN_FORM errors={errors} url={url} setUrl={setUrl} login={login} setLogin={setLogin} password={password} setPassword={setPassword} setEnabled={setEnabled} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
+        <EDLFW_LOGIN_FORM config={config} errors={errors} url={url} setUrl={setUrl} login={login} setLogin={setLogin} password={password} setPassword={setPassword} setEnabled={setEnabled} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
       </>)
   }
 
@@ -91,7 +90,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
   if( ! enabled && config.requires_simple_api && ! config.term ) {
     return (
       <>
-        <EDLFW_SIMPLE_API_FORM errors={errors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
+        <EDLFW_SIMPLE_API_FORM config={config} errors={errors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
       </>)
   }
 
@@ -106,14 +105,14 @@ const EDLFW_Directory_Viewer = ( props ) => {
   // bail if directory listing is empty (we assume it is still loading).
   if( !directoryListing || 0 === directoryListing.length ) {
     return (
-      <p>{ config.i18n.is_loading }</p>
+      <p>{ edlfwJsVars.is_loading }</p>
     )
   }
 
   // bail if no parent directory could be loaded.
   if( ! directoryListing[0] ) {
     return (
-      <p>{ config.i18n.could_not_load }</p>
+      <p>{ edlfwJsVars.could_not_load }</p>
     )
   }
 
@@ -139,12 +138,12 @@ const EDLFW_Directory_Viewer = ( props ) => {
           <table>
             <thead>
             <tr>
-              <th className="actions">{config.i18n.actions}</th>
+              <th className="actions">{edlfwJsVars.actions}</th>
               <th className="filepreview">&nbsp;</th>
-              <th className="filename">{config.i18n.filename}</th>
-              <th className="date">{config.i18n.date}</th>
+              <th className="filename">{edlfwJsVars.filename}</th>
+              <th className="date">{edlfwJsVars.date}</th>
               <th className="type">&nbsp;</th>
-              <th className="filesize">{config.i18n.filesize}</th>
+              <th className="filesize">{edlfwJsVars.filesize}</th>
             </tr>
             </thead>
             <tbody>

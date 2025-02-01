@@ -71,8 +71,8 @@ class Local extends Directory_Listing_Base {
 	 * @return void
 	 */
 	public function init(): void {
-		$this->label = __( 'Local server directory' );
-		$this->title = __( 'Choose file from local server directory' );
+		$this->label = Init::get_instance()->get_translations()['services']['local']['label'];
+		$this->title = Init::get_instance()->get_translations()['services']['local']['title'];
 		add_filter( Init::get_instance()->get_prefix() . '_service_local_hide_file', array( $this, 'hide_files' ), 10, 2 );
 	}
 
