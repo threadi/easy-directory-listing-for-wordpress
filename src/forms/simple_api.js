@@ -1,7 +1,6 @@
 /**
  * Import dependencies.
  */
-const { __ } = wp.i18n;
 import {
   Button,
   ToggleControl,
@@ -21,7 +20,7 @@ import {EDLFW_ERRORS} from "../errors";
  * @returns {JSX.Element}
  * @constructor
  */
-export const EDLFW_SIMPLE_API_FORM = ( { errors, apiKey, setApiKey, setEnabled, url, setUrl, saveCredentials, setSaveCredentials } ) => {
+export const EDLFW_SIMPLE_API_FORM = ( { config, errors, apiKey, setApiKey, setEnabled, url, setUrl, saveCredentials, setSaveCredentials } ) => {
   /**
    * Handle the login itself.
    */
@@ -37,19 +36,20 @@ export const EDLFW_SIMPLE_API_FORM = ( { errors, apiKey, setApiKey, setEnabled, 
 
   return (
     <>
-      <h2>{__( 'Enter your API key' )}</h2>
+      <h2>{edlfwJsVars.form_api.title}</h2>
+      {edlfwJsVars.form_api.description.length > 0 && <p>{edlfwJsVars.form_api.description}</p>}
       {errors && <EDLFW_ERRORS errors={errors}/>}
-      <InputControl label={__( 'ID' )} value={url} onChange={(value) => setUrl( value )}/>
-      <InputControl label={__( 'Key' )} value={apiKey} onChange={(value) => setApiKey( value )}/>
-      <ToggleControl
+      <InputControl label={edlfwJsVars.form_api.url.label} value={url} onChange={(value) => setUrl( value )}/>
+      <InputControl label={edlfwJsVars.form_api.key.label} value={apiKey} onChange={(value) => setApiKey( value )}/>
+      {config.archive && <ToggleControl
         __nextHasNoMarginBottom
-        label={__( 'Save this credentials in directory archive' )}
+        label={edlfwJsVars.form_api.save_credentials.label}
         checked={ saveCredentials }
         onChange={ (newValue) => {
           setSaveCredentials( newValue );
         } }
-      />
-      <Button variant="primary" onClick={() => do_login()}>Show directory</Button>
+      />}
+      <Button variant="primary" onClick={() => do_login()} disabled={ url.length === 0 || apiKey.length === 0 }>{edlfwJsVars.form_api.button.label}</Button>
     </>
   )
 }

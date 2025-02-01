@@ -1,7 +1,6 @@
 /**
  * Import dependencies.
  */
-const { __ } = wp.i18n;
 import {
   Button,
   ToggleControl,
@@ -25,7 +24,7 @@ import {EDLFW_ERRORS} from "../errors";
  * @returns {JSX.Element}
  * @constructor
  */
-export const EDLFW_LOGIN_FORM = ( { errors, url, setUrl, login, setLogin, password, setPassword, setEnabled, saveCredentials, setSaveCredentials } ) => {
+export const EDLFW_LOGIN_FORM = ( { config, errors, url, setUrl, login, setLogin, password, setPassword, setEnabled, saveCredentials, setSaveCredentials } ) => {
   /**
    * Handle the login itself.
    */
@@ -41,20 +40,21 @@ export const EDLFW_LOGIN_FORM = ( { errors, url, setUrl, login, setLogin, passwo
 
   return (
     <>
-      <h2>{__( 'Enter your credentials' )}</h2>
+      <h2>{edlfwJsVars.form_login.title}</h2>
+      {edlfwJsVars.form_login.description.length > 0 && <p>{edlfwJsVars.form_login.description}</p>}
       {errors && <EDLFW_ERRORS errors={errors}/>}
-      <InputControl label={__( 'URL' )} value={url} onChange={(value) => setUrl( value )}/>
-      <InputControl label={__( 'Login' )} value={login} onChange={(value) => setLogin( value )}/>
-      <InputControl label={__( 'Password' )} type={"password"} value={password} onChange={(value) => setPassword( value )}/>
-      <ToggleControl
+      <InputControl label={edlfwJsVars.form_login.url.label} value={url} onChange={(value) => setUrl( value )}/>
+      <InputControl label={edlfwJsVars.form_login.login.label} value={login} onChange={(value) => setLogin( value )}/>
+      <InputControl label={edlfwJsVars.form_login.password.label} type={"password"} value={password} onChange={(value) => setPassword( value )}/>
+      {config.archive && <ToggleControl
         __nextHasNoMarginBottom
-        label={__( 'Save this credentials in directory archive' )}
+        label={edlfwJsVars.form_login.save_credentials.label}
         checked={ saveCredentials }
         onChange={ (newValue) => {
           setSaveCredentials( newValue );
         } }
-      />
-      <Button __next40pxDefaultSize variant="primary" onClick={() => do_login()}>Show directory</Button>
+      />}
+      <Button __next40pxDefaultSize variant="primary" onClick={() => do_login()} disabled={ url.length === 0 || login.length === 0 || password.length === 0 }>{edlfwJsVars.form_login.button.label}</Button>
     </>
   )
 }

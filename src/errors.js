@@ -13,7 +13,7 @@ export const EDLFW_ERRORS = ( { errors } ) => {
   return (
     <>
       <div className="errors">
-        <p><strong>{_n( 'The following error occurred:', 'The following errors occurred:', errors.length )}</strong></p>
+        <p><strong>{errors.length === 1 && edlfwJsVars.error_title}{errors.length > 1 && edlfwJsVars.errors_title}</strong></p>
         <ul>
         {errors.map( error => {
           return <li>{error}</li>

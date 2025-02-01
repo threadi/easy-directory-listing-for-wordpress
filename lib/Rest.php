@@ -200,7 +200,7 @@ class Rest {
 		if( empty( $subs ) ) {
 			// create error object.
 			$error = new WP_Error();
-			$error->add( 'empty_directory', __( 'Loaded an empty directory.' ) );
+			$error->add( 'empty_directory', Init::get_instance()->get_translations()['empty_directory'] );
 			$listing_base_object->add_error( $error );
 
 			// return the list of errors.

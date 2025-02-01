@@ -88,15 +88,8 @@ class Taxonomy {
 	 * @return void
 	 */
 	public function register(): void {
-		// set labels for the taxonomy.
-		$labels = array(
-			'name'          => _x( 'Directory Credentials', 'taxonomy general name' ),
-			'singular_name' => _x( 'Directory Credential', 'taxonomy singular name' ),
-			'search_items'  => __( 'Search Directory Credential' ),
-			'edit_item'     => __( 'Edit Directory Credential' ),
-			'update_item'   => __( 'Update Directory Credential' ),
-			'menu_name'     => __( 'Directory Credentials' ),
-		);
+		// get the translation list.
+		$labels = Init::get_instance()->get_translations()['directory_archive']['labels'];
 
 		// set configuration for this taxonomy.
 		$configuration = array(
@@ -156,7 +149,7 @@ class Taxonomy {
 			);
 
 			// return the connect link.
-			return '<a href="' . esc_url( $url ) . '" style="font-weight: bold">' . __( 'Connect now' ) . '</a>';
+			return '<a href="' . esc_url( $url ) . '" style="font-weight: bold">' . Init::get_instance()->get_translations()['directory_archive']['connect_now'] . '</a>';
 		}
 
 		// return the content.
@@ -187,10 +180,13 @@ class Taxonomy {
 			return $new_actions;
 		}
 
+		// get init object.
+		$init_obj = Init::get_instance();
+
 		// create URL to connect via click.
 		$url = add_query_arg(
 			array(
-				'page' => Init::get_instance()->get_menu_slug(),
+				'page' => $init_obj->get_menu_slug(),
 				'method' => $listing_obj->get_name(),
 				'term' => $term->term_id
 			),
@@ -198,7 +194,7 @@ class Taxonomy {
 		);
 
 		// add connect action.
-		$new_actions['connect'] = '<a href="' . esc_url( $url ) . '" style="font-weight: bold">' . __( 'Connect now' ) . '</a>';
+		$new_actions['connect'] = '<a href="' . esc_url( $url ) . '" style="font-weight: bold">' . $init_obj->get_translations()['directory_archive']['connect_now'] . '</a>';
 
 		// return resulting list of actions.
 		return $new_actions;
@@ -212,11 +208,15 @@ class Taxonomy {
 	 * @return array
 	 */
 	public function set_table_columns( array $columns ): array {
+		// get translations.
+		$translations = Init::get_instance()->get_translations()['directory_archive'];
+
+		// set our columns.
 		$new_columns = array();
 		$new_columns['cb'] = $columns['cb'];
 		$new_columns['name'] = $columns['name'];
-		$new_columns['type'] = __( 'Type' );
-		$new_columns['connect'] = __( 'Connect' );
+		$new_columns['type'] = $translations['type'];
+		$new_columns['connect'] = $translations['connect'];
 		return $new_columns;
 	}
 
@@ -300,13 +300,16 @@ class Taxonomy {
 		// get the type object.
 		$listing_obj = Directory_Listings::get_instance()->get_directory_listing_object_by_name( $type );
 
+		// get translations.
+		$translations = Init::get_instance()->get_translations()['directory_archive'];
+
 		// if no object could be found, show hint.
 		if( ! $listing_obj ) {
 			?>
 			<tr class="form-field">
-				<th scope="row"><label for="edlfw-type"><?php echo esc_html__( 'Type' ); ?></label></th>
+				<th scope="row"><label for="edlfw-type"><?php echo esc_html( $translations['type'] ); ?></label></th>
 				<td>
-					<p><strong><?php echo esc_html__( 'Type could not be loaded!' ); ?></strong></p>
+					<p><strong><?php echo esc_html( $translations['type_not_loaded'] ); ?></strong></p>
 				</td>
 			</tr>
 			<?php
@@ -316,25 +319,25 @@ class Taxonomy {
 		// output.
 		?>
 		<tr class="form-field">
-			<th scope="row"><label for="edlfw-type"><?php echo esc_html__( 'Type' ); ?></label></th>
+			<th scope="row"><label for="edlfw-type"><?php echo esc_html( $translations['type'] ); ?></label></th>
 			<td>
 				<?php echo esc_html( $listing_obj->get_label() ); ?>
 			</td>
 		</tr>
 		<tr class="form-field">
-			<th scope="row"><label for="edlfw-login"><?php echo esc_html__( 'Login' ); ?></label></th>
+			<th scope="row"><label for="edlfw-login"><?php echo esc_html( $translations['login'] ); ?></label></th>
 			<td>
 				<input type="text" id="edlfw-login" name="login" value="<?php echo esc_attr( $login ); ?>">
 			</td>
 		</tr>
 		<tr class="form-field">
-			<th scope="row"><label for="edlfw-password"><?php echo esc_html__( 'Password' ); ?></label></th>
+			<th scope="row"><label for="edlfw-password"><?php echo esc_html( $translations['password'] ); ?></label></th>
 			<td>
 				<input type="password" id="edlfw-password" name="password" value="<?php echo esc_attr( $password ); ?>">
 			</td>
 		</tr>
 		<tr class="form-field">
-			<th scope="row"><label for="edlfw-api_key"><?php echo esc_html__( 'API Key' ); ?></label></th>
+			<th scope="row"><label for="edlfw-api_key"><?php echo esc_html( $translations['api_key'] ); ?></label></th>
 			<td>
 				<input type="password" id="edlfw-api_key" name="api_key" value="<?php echo esc_attr( $api_key ); ?>">
 			</td>
