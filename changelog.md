@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.1.1] - 02.02.2025
+
+## Added
+
+- Added taxonomy status messages
+
+## Optimized
+
+- Optimized error handling if using directory archives
+
 ## [2.1.0] - 01.02.2025
 
 ## Added
