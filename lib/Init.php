@@ -230,7 +230,10 @@ class Init {
 		);
 
 		// get parsed endpoint URL.
-		$endpoint_parsed_url = wp_parse_url( rest_url( 'easy-directory-listing-for-wordpress/v1/directory' ) );
+		$rest_url = rest_url( 'easy-directory-listing-for-wordpress/v1/directory' );
+
+		// remove domain and /wp-json/ from URL.
+		$rest_url = str_replace( trailingslashit( get_option( 'siteurl' ) ) . 'wp-json', '', $rest_url );
 
 		// add php-vars to our js-script.
 		wp_localize_script(
@@ -238,7 +241,7 @@ class Init {
 			'edlfwJsVars',
 			array_merge(
 				array(
-					'get_directory_endpoint' => str_replace( '/wp-json/', '', $endpoint_parsed_url['path'] ),
+					'get_directory_endpoint' => $rest_url,
 				),
 				$this->get_translations()
 			)
