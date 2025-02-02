@@ -71,6 +71,8 @@ class Taxonomy {
 		add_action( $this->get_name() . '_edit_form_fields', array( $this, 'set_fields' ) );
 		add_action( 'edit_term', array( $this, 'save_fields' ), 10, 3 );
 
+		// add filter.
+		add_filter( 'term_updated_messages', array( $this, 'add_custom_updated_messages' ) );
 	}
 
 	/**
@@ -208,6 +210,11 @@ class Taxonomy {
 	 * @return array
 	 */
 	public function set_table_columns( array $columns ): array {
+		// bail if list is empty.
+		if( empty( $columns ) ) {
+			return array();
+		}
+
 		// get translations.
 		$translations = Init::get_instance()->get_translations()['directory_archive'];
 
@@ -217,6 +224,8 @@ class Taxonomy {
 		$new_columns['name'] = $columns['name'];
 		$new_columns['type'] = $translations['type'];
 		$new_columns['connect'] = $translations['connect'];
+
+		// return resulting columns.
 		return $new_columns;
 	}
 
@@ -404,5 +413,25 @@ class Taxonomy {
 
 		// cleanup options.
 		delete_option( $this->get_name() . '_children' );
+	}
+
+	/**
+	 * Add custom updated messages.
+	 *
+	 * @param array $messages List of messages.
+	 *
+	 * @return array
+	 */
+	public function add_custom_updated_messages( array $messages ): array {
+		// get translations.
+		$translations = Init::get_instance()->get_translations()['directory_archive']['messages'];
+
+		$messages[$this->get_name()] = array(
+			2 => $translations['deleted'],
+			3 => $translations['updated'],
+		);
+
+		// return resulting list.
+		return $messages;
 	}
 }

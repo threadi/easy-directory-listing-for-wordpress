@@ -86,8 +86,8 @@ class Init {
 
 	/**
 	 * The archive state (true to enable it, false to disable it).
-	 * 
-	 * @var bool 
+	 *
+	 * @var bool
 	 */
 	private bool $archive_state = true;
 
@@ -365,8 +365,9 @@ class Init {
 			'empty_directory' => 'Loaded an empty directory.',
 			'error_title' => 'The following error occurred:',
 			'errors_title' => 'The following errors occurred:',
+			'serverside_error' => 'Incorrect response received from the server, possibly a server-side error.',
 			'directory_archive' => array(
-				'connect_now' => 'Connect now',
+				'connect_now' => 'Open now',
 				'labels' => array(
 					'name'          => 'Directory Credentials',
 					'singular_name' => 'Directory Credential',
@@ -374,6 +375,11 @@ class Init {
 					'edit_item'     => 'Edit Directory Credential',
 					'update_item'   => 'Update Directory Credential',
 					'menu_name'     => 'Directory Credentials',
+					'back_to_items' => 'Back to Directory Credentials'
+				),
+				'messages' => array(
+					'updated' => 'Directory Credential updated.',
+					'deleted' => 'Directory Credential deleted.',
 				),
 				'type' => 'Type',
 				'connect' => 'Connect',
@@ -464,16 +470,16 @@ class Init {
 
 	/**
 	 * Return the state of the archive.
-	 * 
+	 *
 	 * @return bool
 	 */
 	public function is_archive_enabled(): bool {
 		return $this->archive_state;
 	}
-	
+
 	/**
 	 * Set archive state.
-	 * 
+	 *
 	 * @param bool $archive_state The new state of the archive.
 	 *
 	 * @return void

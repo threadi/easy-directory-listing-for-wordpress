@@ -47,6 +47,11 @@ const EDLFW_Directory_Viewer = ( props ) => {
     return (<><p>{edlfwJsVars.nonce_missing}</p></>)
   }
 
+  // if error occurred reset the term.
+  if( errors ) {
+    config.term = false;
+  }
+
   // enable listing if login and API should not be requested.
   if( ! enabled && ! config.requires_login && ! config.requires_simple_api && ! errors && config.directory ) {
     setUrl( config.directory );
@@ -75,6 +80,12 @@ const EDLFW_Directory_Viewer = ( props ) => {
         setDirectoryListing( directoryListingFromResponse );
         setErrors( false );
       }
+    } ).catch( ( err ) => {
+      let fetch_errors = new Array();
+      fetch_errors.push( edlfwJsVars.serverside_error );
+      fetch_errors.push( err.message );
+      setErrors( fetch_errors );
+      setEnabled( false );
     } );
   }, [actualDirectory, enabled] );
 
@@ -105,14 +116,14 @@ const EDLFW_Directory_Viewer = ( props ) => {
   // bail if directory listing is empty (we assume it is still loading).
   if( !directoryListing || 0 === directoryListing.length ) {
     return (
-      <p>{ edlfwJsVars.is_loading }</p>
+      <p className="is-loading">{ edlfwJsVars.is_loading }</p>
     )
   }
 
   // bail if no parent directory could be loaded.
   if( ! directoryListing[0] ) {
     return (
-      <p>{ edlfwJsVars.could_not_load }</p>
+      <p className="not-loaded">{ edlfwJsVars.could_not_load }</p>
     )
   }
 
