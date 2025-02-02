@@ -1,22 +1,28 @@
 # Changelog
 
+## [2.1.2] - 02.02.2025
+
+### Fixed
+
+- Fixed REST URL handling
+
 ## [2.1.1] - 02.02.2025
 
-## Added
+### Added
 
 - Added taxonomy status messages
 
-## Optimized
+### Optimized
 
 - Optimized error handling if using directory archives
 
 ## [2.1.0] - 01.02.2025
 
-## Added
+### Added
 
 - All texts are now translatable by the WordPress-plugin which uses this package via set_translations() on Init-object
 
-## Optimized
+### Optimized
 
 - Button to submit is active if all fields are filled
 - Directory archive can now be disabled
