@@ -38,6 +38,13 @@ class Directory_Listing_Base {
 	protected string $title = '';
 
 	/**
+	 * The public description.
+	 * 
+	 * @var string 
+	 */
+	protected string $description = '';
+
+	/**
 	 * Marker if login (with login and password) is required.
 	 *
 	 * @var bool
@@ -318,5 +325,23 @@ class Directory_Listing_Base {
 	 */
 	public function get_errors(): array {
 		return $this->errors;
+	}
+
+	/**
+	 * Return whether this listing object is disabled.
+	 * 
+	 * @return bool
+	 */
+	public function is_disabled(): bool {
+		return false;
+	}
+
+	/**
+	 * Return the description for this listing object.
+	 * 
+	 * @return string
+	 */
+	public function get_description(): string {
+		return $this->description;
 	}
 }
