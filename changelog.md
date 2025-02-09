@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.2.0] - 09.02.2025
+
+### Added
+
+- Added description for each listing object
+- Added possibility to disable a listing object
+
+### Optimized
+
+- Output of errors optimized
+
 ## [2.1.2] - 02.02.2025
 
 ### Fixed

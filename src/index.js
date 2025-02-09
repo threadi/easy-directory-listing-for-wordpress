@@ -10,6 +10,7 @@ import { human_file_size } from './helper';
 import {EDLFW_LOGIN_FORM} from "./forms/login_form";
 import {EDLFW_SIMPLE_API_FORM} from "./forms/simple_api";
 import {EDLFW_FILE_FORM} from "./forms/file";
+import {EDLFW_ERRORS} from "./errors";
 
 /**
  * Define the Easy Directory Listing for WordPress.
@@ -111,6 +112,13 @@ const EDLFW_Directory_Viewer = ( props ) => {
       <>
         <EDLFW_FILE_FORM errors={errors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
       </>)
+  }
+
+  // show errors.
+  if( errors ) {
+    return (
+      <EDLFW_ERRORS errors={errors}/>
+    )
   }
 
   // bail if directory listing is empty (we assume it is still loading).
