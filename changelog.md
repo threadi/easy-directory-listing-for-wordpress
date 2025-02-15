@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.2.1] - 15.02.2025
+
+### Optimized
+
+- Changed table style to WP default tables
+
+### Fixed
+
+- Fixed error on reload of local listing
+
 ## [2.2.0] - 09.02.2025
 
 ### Added
