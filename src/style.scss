@@ -58,19 +58,6 @@
 }
 
 #easy-directory-listing-for-wordpress-details table {
-	border-collapse: collapse;
-	table-layout: fixed;
-	width: 100%;
-
-	th, td {
-		border: 1px solid #ccc;
-		padding: 4px 8px;
-	}
-
-	th {
-		text-align: left;
-	}
-
 	.actions { width: 72px }
 	.type { width: 24px; }
 	.filepreview { width: 32px }

@@ -39,8 +39,8 @@ class Directory_Listing_Base {
 
 	/**
 	 * The public description.
-	 * 
-	 * @var string 
+	 *
+	 * @var string
 	 */
 	protected string $description = '';
 
@@ -268,7 +268,7 @@ class Directory_Listing_Base {
 		if ( empty( $this->global_actions ) ) {
 			$this->global_actions = array(
 				array(
-					'action' => 'setActualDirectory(false);directoryListing(false);',
+					'action' => 'setActualDirectory(false);',
 					'label'  => Init::get_instance()->get_translations()['reload'],
 				),
 			);
@@ -329,7 +329,7 @@ class Directory_Listing_Base {
 
 	/**
 	 * Return whether this listing object is disabled.
-	 * 
+	 *
 	 * @return bool
 	 */
 	public function is_disabled(): bool {
@@ -338,7 +338,7 @@ class Directory_Listing_Base {
 
 	/**
 	 * Return the description for this listing object.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function get_description(): string {

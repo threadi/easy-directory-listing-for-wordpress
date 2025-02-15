@@ -154,7 +154,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
           <ul><EDLFW_Directory_Listing directoryToList={directoryListing} setActualDirectory={setActualDirectory} setActualDirectoryPath={setActualDirectoryPath} /></ul>
         </div>
         <div id="easy-directory-listing-for-wordpress-details">
-          <table>
+          <table className="wp-list-table widefat fixed striped table-view-list">
             <thead>
             <tr>
               <th className="actions">{edlfwJsVars.actions}</th>
