@@ -8,9 +8,9 @@
 namespace easyDirectoryListingForWordPress;
 
 // prevent direct access.
-use WP_Error;
-
 defined( 'ABSPATH' ) || exit;
+
+use WP_Error;
 
 /**
  * Object to handle directory listing methods as base-object.
@@ -92,6 +92,13 @@ class Directory_Listing_Base {
 	 * @var array
 	 */
 	protected array $errors = array();
+
+    /**
+     * List of actions for each file.
+     *
+     * @var array
+     */
+    protected array $actions = array();
 
 	/**
 	 * Initialize this object.
@@ -344,4 +351,15 @@ class Directory_Listing_Base {
 	public function get_description(): string {
 		return $this->description;
 	}
+
+    /**
+     * Set actions.
+     *
+     * @param array<int,array<string,string>> $actions List of actions for each file.
+     *
+     * @return void
+     */
+    public function set_actions( array $actions ): void {
+        $this->actions = $actions;
+    }
 }

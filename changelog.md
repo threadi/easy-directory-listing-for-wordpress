@@ -1,8 +1,14 @@
 # Changelog
 
+## [2.2.2] - 01.05.2025
+
+### Changed
+
+- Moved set_actions() to base object
+
 ## [2.2.1] - 15.02.2025
 
-### Optimized
+### Changed
 
 - Changed table style to WP default tables
 
@@ -17,7 +23,7 @@
 - Added description for each listing object
 - Added possibility to disable a listing object
 
-### Optimized
+### Changed
 
 - Output of errors optimized
 
@@ -33,7 +39,7 @@
 
 - Added taxonomy status messages
 
-### Optimized
+### Changed
 
 - Optimized error handling if using directory archives
 
@@ -43,7 +49,7 @@
 
 - All texts are now translatable by the WordPress-plugin which uses this package via set_translations() on Init-object
 
-### Optimized
+### Changed
 
 - Button to submit is active if all fields are filled
 - Directory archive can now be disabled
@@ -54,13 +60,13 @@
 
 - Added form for simple URL input
 
-### Optimized
+### Changed
 
 - Optimized some code fragments
 
 ## [2.0.1] - 25.01.2025
 
-### Optimized
+### Changed
 
 - Remove terms on uninstallation of plugin which uses this library
 
@@ -71,7 +77,7 @@
 - Added support for directory archives where you can save the credentials of your external connections
 - Added encryption for any credential you enter and save in the directory archive
 
-### Optimized
+### Changed
 
 - Optimized loading times of scripts
 

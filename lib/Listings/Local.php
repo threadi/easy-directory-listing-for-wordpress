@@ -27,13 +27,6 @@ class Local extends Directory_Listing_Base {
 	protected string $name = 'local';
 
 	/**
-	 * List of actions for each file.
-	 *
-	 * @var array
-	 */
-	private array $actions = array();
-
-	/**
 	 * Instance of actual object.
 	 *
 	 * @var ?Local
@@ -250,16 +243,5 @@ class Local extends Directory_Listing_Base {
 	 */
 	public function get_actions(): array {
 		return $this->actions;
-	}
-
-	/**
-	 * Set actions.
-	 *
-	 * @param array $actions List of actions for each file.
-	 *
-	 * @return void
-	 */
-	public function set_actions( array $actions ): void {
-		$this->actions = $actions;
 	}
 }
