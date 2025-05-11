@@ -8,9 +8,9 @@
 namespace easyDirectoryListingForWordPress;
 
 // prevent direct access.
-use WP_Term;
-
 defined( 'ABSPATH' ) || exit;
+
+use WP_Term;
 
 /**
  * Object to handle the taxonomy.
@@ -154,8 +154,14 @@ class Taxonomy {
 			return '<a href="' . esc_url( $url ) . '" style="font-weight: bold">' . Init::get_instance()->get_translations()['directory_archive']['connect_now'] . '</a>';
 		}
 
-		// return the content.
-		return $content;
+        /**
+         * Filter the content.
+         *
+         * @param string $content The content.
+         * @param string $column_name The column name.
+         * @param int $term_id The used term entry.
+         */
+        return apply_filters( Init::get_instance()->get_prefix() . '_directory_listing_column', $content, $column_name, $term_id );
 	}
 
 	/**
@@ -198,8 +204,14 @@ class Taxonomy {
 		// add connect action.
 		$new_actions['connect'] = '<a href="' . esc_url( $url ) . '" style="font-weight: bold">' . $init_obj->get_translations()['directory_archive']['connect_now'] . '</a>';
 
-		// return resulting list of actions.
-		return $new_actions;
+        /**
+         * Filter the possible actions and return them.
+         *
+         * @since 2.3.0 Available since 2.3.0.
+         * @param array<string,string> $new_actions The list of actions.
+         * @param WP_Term $term The used term entry.
+         */
+        return apply_filters( Init::get_instance()->get_prefix() . '_directory_listing_item_actions', $new_actions, $term );
 	}
 
 	/**
@@ -225,8 +237,13 @@ class Taxonomy {
 		$new_columns['type'] = $translations['type'];
 		$new_columns['connect'] = $translations['connect'];
 
-		// return resulting columns.
-		return $new_columns;
+        /**
+         * Filter the possible columns and return them.
+         *
+         * @since 2.3.0 Available since 2.3.0.
+         * @param array<string,string> $new_columns The list of columns.
+         */
+        return apply_filters( Init::get_instance()->get_prefix() . '_directory_listing_columns', $new_columns );
 	}
 
 	/**
