@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.0] - 11.05.2025
+
+### Added
+
+- Added directory listing functions for better individual usage of archive entries
+- Added multiple hooks
+
 ## [2.2.2] - 01.05.2025
 
 ### Changed

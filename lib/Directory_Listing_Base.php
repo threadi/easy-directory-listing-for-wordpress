@@ -362,4 +362,37 @@ class Directory_Listing_Base {
     public function set_actions( array $actions ): void {
         $this->actions = $actions;
     }
+
+    /**
+     * Return the URL. Possibility to complete it depending on listing method.
+     *
+     * @param string $url The given URL.
+     *
+     * @return string
+     */
+    public function get_url( string $url ): string {
+        return $url;
+    }
+
+    /**
+     * Return the login from entry config.
+     *
+     * @param array $config The entry config.
+     *
+     * @return string
+     */
+    public function get_login_from_archive_entry( array $config ): string {
+        return $config['login'];
+    }
+
+    /**
+     * Return the password from entry config.
+     *
+     * @param array $config The entry config.
+     *
+     * @return string
+     */
+    public function get_password_from_archive_entry( array $config ): string {
+        return $config['password'];
+    }
 }
