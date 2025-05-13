@@ -275,7 +275,7 @@ class Directory_Listing_Base {
 		if ( empty( $this->global_actions ) ) {
 			$this->global_actions = array(
 				array(
-					'action' => 'setActualDirectory(false);',
+					'action' => 'setReload(!reload);',
 					'label'  => Init::get_instance()->get_translations()['reload'],
 				),
 			);
@@ -394,5 +394,14 @@ class Directory_Listing_Base {
      */
     public function get_password_from_archive_entry( array $config ): string {
         return $config['password'];
+    }
+
+    /**
+     * Return a custom view URL.
+     *
+     * @return string
+     */
+    public function get_view_url(): string {
+        return '';
     }
 }
