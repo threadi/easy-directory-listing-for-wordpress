@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.0] - 13.05.2025
+
+### Added
+
+- Added base function to use a optional custom URL for the object
+- Added more hooks
+
 ## [2.3.0] - 11.05.2025
 
 ### Added

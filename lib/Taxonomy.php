@@ -277,11 +277,22 @@ class Taxonomy {
 			return;
 		}
 
-		// add the credentials.
-		add_term_meta( $term['term_id'], 'type', $type );
-		add_term_meta( $term['term_id'], 'login', Crypt::get_instance()->encrypt( $login ) );
-		add_term_meta( $term['term_id'], 'password', Crypt::get_instance()->encrypt( $password ) );
-		add_term_meta( $term['term_id'], 'api_key', Crypt::get_instance()->encrypt( $api_key ) );
+        // get the term ID.
+        $term_id = $term['term_id'];
+
+        // add the credentials.
+        add_term_meta( $term_id, 'type', $type );
+        add_term_meta( $term_id, 'login', Crypt::get_instance()->encrypt( $login ) );
+        add_term_meta( $term_id, 'password', Crypt::get_instance()->encrypt( $password ) );
+        add_term_meta( $term_id, 'api_key', Crypt::get_instance()->encrypt( $api_key ) );
+
+        /**
+         * Run action after adding this term.
+         *
+         * @since 2.3.1 Available since 2.3.1.
+         * @param int $term_id The term ID.
+         */
+        do_action( Init::get_instance()->get_prefix() . '_directory_listing_added', $term_id );
 	}
 
 	/**
