@@ -228,6 +228,9 @@ const EDLFW_Files_Listing = ( { directoryToList, config, url, login, password, t
     return (<tr key={file.file}>
       <td className="actions">
         {config.actions.map( action => {
+          if( typeof action.show !== 'undefined' && typeof action.hint !== 'undefined' && ! eval( action.show ) ) {
+            return action.hint;
+          }
           return (<Button key={action.action} onClick={() => eval( action.action )}>{action.label}</Button>)
         } )}
       </td>
