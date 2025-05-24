@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.4.1] - 24.05.2025
+
+### Added
+
+- Added option to hide actions for single file
+
 ## [2.4.0] - 13.05.2025
 
 ### Added
