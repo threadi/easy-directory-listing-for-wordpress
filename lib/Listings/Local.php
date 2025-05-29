@@ -79,7 +79,10 @@ class Local extends Directory_Listing_Base {
     }
 
     /**
-     * Get directory recursively.
+     * Return the requested directory. The returning array contains:
+     *
+     * - list of all files in this directory
+     * - list of all directories in this directory
      *
      * @param string $directory The given directory.
      *
@@ -90,7 +93,11 @@ class Local extends Directory_Listing_Base {
         $directory = trailingslashit( $directory );
 
         // collect the content of this directory.
-        $listing = array();
+        $listing = array(
+            'title' => basename( $directory ),
+            'files' => array(),
+            'dirs' => array()
+        );
 
         // get WP Filesystem-handler.
         require_once ABSPATH . '/wp-admin/includes/file.php';
@@ -108,9 +115,9 @@ class Local extends Directory_Listing_Base {
         }
 
         // loop through the directories and files.
-        foreach ( $wp_filesystem->dirlist($directory) as $filename => $file ) {
-            // get file path.
-            $file_path = $directory . $filename;
+        foreach ( $wp_filesystem->dirlist($directory) as $name => $file ) {
+            // get path.
+            $path = $directory . $name;
 
             $false = false;
             /**
@@ -124,31 +131,21 @@ class Local extends Directory_Listing_Base {
              *
              * @noinspection PhpConditionAlreadyCheckedInspection
              */
-            if ( apply_filters( Init::get_instance()->get_prefix() . '_service_local_hide_file', $false, $filename, $directory ) ) {
+            if ( apply_filters( Init::get_instance()->get_prefix() . '_service_local_hide_file', $false, $name, $directory ) ) {
                 continue;
             }
 
-            // get the type.
-            $type = 'file';
-            if ( is_dir( $filename ) ) {
-                $type = 'dir';
-            }
-
-            // create object for entry.
+            // create array for entry.
             $entry = array(
-                $type   => $file_path,
-                'title' => basename( $filename ),
+                'title' => basename( $name ),
             );
 
-            // if this is a directory, check it recursively.
-            if ( is_dir( $filename ) ) {
-                // get sub directories.
-                $subs           = $this->get_directory_listing( $file_path );
-                $entry['sub']   = $subs;
-                $entry['count'] = count( $subs );
+            // if this is a directory, add it to the directory list.
+            if ( is_dir( $path ) ) {
+                $listing['dirs'][$path] = $entry;
             } else {
                 // get content type of this file.
-                $mime_type = wp_check_filetype( $file_path );
+                $mime_type = wp_check_filetype( $path );
 
                 // bail if file is not allowed.
                 if ( empty( $mime_type['type'] ) ) {
@@ -156,7 +153,7 @@ class Local extends Directory_Listing_Base {
                 }
 
                 // get image editor object of the file to get a thumb of it.
-                $editor = wp_get_image_editor( $file_path );
+                $editor = wp_get_image_editor( $path );
 
                 // define the thumb.
                 $thumbnail = '';
@@ -176,15 +173,15 @@ class Local extends Directory_Listing_Base {
                 }
 
                 // add some more data to the file.
-                $entry['filesize']      = filesize( $file_path );
+                $entry['filesize']      = filesize( $path );
                 $entry['mime-type']     = $mime_type['type'];
-                $entry['last-modified'] = Helper::get_format_date_time( gmdate( 'Y-m-d H:i:s', $wp_filesystem->mtime( $file_path ) ) );
+                $entry['last-modified'] = Helper::get_format_date_time( gmdate( 'Y-m-d H:i:s', $wp_filesystem->mtime( $path ) ) );
                 $entry['icon']          = '<span class="dashicons dashicons-media-default"></span>';
                 $entry['preview']       = $thumbnail;
-            }
 
-            // add the entry to the list.
-            $listing[] = $entry;
+                // add the entry to the list.
+                $listing['files'][] = $entry;
+            }
         }
 
         // return the listing.

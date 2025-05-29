@@ -25,15 +25,17 @@ import {EDLFW_ERRORS} from "./errors";
  */
 const EDLFW_Directory_Viewer = ( props ) => {
   const [ enabled, setEnabled ] = useState( false );
-  const [ directoryListing, setDirectoryListing ] = useState( false );
+  const [ tree, setTree ] = useState( false );
   const [ actualDirectory, setActualDirectory ] = useState( false );
   const [ actualDirectoryPath, setActualDirectoryPath ] = useState( false );
-  const [ url, setUrl ] = useState( '' );
+  const [ url, setUrl ] = useState( props.config.directory );
   const [ login, setLogin ] = useState( '' );
   const [ password, setPassword ] = useState( '' );
   const [ apiKey, setApiKey ] = useState( '' );
   const [ errors, setErrors ] = useState( false );
   const [ saveCredentials, setSaveCredentials ] = useState( false );
+  const [ loadTree, setLoadTree ] = useState( true );
+  const [ directoryToLoad, setDirectoryToLoad ] = useState( 0 );
 
   // get configuration.
   let config = props.config;
@@ -53,13 +55,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
     config.term = false;
   }
 
-  // enable listing if login and API should not be requested.
-  if( ! enabled && ! config.requires_login && ! config.requires_simple_api && ! errors && config.directory ) {
-    setUrl( config.directory );
-    setEnabled( true );
-  }
-
-  // get the listing for the given directory.
+  // get the recursive listing for the given directory.
   useEffect( () => {
     // collect params for request.
     let params = {
@@ -72,15 +68,24 @@ const EDLFW_Directory_Viewer = ( props ) => {
       nonce: config.nonce,
       term: config.term
     }
-    apiFetch( { path: edlfwJsVars.get_directory_endpoint, method: 'POST', data: params } ).then( (directoryListingFromResponse) => {
-      if( directoryListingFromResponse.errors ) {
-        setErrors(directoryListingFromResponse.errors);
+    apiFetch( { path: edlfwJsVars.get_directory_endpoint, method: 'POST', data: params } ).then( ( response ) => {
+      // bail on any returning error.
+      if( response.errors ) {
+        setErrors(response.errors);
         setEnabled( false );
+        return;
       }
-      else {
-        setDirectoryListing( directoryListingFromResponse );
-        setErrors( false );
+
+      // if we got the directory_loading marker, send next request.
+      if( response.directory_loading ) {
+        setLoadTree( ! loadTree );
+        setDirectoryToLoad( response.directory_to_load )
+        return;
       }
+
+      // on all other responses set the tree and show it.
+      setTree( response );
+      setErrors( false );
     } ).catch( ( err ) => {
       let fetch_errors = new Array();
       fetch_errors.push( edlfwJsVars.serverside_error );
@@ -88,90 +93,82 @@ const EDLFW_Directory_Viewer = ( props ) => {
       setErrors( fetch_errors );
       setEnabled( false );
     } );
-  }, [actualDirectory, enabled] );
+  }, [loadTree] );
 
   // show login form if directory is not enabled and login should be requested.
   if( ! enabled && config.requires_login && ! config.term ) {
     return (
-      <>
-        <EDLFW_LOGIN_FORM config={config} errors={errors} url={url} setUrl={setUrl} login={login} setLogin={setLogin} password={password} setPassword={setPassword} setEnabled={setEnabled} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
-      </>)
+        <>
+          <EDLFW_LOGIN_FORM config={config} errors={errors} url={url} setUrl={setUrl} login={login} setLogin={setLogin} password={password} setPassword={setPassword} setEnabled={setEnabled} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
+        </>)
   }
 
   // show API form if directory is not enabled and API should be requested.
   if( ! enabled && config.requires_simple_api && ! config.term ) {
     return (
-      <>
-        <EDLFW_SIMPLE_API_FORM config={config} errors={errors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
-      </>)
+        <>
+          <EDLFW_SIMPLE_API_FORM config={config} errors={errors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
+        </>)
   }
 
   // show simple directory form.
   if( ! enabled && ! config.directory && ! config.term ) {
     return (
-      <>
-        <EDLFW_FILE_FORM errors={errors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
-      </>)
+        <>
+          <EDLFW_FILE_FORM errors={errors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
+        </>)
   }
 
   // show errors.
   if( errors ) {
     return (
-      <EDLFW_ERRORS errors={errors}/>
+        <EDLFW_ERRORS errors={errors}/>
     )
   }
 
   // bail if directory listing is empty (we assume it is still loading).
-  if( !directoryListing || 0 === directoryListing.length ) {
+  if( ! tree ) {
     return (
-      <p className="is-loading">{ edlfwJsVars.is_loading }</p>
-    )
-  }
-
-  // bail if no parent directory could be loaded.
-  if( ! directoryListing[0] ) {
-    return (
-      <p className="not-loaded">{ edlfwJsVars.could_not_load }</p>
+        <p className="is-loading">{ edlfwJsVars.is_loading } ({ edlfwJsVars.loading_directories.replace( '%1$d', directoryToLoad ) })</p>
     )
   }
 
   // if actual directory is not set, use the first one from result.
   if( ! actualDirectory ) {
-    setActualDirectory( directoryListing[0].sub )
-    setActualDirectoryPath( directoryListing[0].dir )
+    setActualDirectory( tree[Object.keys(tree)[0]].files )
   }
 
   // generate output.
   return (
-    <>
-      <div id="easy-directory-listing-for-wordpress-options">
-        {config.global_actions.map( action => {
-          return (<Button variant="primary" key={action.action} onClick={() => eval( action.action )}>{action.label}</Button>)
-        } )}
-      </div>
-      <div id="easy-directory-listing-for-wordpress-listing-view">
-        <div id="easy-directory-listing-for-wordpress-listing">
-          <ul><EDLFW_Directory_Listing directoryToList={directoryListing} setActualDirectory={setActualDirectory} setActualDirectoryPath={setActualDirectoryPath} /></ul>
+      <>
+        <div id="easy-directory-listing-for-wordpress-options">
+          {config.global_actions.map( action => {
+            return (<Button variant="primary" key={action.action} onClick={() => eval( action.action )}>{action.label}</Button>)
+          } )}
         </div>
-        <div id="easy-directory-listing-for-wordpress-details">
-          <table className="wp-list-table widefat fixed striped table-view-list">
-            <thead>
-            <tr>
-              <th className="actions">{edlfwJsVars.actions}</th>
-              <th className="filepreview">&nbsp;</th>
-              <th className="filename">{edlfwJsVars.filename}</th>
-              <th className="date">{edlfwJsVars.date}</th>
-              <th className="type">&nbsp;</th>
-              <th className="filesize">{edlfwJsVars.filesize}</th>
-            </tr>
-            </thead>
-            <tbody>
+        <div id="easy-directory-listing-for-wordpress-listing-view">
+          <div id="easy-directory-listing-for-wordpress-listing">
+            <ul><EDLFW_Directory_Listing tree={tree} setActualDirectory={setActualDirectory} setActualDirectoryPath={setActualDirectoryPath} /></ul>
+          </div>
+          <div id="easy-directory-listing-for-wordpress-details">
+            <table className="wp-list-table widefat fixed striped table-view-list">
+              <thead>
+              <tr>
+                <th className="actions">{edlfwJsVars.actions}</th>
+                <th className="filepreview">&nbsp;</th>
+                <th className="filename">{edlfwJsVars.filename}</th>
+                <th className="date">{edlfwJsVars.date}</th>
+                <th className="type">&nbsp;</th>
+                <th className="filesize">{edlfwJsVars.filesize}</th>
+              </tr>
+              </thead>
+              <tbody>
               <EDLFW_Files_Listing directoryToList={actualDirectory} config={config} url={url} login={login} password={password} term={config.term} />
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-    </>
+      </>
   )
 }
 
@@ -184,27 +181,24 @@ const EDLFW_Directory_Viewer = ( props ) => {
  * @returns {*}
  * @constructor
  */
-const EDLFW_Directory_Listing = ( { directoryToList, setActualDirectory, setActualDirectoryPath } ) => {
+const EDLFW_Directory_Listing = ( { tree, setActualDirectory, setActualDirectoryPath } ) => {
   // bail if no directories are given.
-  if( ! directoryToList ) {
+  if( ! tree ) {
     return '';
   }
 
   function changeDirectory( directory ) {
-    setActualDirectory(directory.sub);
-    setActualDirectoryPath( directory.dir );
+    setActualDirectory(tree[directory].files);
+    setActualDirectoryPath( directory );
   }
 
-  return (directoryToList.map( directory => {
-      if( directory.file ) {
-        return '';
+  return (Object.keys(tree).map( directory => {
+        return (<li key={directory}>
+              <Button onClick={() => changeDirectory(directory)}>{tree[directory].title}</Button>
+              {tree[directory].dirs && <ul><EDLFW_Directory_Listing tree={tree[directory].dirs} setActualDirectory={setActualDirectory} setActualDirectoryPath={setActualDirectoryPath} /></ul>}
+            </li>
+        )
       }
-      return (<li key={directory.dir}>
-          <Button onClick={() => changeDirectory(directory)}>{directory.title}</Button> ({directory.count})
-          {directory.count > 0 && <ul><EDLFW_Directory_Listing directoryToList={directory.sub} setActualDirectory={setActualDirectory} setActualDirectoryPath={setActualDirectoryPath} /></ul>}
-        </li>
-      )
-    }
   ))
 }
 
@@ -221,11 +215,9 @@ const EDLFW_Directory_Listing = ( { directoryToList, setActualDirectory, setActu
  * @constructor
  */
 const EDLFW_Files_Listing = ( { directoryToList, config, url, login, password, term } ) => {
-  return (directoryToList.map( file => {
-    if( file.dir ) {
-      return '';
-    }
-    return (<tr key={file.file}>
+  return (Object.keys(directoryToList).map( directory => {
+    let file = directoryToList[directory];
+    return (<tr key={file.title}>
       <td className="actions">
         {config.actions.map( action => {
           if( typeof action.show !== 'undefined' && typeof action.hint !== 'undefined' && ! eval( action.show ) ) {
@@ -267,7 +259,7 @@ function edfw_add_directory_view() {
     // modern way: use createRoot.
     let edfw_directory = ReactDOM.createRoot(top.document.getElementById('easy-directory-listing-for-wordpress'));
     edfw_directory.render(
-      <EDLFW_Directory_Viewer config={config}/>
+        <EDLFW_Directory_Viewer config={config}/>
     );
   }
 }
@@ -287,3 +279,4 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
   document.body.dispatchEvent( new CustomEvent( "easy-directory-listing-for-wordpress" ) );
 })
+

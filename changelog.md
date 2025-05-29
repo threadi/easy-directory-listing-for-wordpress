@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.0.0] - 29.05.2025
+
+### Added
+
+- Directory-wise loading added for better performance with large directories and deep directory trees
+
+### Changed
+
+- Changes some text for better understanding
+
 ## [2.4.1] - 24.05.2025
 
 ### Added
