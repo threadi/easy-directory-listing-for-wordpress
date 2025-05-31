@@ -86,7 +86,7 @@ class Local extends Directory_Listing_Base {
      *
      * @param string $directory The given directory.
      *
-     * @return array
+     * @return array<int|string,mixed>
      */
     public function get_directory_listing( string $directory ): array {
         // format the directory.
@@ -96,11 +96,11 @@ class Local extends Directory_Listing_Base {
         $listing = array(
             'title' => basename( $directory ),
             'files' => array(),
-            'dirs' => array()
+            'dirs'  => array(),
         );
 
         // get WP Filesystem-handler.
-        require_once ABSPATH . '/wp-admin/includes/file.php';
+        require_once ABSPATH . '/wp-admin/includes/file.php'; // @phpstan-ignore requireOnce.fileNotFound
         \WP_Filesystem();
         global $wp_filesystem;
 
@@ -115,7 +115,7 @@ class Local extends Directory_Listing_Base {
         }
 
         // loop through the directories and files.
-        foreach ( $wp_filesystem->dirlist($directory) as $name => $file ) {
+        foreach ( $wp_filesystem->dirlist( $directory ) as $name => $file ) {
             // get path.
             $path = $directory . $name;
 
@@ -142,7 +142,7 @@ class Local extends Directory_Listing_Base {
 
             // if this is a directory, add it to the directory list.
             if ( is_dir( $path ) ) {
-                $listing['dirs'][$path] = $entry;
+                $listing['dirs'][ trailingslashit( $path ) ] = $entry;
             } else {
                 // get content type of this file.
                 $mime_type = wp_check_filetype( $path );
@@ -164,7 +164,7 @@ class Local extends Directory_Listing_Base {
                     $editor->resize( 32, 32 );
 
                     // save the thumb.
-                    $results = $editor->save( $upload_dir . '/' . basename( $filename ) );
+                    $results = $editor->save( $upload_dir . '/' . basename( $path ) );
 
                     // add thumb to output if it does not result in an error.
                     if ( ! is_wp_error( $results ) ) {
@@ -173,10 +173,11 @@ class Local extends Directory_Listing_Base {
                 }
 
                 // add some more data to the file.
+                $entry['file']          = $path;
                 $entry['filesize']      = filesize( $path );
                 $entry['mime-type']     = $mime_type['type'];
                 $entry['last-modified'] = Helper::get_format_date_time( gmdate( 'Y-m-d H:i:s', $wp_filesystem->mtime( $path ) ) );
-                $entry['icon']          = '<span class="dashicons dashicons-media-default"></span>';
+                $entry['icon']          = '<span class="dashicons dashicons-media-default" data-type="' . esc_attr( $mime_type['type'] ) . '"></span>';
                 $entry['preview']       = $thumbnail;
 
                 // add the entry to the list.
@@ -239,7 +240,7 @@ class Local extends Directory_Listing_Base {
     /**
      * Return the actions for each file.
      *
-     * @return array
+     * @return array<int,array<string,string>>
      */
     public function get_actions(): array {
         return $this->actions;

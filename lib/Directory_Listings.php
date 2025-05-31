@@ -56,12 +56,6 @@ class Directory_Listings {
 	public function init(): void {
 		// initialize the possible listing objects.
 		foreach ( $this->get_directory_listings_objects() as $obj ) {
-			// bail if object is not a listing object.
-			if ( ! $obj instanceof Directory_Listing_Base ) {
-				continue;
-			}
-
-			// initialize it.
 			$obj->init();
 		}
 	}
@@ -69,7 +63,7 @@ class Directory_Listings {
 	/**
 	 * Return the list of supported directory listing objects.
 	 *
-	 * @return array
+	 * @return array<int,Directory_Listing_Base>
 	 */
 	public function get_directory_listings_objects(): array {
 		$list = array(
@@ -80,7 +74,7 @@ class Directory_Listings {
 		 * Filter for supported directory listing objects.
 		 *
 		 * @since 1.0.0 Available since 1.0.0.
-		 * @param array $list List of supported directory listing objects.
+		 * @param array<int,Directory_Listing_Base> $list List of supported directory listing objects.
 		 */
 		return apply_filters( Init::get_instance()->get_prefix() . '_directory_listing_objects', $list );
 	}
@@ -88,20 +82,15 @@ class Directory_Listings {
 	/**
 	 * Return a directory listing object by its name.
 	 *
-	 * @param string $name
+	 * @param string $name Name of the object.
 	 *
 	 * @return false|Directory_Listing_Base
 	 */
 	public function get_directory_listing_object_by_name( string $name ): false|Directory_Listing_Base {
 		// get the possible listing objects.
 		foreach ( $this->get_directory_listings_objects() as $obj ) {
-			// bail if object is not a listing object.
-			if ( ! $obj instanceof Directory_Listing_Base ) {
-				continue;
-			}
-
 			// bail if name does not match.
-			if( $name !== $obj->get_name() ) {
+			if ( $name !== $obj->get_name() ) {
 				continue;
 			}
 
@@ -121,7 +110,7 @@ class Directory_Listings {
 	public function get_directory_archive_url(): string {
 		return add_query_arg(
 			array(
-				'taxonomy' => Taxonomy::get_instance()->get_name()
+				'taxonomy' => Taxonomy::get_instance()->get_name(),
 			),
 			get_admin_url() . 'edit-tags.php'
 		);

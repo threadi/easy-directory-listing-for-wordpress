@@ -29,13 +29,6 @@ class Crypt_Base {
 	protected string $hash = '';
 
 	/**
-	 * Instance of this object.
-	 *
-	 * @var ?Crypt_Base
-	 */
-	private static ?Crypt_Base $instance = null;
-
-	/**
 	 * Constructor for this object.
 	 */
 	protected function __construct() {}
@@ -45,18 +38,7 @@ class Crypt_Base {
 	 *
 	 * @return void
 	 */
-	private function __clone() {}
-
-	/**
-	 * Return the instance of this Singleton object.
-	 */
-	public static function get_instance(): Crypt_Base {
-		if ( ! static::$instance instanceof static ) {
-			static::$instance = new static();
-		}
-
-		return static::$instance;
-	}
+	protected function __clone() {}
 
 	/**
 	 * Return name of the method.

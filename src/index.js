@@ -35,7 +35,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
   const [ errors, setErrors ] = useState( false );
   const [ saveCredentials, setSaveCredentials ] = useState( false );
   const [ loadTree, setLoadTree ] = useState( true );
-  const [ directoryToLoad, setDirectoryToLoad ] = useState( 0 );
+  const [ directoriesToLoad, setDirectoriesToLoad ] = useState( 0 );
 
   // get configuration.
   let config = props.config;
@@ -79,7 +79,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
       // if we got the directory_loading marker, send next request.
       if( response.directory_loading ) {
         setLoadTree( ! loadTree );
-        setDirectoryToLoad( response.directory_to_load )
+        setDirectoriesToLoad( response.directory_to_load )
         return;
       }
 
@@ -107,7 +107,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
   if( ! enabled && config.requires_simple_api && ! config.term ) {
     return (
         <>
-          <EDLFW_SIMPLE_API_FORM config={config} errors={errors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
+          <EDLFW_SIMPLE_API_FORM config={config} loadTree={loadTree} setLoadTree={setLoadTree} errors={errors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
         </>)
   }
 
@@ -115,7 +115,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
   if( ! enabled && ! config.directory && ! config.term ) {
     return (
         <>
-          <EDLFW_FILE_FORM errors={errors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
+          <EDLFW_FILE_FORM errors={errors} loadTree={loadTree} setLoadTree={setLoadTree}  apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
         </>)
   }
 
@@ -129,14 +129,17 @@ const EDLFW_Directory_Viewer = ( props ) => {
   // bail if directory listing is empty (we assume it is still loading).
   if( ! tree ) {
     return (
-        <p className="is-loading">{ edlfwJsVars.is_loading } ({ edlfwJsVars.loading_directories.replace( '%1$d', directoryToLoad ) })</p>
+        <p className="is-loading">{ edlfwJsVars.is_loading } ({ directoriesToLoad > 1 && edlfwJsVars.loading_directories.replace( '%1$d', directoriesToLoad ) }{ directoriesToLoad <= 1 && edlfwJsVars.loading_directory })</p>
     )
   }
 
   // if actual directory is not set, use the first one from result.
-  if( ! actualDirectory ) {
+  if( ! actualDirectory && Object.keys(tree) && Object.keys(tree)[0] ) {
     setActualDirectory( tree[Object.keys(tree)[0]].files )
+    setActualDirectoryPath( Object.keys(tree)[0] );
   }
+
+  document.body.classList.add('easy-directory-listing-for-wordpress-loaded');
 
   // generate output.
   return (
@@ -148,7 +151,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
         </div>
         <div id="easy-directory-listing-for-wordpress-listing-view">
           <div id="easy-directory-listing-for-wordpress-listing">
-            <ul><EDLFW_Directory_Listing tree={tree} setActualDirectory={setActualDirectory} setActualDirectoryPath={setActualDirectoryPath} /></ul>
+            <ul><EDLFW_Directory_Listing tree={tree} actualDirectoryPath={actualDirectoryPath} setActualDirectory={setActualDirectory} setActualDirectoryPath={setActualDirectoryPath} /></ul>
           </div>
           <div id="easy-directory-listing-for-wordpress-details">
             <table className="wp-list-table widefat fixed striped table-view-list">
@@ -181,21 +184,27 @@ const EDLFW_Directory_Viewer = ( props ) => {
  * @returns {*}
  * @constructor
  */
-const EDLFW_Directory_Listing = ( { tree, setActualDirectory, setActualDirectoryPath } ) => {
+const EDLFW_Directory_Listing = ( { tree, actualDirectoryPath, setActualDirectory, setActualDirectoryPath } ) => {
   // bail if no directories are given.
   if( ! tree ) {
     return '';
   }
 
-  function changeDirectory( directory ) {
+  function changeDirectory( directory, obj ) {
     setActualDirectory(tree[directory].files);
     setActualDirectoryPath( directory );
   }
 
   return (Object.keys(tree).map( directory => {
+        // set button class.
+        let buttonClassName = 'secondary';
+        if( actualDirectoryPath === directory ) {
+          buttonClassName = 'primary';
+        }
+
         return (<li key={directory}>
-              <Button onClick={() => changeDirectory(directory)}>{tree[directory].title}</Button>
-              {tree[directory].dirs && <ul><EDLFW_Directory_Listing tree={tree[directory].dirs} setActualDirectory={setActualDirectory} setActualDirectoryPath={setActualDirectoryPath} /></ul>}
+              <Button variant={ buttonClassName } onClick={() => changeDirectory(directory) }>{tree[directory].title}</Button>
+              {tree[directory].dirs && <ul><EDLFW_Directory_Listing tree={tree[directory].dirs} actualDirectoryPath={actualDirectoryPath} setActualDirectory={setActualDirectory} setActualDirectoryPath={setActualDirectoryPath} /></ul>}
             </li>
         )
       }
@@ -215,13 +224,17 @@ const EDLFW_Directory_Listing = ( { tree, setActualDirectory, setActualDirectory
  * @constructor
  */
 const EDLFW_Files_Listing = ( { directoryToList, config, url, login, password, term } ) => {
+  if ( ! directoryToList.length ) {
+    return (<tr><td colspan="6"><p>{edlfwJsVars.empty_directory}</p></td></tr>)
+  }
+
   return (Object.keys(directoryToList).map( directory => {
     let file = directoryToList[directory];
     return (<tr key={file.title}>
       <td className="actions">
         {config.actions.map( action => {
           if( typeof action.show !== 'undefined' && typeof action.hint !== 'undefined' && ! eval( action.show ) ) {
-            return action.hint;
+            return (<span key={action.action} dangerouslySetInnerHTML={{__html: action.hint}}/>)
           }
           return (<Button key={action.action} onClick={() => eval( action.action )}>{action.label}</Button>)
         } )}
