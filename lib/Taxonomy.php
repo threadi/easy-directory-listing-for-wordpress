@@ -100,7 +100,7 @@ class Taxonomy {
 			'show_ui'           => true,
 			'show_admin_column' => false,
 			'query_var'         => false,
-			'public' => false
+			'public'            => false,
 		);
 
 		// register the taxonomy.
@@ -119,7 +119,7 @@ class Taxonomy {
 	public function set_table_column_content( string $content, string $column_name, int $term_id ): string {
 		// get listing object if this is one of our columns.
 		$listing_obj = false;
-		if( in_array( $column_name, array( 'type', 'connect' ), true ) ) {
+		if ( in_array( $column_name, array( 'type', 'connect' ), true ) ) {
 			// get the type name.
 			$type = get_term_meta( $term_id, 'type', true );
 
@@ -133,19 +133,19 @@ class Taxonomy {
 		}
 
 		// check if this is the type column.
-		if( 'type' === $column_name && $listing_obj ) {
+		if ( 'type' === $column_name && $listing_obj ) {
 			// show the label.
 			return $listing_obj->get_label();
 		}
 
 		// check if this is the connect column.
-		if( 'connect' === $column_name && $listing_obj ) {
+		if ( 'connect' === $column_name && $listing_obj ) {
 			// get the connect URL.
 			$url = add_query_arg(
 				array(
-					'page' => Init::get_instance()->get_menu_slug(),
+					'page'   => Init::get_instance()->get_menu_slug(),
 					'method' => $listing_obj->get_name(),
-					'term' => $term_id
+					'term'   => $term_id,
 				),
 				get_admin_url() . 'upload.php'
 			);
@@ -154,27 +154,27 @@ class Taxonomy {
 			return '<a href="' . esc_url( $url ) . '" style="font-weight: bold">' . Init::get_instance()->get_translations()['directory_archive']['connect_now'] . '</a>';
 		}
 
-        /**
-         * Filter the content.
-         *
-         * @param string $content The content.
-         * @param string $column_name The column name.
-         * @param int $term_id The used term entry.
-         */
-        return apply_filters( Init::get_instance()->get_prefix() . '_directory_listing_column', $content, $column_name, $term_id );
+		/**
+		 * Filter the content.
+		 *
+		 * @param string $content The content.
+		 * @param string $column_name The column name.
+		 * @param int $term_id The used term entry.
+		 */
+		return apply_filters( Init::get_instance()->get_prefix() . '_directory_listing_column', $content, $column_name, $term_id );
 	}
 
 	/**
 	 * Set actions for each entry in table.
 	 *
-	 * @param array   $actions List of actions.
-	 * @param WP_Term $term The term.
+	 * @param array<string,mixed> $actions List of actions.
+	 * @param WP_Term             $term The term.
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	public function set_actions( array $actions, WP_Term $term ): array {
-		$new_actions = array();
-		$new_actions['edit'] = $actions['edit'];
+		$new_actions           = array();
+		$new_actions['edit']   = $actions['edit'];
 		$new_actions['delete'] = $actions['delete'];
 
 		// get the type name.
@@ -184,7 +184,7 @@ class Taxonomy {
 		$listing_obj = Directory_Listings::get_instance()->get_directory_listing_object_by_name( $type );
 
 		// bail if no object could be found.
-		if( ! $listing_obj ) {
+		if ( ! $listing_obj ) {
 			return $new_actions;
 		}
 
@@ -194,9 +194,9 @@ class Taxonomy {
 		// create URL to connect via click.
 		$url = add_query_arg(
 			array(
-				'page' => $init_obj->get_menu_slug(),
+				'page'   => $init_obj->get_menu_slug(),
 				'method' => $listing_obj->get_name(),
-				'term' => $term->term_id
+				'term'   => $term->term_id,
 			),
 			get_admin_url() . 'upload.php'
 		);
@@ -204,26 +204,26 @@ class Taxonomy {
 		// add connect action.
 		$new_actions['connect'] = '<a href="' . esc_url( $url ) . '" style="font-weight: bold">' . $init_obj->get_translations()['directory_archive']['connect_now'] . '</a>';
 
-        /**
-         * Filter the possible actions and return them.
-         *
-         * @since 2.3.0 Available since 2.3.0.
-         * @param array<string,string> $new_actions The list of actions.
-         * @param WP_Term $term The used term entry.
-         */
-        return apply_filters( Init::get_instance()->get_prefix() . '_directory_listing_item_actions', $new_actions, $term );
+		/**
+		 * Filter the possible actions and return them.
+		 *
+		 * @since 2.3.0 Available since 2.3.0.
+		 * @param array<string,string> $new_actions The list of actions.
+		 * @param WP_Term $term The used term entry.
+		 */
+		return apply_filters( Init::get_instance()->get_prefix() . '_directory_listing_item_actions', $new_actions, $term );
 	}
 
 	/**
 	 * Show our own columns.
 	 *
-	 * @param array $columns List of columns.
+	 * @param array<string,string> $columns List of columns.
 	 *
-	 * @return array
+	 * @return array<string,string>
 	 */
 	public function set_table_columns( array $columns ): array {
 		// bail if list is empty.
-		if( empty( $columns ) ) {
+		if ( empty( $columns ) ) {
 			return array();
 		}
 
@@ -231,19 +231,19 @@ class Taxonomy {
 		$translations = Init::get_instance()->get_translations()['directory_archive'];
 
 		// set our columns.
-		$new_columns = array();
-		$new_columns['cb'] = $columns['cb'];
-		$new_columns['name'] = $columns['name'];
-		$new_columns['type'] = $translations['type'];
+		$new_columns            = array();
+		$new_columns['cb']      = $columns['cb'];
+		$new_columns['name']    = $columns['name'];
+		$new_columns['type']    = $translations['type'];
 		$new_columns['connect'] = $translations['connect'];
 
-        /**
-         * Filter the possible columns and return them.
-         *
-         * @since 2.3.0 Available since 2.3.0.
-         * @param array<string,string> $new_columns The list of columns.
-         */
-        return apply_filters( Init::get_instance()->get_prefix() . '_directory_listing_columns', $new_columns );
+		/**
+		 * Filter the possible columns and return them.
+		 *
+		 * @since 2.3.0 Available since 2.3.0.
+		 * @param array<string,string> $new_columns The list of columns.
+		 */
+		return apply_filters( Init::get_instance()->get_prefix() . '_directory_listing_columns', $new_columns );
 	}
 
 	/**
@@ -265,7 +265,7 @@ class Taxonomy {
 		$term = get_term_by( 'slug', $slug, $this->get_name() );
 
 		// bail if term does exist.
-		if( $term instanceof WP_Term ) {
+		if ( $term instanceof WP_Term ) {
 			return;
 		}
 
@@ -273,26 +273,26 @@ class Taxonomy {
 		$term = wp_insert_term( $directory, $this->get_name(), array( 'slug' => $slug ) );
 
 		// bail on any error.
-		if( is_wp_error( $term ) ) {
+		if ( is_wp_error( $term ) ) {
 			return;
 		}
 
-        // get the term ID.
-        $term_id = $term['term_id'];
+		// get the term ID.
+		$term_id = $term['term_id'];
 
-        // add the credentials.
-        add_term_meta( $term_id, 'type', $type );
-        add_term_meta( $term_id, 'login', Crypt::get_instance()->encrypt( $login ) );
-        add_term_meta( $term_id, 'password', Crypt::get_instance()->encrypt( $password ) );
-        add_term_meta( $term_id, 'api_key', Crypt::get_instance()->encrypt( $api_key ) );
+		// add the credentials.
+		add_term_meta( $term_id, 'type', $type );
+		add_term_meta( $term_id, 'login', Crypt::get_instance()->encrypt( $login ) );
+		add_term_meta( $term_id, 'password', Crypt::get_instance()->encrypt( $password ) );
+		add_term_meta( $term_id, 'api_key', Crypt::get_instance()->encrypt( $api_key ) );
 
-        /**
-         * Run action after adding this term.
-         *
-         * @since 2.3.1 Available since 2.3.1.
-         * @param int $term_id The term ID.
-         */
-        do_action( Init::get_instance()->get_prefix() . '_directory_listing_added', $term_id );
+		/**
+		 * Run action after adding this term.
+		 *
+		 * @since 2.3.1 Available since 2.3.1.
+		 * @param int $term_id The term ID.
+		 */
+		do_action( Init::get_instance()->get_prefix() . '_directory_listing_added', $term_id );
 	}
 
 	/**
@@ -300,23 +300,23 @@ class Taxonomy {
 	 *
 	 * @param int $term_id The ID of the term.
 	 *
-	 * @return array
+	 * @return array<string,string>
 	 */
 	public function get_entry( int $term_id ): array {
 		// get the term.
 		$term = get_term( $term_id, $this->get_name() );
 
 		// bail if term could not be loaded.
-		if( ! $term instanceof WP_Term ) {
+		if ( ! $term instanceof WP_Term ) {
 			return array();
 		}
 
 		// return the data.
 		return array(
 			'directory' => $term->name,
-			'login' => Crypt::get_instance()->decrypt( get_term_meta( $term_id, 'login', true ) ),
-			'password' => Crypt::get_instance()->decrypt( get_term_meta( $term_id, 'password', true ) ),
-			'api_key' => Crypt::get_instance()->decrypt( get_term_meta( $term_id, 'api_key', true ) ),
+			'login'     => Crypt::get_instance()->decrypt( get_term_meta( $term_id, 'login', true ) ),
+			'password'  => Crypt::get_instance()->decrypt( get_term_meta( $term_id, 'password', true ) ),
+			'api_key'   => Crypt::get_instance()->decrypt( get_term_meta( $term_id, 'api_key', true ) ),
 		);
 	}
 
@@ -329,10 +329,10 @@ class Taxonomy {
 	 */
 	public function set_fields( WP_Term $term ): void {
 		// get the values.
-		$type = get_term_meta( $term->term_id, 'type', true );
-		$login = Crypt::get_instance()->decrypt( get_term_meta( $term->term_id, 'login', true ) );
+		$type     = get_term_meta( $term->term_id, 'type', true );
+		$login    = Crypt::get_instance()->decrypt( get_term_meta( $term->term_id, 'login', true ) );
 		$password = Crypt::get_instance()->decrypt( get_term_meta( $term->term_id, 'password', true ) );
-		$api_key = Crypt::get_instance()->decrypt( get_term_meta( $term->term_id, 'api_key', true ) );
+		$api_key  = Crypt::get_instance()->decrypt( get_term_meta( $term->term_id, 'api_key', true ) );
 
 		// get the type object.
 		$listing_obj = Directory_Listings::get_instance()->get_directory_listing_object_by_name( $type );
@@ -341,7 +341,7 @@ class Taxonomy {
 		$translations = Init::get_instance()->get_translations()['directory_archive'];
 
 		// if no object could be found, show hint.
-		if( ! $listing_obj ) {
+		if ( ! $listing_obj ) {
 			?>
 			<tr class="form-field">
 				<th scope="row"><label for="edlfw-type"><?php echo esc_html( $translations['type'] ); ?></label></th>
@@ -399,9 +399,9 @@ class Taxonomy {
 		}
 
 		// update the credentials.
-		update_term_meta( $term_id, 'login', Crypt::get_instance()->encrypt( (string)filter_input( INPUT_POST, 'login', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) );
-		update_term_meta( $term_id, 'password', Crypt::get_instance()->encrypt( (string)filter_input( INPUT_POST, 'password', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) );
-		update_term_meta( $term_id, 'api_key', Crypt::get_instance()->encrypt( (string)filter_input( INPUT_POST, 'api_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) );
+		update_term_meta( $term_id, 'login', Crypt::get_instance()->encrypt( (string) filter_input( INPUT_POST, 'login', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) );
+		update_term_meta( $term_id, 'password', Crypt::get_instance()->encrypt( (string) filter_input( INPUT_POST, 'password', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) );
+		update_term_meta( $term_id, 'api_key', Crypt::get_instance()->encrypt( (string) filter_input( INPUT_POST, 'api_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) );
 	}
 
 	/**
@@ -446,15 +446,15 @@ class Taxonomy {
 	/**
 	 * Add custom updated messages.
 	 *
-	 * @param array $messages List of messages.
+	 * @param array<string,array<int,string>> $messages List of messages.
 	 *
-	 * @return array
+	 * @return array<string,array<int,string>>
 	 */
 	public function add_custom_updated_messages( array $messages ): array {
 		// get translations.
 		$translations = Init::get_instance()->get_translations()['directory_archive']['messages'];
 
-		$messages[$this->get_name()] = array(
+		$messages[ $this->get_name() ] = array(
 			2 => $translations['deleted'],
 			3 => $translations['updated'],
 		);

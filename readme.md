@@ -22,16 +22,12 @@
 
 ### Run
 
-`vendor/bin/phpcs --extensions=php --ignore=*/vendor/*/vendor/*,*/node_modules/*,*/build/* --standard=ruleset.xml .`
+`vendor/bin/phpcs --standard=vendor/threadi/easy-directory-listing-for-wordpress/ruleset.xml vendor/threadi/easy-directory-listing-for-wordpress/`
 
 ### Repair
 
-`vendor/bin/phpcbf --extensions=php --ignore=*/vendor/*/vendor/*,*/node_modules/*,*/build/* --standard=ruleset.xml .`
+`vendor/bin/phpcbf --standard=vendor/threadi/easy-directory-listing-for-wordpress/ruleset.xml vendor/threadi/easy-directory-listing-for-wordpress/`
 
-## Check for WordPress VIP Coding Standards
+## Analyse with PHPStan
 
-Hint: this check runs against the VIP-GO-platform which is not our target for this plugin. Many warnings can be ignored.
-
-### Run
-
-`vendor/bin/phpcs --extensions=php --ignore=*/vendor/*/vendor/*,*/node_modules/* --standard=WordPress-VIP-Go .`
+`vendor/bin/phpstan analyse -c vendor/threadi/easy-directory-listing-for-wordpress/phpstan.neon`

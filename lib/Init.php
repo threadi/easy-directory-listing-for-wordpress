@@ -73,14 +73,14 @@ class Init {
 	/**
 	 * List of translations this package delivers.
 	 *
-	 * @var array
+	 * @var array<string,mixed>
 	 */
 	private array $translations = array();
 
 	/**
 	 * List of custom translations the calling plugin uses.
 	 *
-	 * @var array
+	 * @var array<string,mixed>
 	 */
 	private array $custom_translations = array();
 
@@ -188,7 +188,7 @@ class Init {
 	 */
 	public function add_scripts( string $hook ): void {
 		// bail if page hook is set and does not match the hook.
-		if( ! empty( $this->get_page_hook() ) && ! in_array( $hook, array( $this->get_page_hook(), 'edit-tags.php', 'term.php' ), true ) ) {
+		if ( ! empty( $this->get_page_hook() ) && ! in_array( $hook, array( $this->get_page_hook(), 'edit-tags.php', 'term.php' ), true ) ) {
 			return;
 		}
 
@@ -226,7 +226,7 @@ class Init {
 			'easy-directory-listing-for-wordpress',
 			$admin_css,
 			array( 'wp-components' ),
-			filemtime( $admin_css_path )
+			(string) filemtime( $admin_css_path )
 		);
 
 		// get parsed endpoint URL.
@@ -355,103 +355,105 @@ class Init {
 	 */
 	private function get_basic_translations(): void {
 		$this->translations = array(
-			'is_loading' => 'Please wait, list is loading.',
-			'could_not_load' => 'Directory could not be loaded.',
-			'reload' => 'Reload',
-			'import_directory' => 'Import active directory',
-			'actions'          => 'Actions',
-			'filename'         => 'Filename',
-			'filesize'         => 'Size',
-			'date'             => 'Date',
-			'config_missing' => 'Configuration for Directory Listing missing!',
-			'nonce_missing' => 'Secure token for Directory Listing missing!',
-			'empty_directory' => 'Loaded an empty directory.',
-			'error_title' => 'The following error occurred:',
-			'errors_title' => 'The following errors occurred:',
-			'serverside_error' => 'Incorrect response received from the server, possibly a server-side error.',
-			'directory_archive' => array(
-				'connect_now' => 'Open now',
-				'labels' => array(
+			'is_loading'          => 'Please wait, directory is loading.',
+			'loading_directory'   => '1 sub-directory do load',
+			'loading_directories' => '%1$d sub-directories do load',
+			'could_not_load'      => 'Directory could not be loaded.',
+			'reload'              => 'Reload',
+			'import_directory'    => 'Import active directory',
+			'actions'             => 'Actions',
+			'filename'            => 'Filename',
+			'filesize'            => 'Size',
+			'date'                => 'Date',
+			'config_missing'      => 'Configuration for Directory Listing missing!',
+			'nonce_missing'       => 'Secure token for Directory Listing missing!',
+			'empty_directory'     => 'Loaded an empty directory.',
+			'error_title'         => 'The following error occurred:',
+			'errors_title'        => 'The following errors occurred:',
+			'serverside_error'    => 'Incorrect response received from the server, possibly a server-side error.',
+			'directory_archive'   => array(
+				'connect_now'     => 'Open now',
+				'labels'          => array(
 					'name'          => 'Directory Credentials',
 					'singular_name' => 'Directory Credential',
 					'search_items'  => 'Search Directory Credential',
 					'edit_item'     => 'Edit Directory Credential',
 					'update_item'   => 'Update Directory Credential',
 					'menu_name'     => 'Directory Credentials',
-					'back_to_items' => 'Back to Directory Credentials'
+					'back_to_items' => 'Back to Directory Credentials',
 				),
-				'messages' => array(
+				'messages'        => array(
 					'updated' => 'Directory Credential updated.',
 					'deleted' => 'Directory Credential deleted.',
 				),
-				'type' => 'Type',
-				'connect' => 'Connect',
+				'type'            => 'Type',
+				'connect'         => 'Connect',
 				'type_not_loaded' => 'Type could not be loaded!',
-				'login' => 'Login',
-				'password' => 'Password',
-				'api_key' => 'API Key',
+				'login'           => 'Login',
+				'password'        => 'Password',
+				'api_key'         => 'API Key',
 			),
-			'form_file' => array(
-				'title' => 'Enter the path to a local file',
+			'form_file'           => array(
+				'title'       => 'Enter the path to a local file',
 				'description' => '',
-				'url' => array(
+				'url'         => array(
 					'label' => 'File',
 				),
-				'button' => array(
-					'label' => 'Show file'
-				)
+				'button'      => array(
+					'label' => 'Show file',
+				),
 			),
-			'form_api' => array(
-				'title' => 'Enter your credentials',
-				'description' => '',
-				'url' => array(
+			'form_api'            => array(
+				'title'            => 'Enter your credentials',
+				'description'      => '',
+				'url'              => array(
 					'label' => 'Login',
 				),
-				'key' => array(
+				'key'              => array(
 					'label' => 'Password',
 				),
 				'save_credentials' => array(
-					'label' => 'Save this credentials in directory archive'
+					'label' => 'Save this credentials in directory archive',
 				),
-				'button' => array(
+				'button'           => array(
 					'label' => 'Show directory',
 				),
 			),
-			'form_login' => array(
-				'title' => 'Enter your credentials',
-				'description' => '',
-				'url' => array(
+			'form_login'          => array(
+				'title'            => 'Enter your credentials',
+				'description'      => '',
+				'url'              => array(
 					'label' => 'URL',
 				),
-				'login' => array(
+				'login'            => array(
 					'label' => 'Login',
 				),
-				'password' => array(
+				'password'         => array(
 					'label' => 'Password',
 				),
 				'save_credentials' => array(
-					'label' => 'Save this credentials in directory archive'
+					'label' => 'Save this credentials in directory archive',
 				),
-				'button' => array(
+				'button'           => array(
 					'label' => 'Show directory',
 				),
 			),
-			'services' => array(
+			'services'            => array(
 				'local' => array(
 					'label' => 'Local server directory',
-					'title' => 'Choose file from local server directory'
-				)
-			)
+					'title' => 'Choose file from local server directory',
+				),
+			),
 		);
 	}
 
 	/**
 	 * Return the translations for this listing.
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	public function get_translations(): array {
-		if( empty( $this->translations ) ) {
+		if ( empty( $this->translations ) ) {
 			// initialize all basic translations.
 			$this->get_basic_translations();
 		}
@@ -463,7 +465,7 @@ class Init {
 	/**
 	 * Set custom translations.
 	 *
-	 * @param array $translations List of translations.
+	 * @param array<string,mixed> $translations List of translations.
 	 *
 	 * @return void
 	 */

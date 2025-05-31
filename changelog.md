@@ -1,5 +1,21 @@
 # Changelog
 
+## [3.0.0] - 31.05.2025
+
+### Added
+
+- Directory-wise loading added for better performance with large directories and deep directory trees
+- Now compatible with WordPress Coding Standards
+- And also successfully checked by PHPStan
+- Added some file type specific icons
+
+### Changed
+
+- Changes some text for better understanding
+- Multiple optimization for better performance
+- Active folder is now marked
+- Show hint if chosen directory is empty
+
 ## [2.4.1] - 24.05.2025
 
 ### Added
