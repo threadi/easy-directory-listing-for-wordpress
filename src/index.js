@@ -99,7 +99,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
   if( ! enabled && config.requires_login && ! config.term ) {
     return (
         <>
-          <EDLFW_LOGIN_FORM config={config} errors={errors} url={url} setUrl={setUrl} login={login} setLogin={setLogin} password={password} setPassword={setPassword} setEnabled={setEnabled} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
+          <EDLFW_LOGIN_FORM config={config} loadTree={loadTree} setLoadTree={setLoadTree} errors={errors} url={url} setUrl={setUrl} login={login} setLogin={setLogin} password={password} setPassword={setPassword} setEnabled={setEnabled} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
         </>)
   }
 
@@ -127,7 +127,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
   }
 
   // bail if directory listing is empty (we assume it is still loading).
-  if( ! tree ) {
+  if( ! tree || ( tree && tree instanceof Array ) ) {
     return (
         <p className="is-loading">{ edlfwJsVars.is_loading } ({ directoriesToLoad > 1 && edlfwJsVars.loading_directories.replace( '%1$d', directoriesToLoad ) }{ directoriesToLoad <= 1 && edlfwJsVars.loading_directory })</p>
     )
