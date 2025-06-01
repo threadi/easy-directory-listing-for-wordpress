@@ -1,10 +1,12 @@
 # Changelog
 
-## [Unreleased]
+## [3.0.1] - 01.06.2025
 
 ### Fixed
 
 - colspan => colSpan
+- Fixed missing loading screen on empty response array
+- Fixed login form which does not initiate the tree on request
 
 ## [3.0.0] - 31.05.2025
 
