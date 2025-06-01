@@ -225,7 +225,7 @@ const EDLFW_Directory_Listing = ( { tree, actualDirectoryPath, setActualDirector
  */
 const EDLFW_Files_Listing = ( { directoryToList, config, url, login, password, term } ) => {
   if ( ! directoryToList.length ) {
-    return (<tr><td colspan="6"><p>{edlfwJsVars.empty_directory}</p></td></tr>)
+    return (<tr><td colSpan="6"><p>{edlfwJsVars.empty_directory}</p></td></tr>)
   }
 
   return (Object.keys(directoryToList).map( directory => {

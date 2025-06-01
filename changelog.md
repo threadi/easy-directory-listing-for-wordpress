@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- colspan => colSpan
+
 ## [3.0.0] - 31.05.2025
 
 ### Added
