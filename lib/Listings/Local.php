@@ -115,9 +115,9 @@ class Local extends Directory_Listing_Base {
         }
 
         // loop through the directories and files.
-        foreach ( $wp_filesystem->dirlist( $directory ) as $name => $file ) {
+        foreach ( $wp_filesystem->dirlist( $directory ) as $filename => $file ) {
             // get path.
-            $path = $directory . $name;
+            $path = $directory . $filename;
 
             $false = false;
             /**
@@ -126,18 +126,18 @@ class Local extends Directory_Listing_Base {
              * @since 2.1.0 Available since 2.1.0.
              *
              * @param bool $false True if it should be hidden.
-             * @param string $filename Absolute path to the given file.
+             * @param string $path Absolute path to the given file.
              * @param string $directory The requested directory.
              *
              * @noinspection PhpConditionAlreadyCheckedInspection
              */
-            if ( apply_filters( Init::get_instance()->get_prefix() . '_service_local_hide_file', $false, $name, $directory ) ) {
+            if ( apply_filters( Init::get_instance()->get_prefix() . '_service_local_hide_file', $false, $path, $directory ) ) {
                 continue;
             }
 
             // create array for entry.
             $entry = array(
-                'title' => basename( $name ),
+                'title' => basename( $filename ),
             );
 
             // if this is a directory, add it to the directory list.
@@ -152,23 +152,32 @@ class Local extends Directory_Listing_Base {
                     continue;
                 }
 
-                // get image editor object of the file to get a thumb of it.
-                $editor = wp_get_image_editor( $path );
-
                 // define the thumb.
                 $thumbnail = '';
 
                 // get the thumb via image editor object.
-                if ( Init::get_instance()->is_preview_enabled() && $editor instanceof WP_Image_Editor_Imagick ) {
-                    // set size for the preview.
-                    $editor->resize( 32, 32 );
+                if ( str_contains( $mime_type['type'], 'image/' ) && Init::get_instance()->is_preview_enabled() ) {
+                    // get the real image mime.
+                    $image_mime = wp_get_image_mime( $path );
 
-                    // save the thumb.
-                    $results = $editor->save( $upload_dir . '/' . basename( $path ) );
+                    // do nothing if the real mime does not start with "image/".
+                    if( str_contains( $image_mime, 'image/' ) ) {
+                        // get image editor object of the file to get a thumb of it.
+                        $editor = wp_get_image_editor( $path );
 
-                    // add thumb to output if it does not result in an error.
-                    if ( ! is_wp_error( $results ) ) {
-                        $thumbnail = '<img src="' . esc_url( $upload_url . $results['file'] ) . '" alt="">';
+                        // check if object is WP_Image_Editor.
+                        if ( $editor instanceof WP_Image_Editor ) {
+                            // set size for the preview.
+                            $editor->resize( 32, 32 );
+
+                            // save the thumbnail.
+                            $results = $editor->save( $upload_dir . '/' . basename( $path ) );
+
+                            // add thumb to output if it does not result in an error.
+                            if ( ! is_wp_error( $results ) ) {
+                                $thumbnail = '<img src="' . esc_url( $upload_url . $results['file'] ) . '" alt="">';
+                            }
+                        }
                     }
                 }
 
@@ -195,11 +204,11 @@ class Local extends Directory_Listing_Base {
      * We initially hide the WordPress Core and content-directory.
      *
      * @param bool   $return_value The return value (true to hide).
-     * @param string $filename The given file.
+     * @param string $path The absolute path of the given file.
      *
      * @return bool
      */
-    public function hide_files( bool $return_value, string $filename ): bool {
+    public function hide_files( bool $return_value, string $path ): bool {
         // list of directories and files to hide.
         $hide_files = array(
             WP_CONTENT_DIR,
@@ -218,19 +227,18 @@ class Local extends Directory_Listing_Base {
             ABSPATH . 'wp-settings.php',
             ABSPATH . 'wp-signup.php',
             ABSPATH . 'wp-trackback.php',
-            ABSPATH . 'wplogo.png',
             ABSPATH . 'xmlrpc.php',
         );
 
         // check the list.
         foreach ( $hide_files as $hide_file ) {
             // bail if the given path does not match the hidden file.
-            if ( ! str_contains( $hide_file, $filename ) ) {
+            if ( ! str_contains( $path, $hide_file ) ) {
                 continue;
             }
 
-            // path is matching, so we return true.
-            $return_value = true;
+            // return true as the path matches our hide list and should not be used.
+            return true;
         }
 
         // return the resulting value.

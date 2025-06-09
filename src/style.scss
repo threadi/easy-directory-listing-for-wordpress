@@ -10,7 +10,10 @@
 	.errors {
 		background-color: #ccc;
 		padding: 1em;
-		ul, li, p { margin: 0 }
+		ul, li, p { margin: 0 0 .6em }
+	}
+	.is-loading span {
+		font-weight: bold;
 	}
 }
 
