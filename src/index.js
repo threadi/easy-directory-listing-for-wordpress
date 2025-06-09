@@ -129,7 +129,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
   // bail if directory listing is empty (we assume it is still loading).
   if( ! tree || ( tree && tree instanceof Array ) ) {
     return (
-        <p className="is-loading">{ edlfwJsVars.is_loading } ({ directoriesToLoad > 1 && edlfwJsVars.loading_directories.replace( '%1$d', directoriesToLoad ) }{ directoriesToLoad <= 1 && edlfwJsVars.loading_directory })</p>
+        <p className="is-loading"><span>{ edlfwJsVars.is_loading }</span> ({ directoriesToLoad > 1 && edlfwJsVars.loading_directories.replace( '%1$d', directoriesToLoad ) }{ directoriesToLoad <= 1 && edlfwJsVars.loading_directory })</p>
     )
   }
 

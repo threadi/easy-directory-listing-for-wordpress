@@ -10,17 +10,17 @@ const { _n } = wp.i18n;
  * @constructor
  */
 export const EDLFW_ERRORS = ( { errors } ) => {
-  return (
-    <>
-      <div className="errors">
-        <p><strong>{errors.length === 1 && edlfwJsVars.error_title}{errors.length > 1 && edlfwJsVars.errors_title}</strong></p>
-        <ul>
-        {errors.map( error => {
-          return <li>{error}</li>
-        })
-        }
-        </ul>
-      </div>
-    </>
-  )
+    return (
+        <>
+            <div className="errors">
+                <p><strong>{errors.length === 1 && edlfwJsVars.error_title}{errors.length > 1 && edlfwJsVars.errors_title}</strong></p>
+                <ul>
+                    {errors.map( error => {
+                        return <li key={error}><span dangerouslySetInnerHTML={{__html: error}}/></li>
+                    } )
+                    }
+                </ul>
+            </div>
+        </>
+    )
 }

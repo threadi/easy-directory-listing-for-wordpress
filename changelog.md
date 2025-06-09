@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.0.2] - 09.06.2025
+
+### Changed
+
+- "wplogo.png" is now allowed
+- Optimized output of server errors
+- Optimized loading screen
+- Better check for real images in local listings
+
+### Fixed
+
+- Fixed faulty check for directories to hide on local listing
+
 ## [3.0.1] - 01.06.2025
 
 ### Fixed
