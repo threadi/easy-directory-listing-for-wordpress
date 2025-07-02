@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.3] - 02.07.2025
+
+### Changed
+
+- Return errors if directory listing object report them
+- Lowercase any given URL before processing it
+
 ## [3.0.2] - 09.06.2025
 
 ### Changed
