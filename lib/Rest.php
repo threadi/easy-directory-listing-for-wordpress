@@ -163,7 +163,7 @@ class Rest {
         }
 
         // get the directory.
-        $directory = $params['directory'];
+        $directory = strtolower( $params['directory'] );
 
         // get the login.
         $listing_base_object->set_login( $params['login'] );
@@ -209,6 +209,11 @@ class Rest {
 
         // get the directory listing and collect all files and directories as array.
         $subs = $listing_base_object->get_directory_listing( $directory_to_load );
+
+        // bail if any error has been submitted from directory listing object.
+        if( ! empty( $listing_base_object->get_errors() ) ) {
+            return array( 'errors' => $this->get_errors_for_response( $listing_base_object->get_errors() ) );
+        }
 
         // add the result of the loaded directory in the list.
         if ( isset( $subs['completed'] ) ) {
