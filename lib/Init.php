@@ -64,6 +64,13 @@ class Init {
     private string $menu_slug = '';
 
     /**
+     * The capability.
+     *
+     * @var string
+     */
+    private string $capability = 'manage_options';
+
+    /**
      * Instance of actual object.
      *
      * @var ?Init
@@ -491,5 +498,25 @@ class Init {
      */
     public function set_archive_state( bool $archive_state ): void {
         $this->archive_state = $archive_state;
+    }
+
+    /**
+     * Return the capability.
+     *
+     * @return string
+     */
+    public function get_capability(): string {
+        return $this->capability;
+    }
+
+    /**
+     * Set the capability.
+     *
+     * @param string $capability The capability to use.
+     *
+     * @return void
+     */
+    public function set_capability( string $capability ): void {
+        $this->capability = $capability;
     }
 }

@@ -101,6 +101,9 @@ class Taxonomy {
 			'show_admin_column' => false,
 			'query_var'         => false,
 			'public'            => false,
+            'capabilities' => array(
+                'manage_terms' => Init::get_instance()->get_capability()
+            )
 		);
 
 		// register the taxonomy.
