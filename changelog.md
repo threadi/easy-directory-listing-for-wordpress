@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.1.1] - 26.07.2025
+
+### Fixed
+
+- Fixed capabilities for REST API requests
+
 ## [3.1.0] - 23.07.2025
 
 ### Added

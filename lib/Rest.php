@@ -73,7 +73,7 @@ class Rest {
     }
 
     /**
-     * Register REST endpoints.
+     * Register REST API endpoints.
      *
      * @return void
      */
@@ -86,7 +86,7 @@ class Rest {
                 'methods'             => WP_REST_Server::CREATABLE,
                 'callback'            => array( $this, 'get_directory' ),
                 'permission_callback' => function () {
-                    return current_user_can( 'manage_options' );
+                    return current_user_can( Init::get_instance()->get_capability() );
                 },
             )
         );
