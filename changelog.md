@@ -1,6 +1,10 @@
 # Changelog
 
-## [3.1.1] - 26.07.2025
+## [3.1.1] - 27.07.2025
+
+### Changed
+
+- Hide taxonomy meta box
 
 ### Fixed
 
