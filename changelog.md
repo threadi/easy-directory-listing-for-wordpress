@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.1.1] - 27.07.2025
+
+### Changed
+
+- Hide taxonomy meta box
+
+### Fixed
+
+- Fixed capabilities for REST API requests
+
 ## [3.1.0] - 23.07.2025
 
 ### Added

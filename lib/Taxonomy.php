@@ -101,6 +101,7 @@ class Taxonomy {
 			'show_admin_column' => false,
 			'query_var'         => false,
 			'public'            => false,
+            'meta_box_cb'       => false,
             'capabilities' => array(
                 'manage_terms' => Init::get_instance()->get_capability()
             )
