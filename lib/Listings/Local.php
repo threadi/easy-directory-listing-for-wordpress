@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 use easyDirectoryListingForWordPress\Directory_Listing_Base;
 use easyDirectoryListingForWordPress\Helper;
 use easyDirectoryListingForWordPress\Init;
-use WP_Image_Editor_Imagick;
+use WP_Image_Editor;
 
 /**
  * Object which handle the local listing of directories.
@@ -162,8 +162,11 @@ class Local extends Directory_Listing_Base {
 
                     // do nothing if the real mime does not start with "image/".
                     if( str_contains( $image_mime, 'image/' ) ) {
+                        // generate path for WP-functions.
+                        $wp_compatible_path = str_replace( 'file://', '', $path );
+
                         // get image editor object of the file to get a thumb of it.
-                        $editor = wp_get_image_editor( $path );
+                        $editor = wp_get_image_editor( $wp_compatible_path, $mime_type );
 
                         // check if object is WP_Image_Editor.
                         if ( $editor instanceof WP_Image_Editor ) {

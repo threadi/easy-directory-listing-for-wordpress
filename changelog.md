@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.1.2] - 02.08.2025
+
+### Fixed
+
+- Fixed detection of thumbnails for local directory listings
+
 ## [3.1.1] - 27.07.2025
 
 ### Changed
