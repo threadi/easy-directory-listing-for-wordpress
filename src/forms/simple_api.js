@@ -20,7 +20,7 @@ import {EDLFW_ERRORS} from "../errors";
  * @returns {JSX.Element}
  * @constructor
  */
-export const EDLFW_SIMPLE_API_FORM = ( { config, loadTree, setLoadTree, errors, apiKey, setApiKey, setEnabled, url, setUrl, saveCredentials, setSaveCredentials } ) => {
+export const EDLFW_SIMPLE_API_FORM = ( { config, loadTree, setLoadTree, errors, setErrors, apiKey, setApiKey, setEnabled, url, setUrl, saveCredentials, setSaveCredentials } ) => {
     /**
      * Handle the login itself.
      */
@@ -31,6 +31,7 @@ export const EDLFW_SIMPLE_API_FORM = ( { config, loadTree, setLoadTree, errors, 
         }
 
         // enable the listing.
+        setErrors( false )
         setLoadTree( ! loadTree )
         setEnabled( true );
     }

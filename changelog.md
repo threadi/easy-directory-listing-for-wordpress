@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.1.3] - 02.08.2025
+
+### Changed
+
+- Hide previous error on next login 
+
 ## [3.1.2] - 02.08.2025
 
 ### Fixed
