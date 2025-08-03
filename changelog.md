@@ -7,6 +7,10 @@
 - Hide previous error on next login
 - Set expiration for transients to one day
 
+### Fixed
+
+- Fixed spelling of "colSpan"
+
 ## [3.1.2] - 02.08.2025
 
 ### Fixed
