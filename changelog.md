@@ -1,6 +1,10 @@
 # Changelog
 
-## [3.1.3] - 02.08.2025
+## [3.2.0] - 03.08.2025
+
+### Added
+
+- Added open and closing for directories
 
 ### Changed
 

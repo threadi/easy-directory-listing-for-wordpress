@@ -28,6 +28,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
   const [ tree, setTree ] = useState( false );
   const [ actualDirectory, setActualDirectory ] = useState( false );
   const [ actualDirectoryPath, setActualDirectoryPath ] = useState( false );
+  const [ openDirectoryPath, setOpenDirectoryPath ] = useState( false );
   const [ url, setUrl ] = useState( props.config.directory );
   const [ login, setLogin ] = useState( '' );
   const [ password, setPassword ] = useState( '' );
@@ -137,8 +138,10 @@ const EDLFW_Directory_Viewer = ( props ) => {
   if( ! actualDirectory && Object.keys(tree) && Object.keys(tree)[0] ) {
     setActualDirectory( tree[Object.keys(tree)[0]].files )
     setActualDirectoryPath( Object.keys(tree)[0] );
+    setOpenDirectoryPath( Object.keys(tree)[0] )
   }
 
+  // set class on body if listing is loaded.
   document.body.classList.add('easy-directory-listing-for-wordpress-loaded');
 
   // generate output.
@@ -151,7 +154,11 @@ const EDLFW_Directory_Viewer = ( props ) => {
         </div>
         <div id="easy-directory-listing-for-wordpress-listing-view">
           <div id="easy-directory-listing-for-wordpress-listing">
-            <ul><EDLFW_Directory_Listing tree={tree} actualDirectoryPath={actualDirectoryPath} setActualDirectory={setActualDirectory} setActualDirectoryPath={setActualDirectoryPath} /></ul>
+            <ul><EDLFW_Directory_Listing tree={tree} actualDirectoryPath={actualDirectoryPath}
+                                         setActualDirectory={setActualDirectory}
+                                         setActualDirectoryPath={setActualDirectoryPath}
+                                         openDirectoryPath={openDirectoryPath}
+                                         setOpenDirectoryPath={setOpenDirectoryPath}/></ul>
           </div>
           <div id="easy-directory-listing-for-wordpress-details">
             <table className="wp-list-table widefat fixed striped table-view-list">
@@ -184,15 +191,22 @@ const EDLFW_Directory_Viewer = ( props ) => {
  * @returns {*}
  * @constructor
  */
-const EDLFW_Directory_Listing = ( { tree, actualDirectoryPath, setActualDirectory, setActualDirectoryPath } ) => {
+const EDLFW_Directory_Listing = ( { tree, actualDirectoryPath, setActualDirectory, setActualDirectoryPath, openDirectoryPath, setOpenDirectoryPath } ) => {
   // bail if no directories are given.
   if( ! tree ) {
     return '';
   }
 
-  function changeDirectory( directory, obj ) {
+  // change to this directory and show its files.
+  function changeDirectory( directory ) {
     setActualDirectory(tree[directory].files);
     setActualDirectoryPath( directory );
+    setOpenDirectoryPath( directory )
+  }
+
+  // open this directory.
+  function openDirectory( directory ) {
+    setOpenDirectoryPath( directory )
   }
 
   return (Object.keys(tree).map( directory => {
@@ -202,9 +216,21 @@ const EDLFW_Directory_Listing = ( { tree, actualDirectoryPath, setActualDirector
           buttonClassName = 'primary';
         }
 
-        return (<li key={directory}>
-              <Button variant={ buttonClassName } onClick={() => changeDirectory(directory) }>{tree[directory].title}</Button>
-              {tree[directory].dirs && <ul><EDLFW_Directory_Listing tree={tree[directory].dirs} actualDirectoryPath={actualDirectoryPath} setActualDirectory={setActualDirectory} setActualDirectoryPath={setActualDirectoryPath} /></ul>}
+        // set class for directory symbol and to show sub-directories.
+        let directoryClassName = '';
+        if( openDirectoryPath === directory ) {
+          directoryClassName = 'open';
+        }
+
+        return (<li key={directory} className={directoryClassName}>
+              <a href="#" onClick={() => openDirectory( directory )}>&nbsp;</a>
+              <Button variant={buttonClassName}
+                      onClick={() => changeDirectory( directory )}>{tree[directory].title}</Button>
+              {tree[directory].dirs &&
+                  <ul><EDLFW_Directory_Listing tree={tree[directory].dirs} actualDirectoryPath={actualDirectoryPath}
+                                               setActualDirectory={setActualDirectory}
+                                               setActualDirectoryPath={setActualDirectoryPath}
+                                               openDirectoryPath={openDirectoryPath} setOpenDirectoryPath={setOpenDirectoryPath} /></ul>}
             </li>
         )
       }
