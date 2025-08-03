@@ -225,7 +225,7 @@ class Rest {
         }
 
         // save the actual tree as user-specific transient.
-        set_transient( $this->get_init_obj()->get_prefix() . '_' . get_current_user_id() . '_' . md5( $directory ) . '_tree', $directory_list );
+        set_transient( $this->get_init_obj()->get_prefix() . '_' . get_current_user_id() . '_' . md5( $directory ) . '_tree', $directory_list, DAY_IN_SECONDS );
 
         // check if all directories have been loaded.
         $directory_loading = false;

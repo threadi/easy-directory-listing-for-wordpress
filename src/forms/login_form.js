@@ -24,7 +24,7 @@ import {EDLFW_ERRORS} from "../errors";
  * @returns {JSX.Element}
  * @constructor
  */
-export const EDLFW_LOGIN_FORM = ( { config, loadTree, setLoadTree, errors, url, setUrl, login, setLogin, password, setPassword, setEnabled, saveCredentials, setSaveCredentials } ) => {
+export const EDLFW_LOGIN_FORM = ( { config, loadTree, setLoadTree, errors, setErrors, url, setUrl, login, setLogin, password, setPassword, setEnabled, saveCredentials, setSaveCredentials } ) => {
     /**
      * Handle the login itself.
      */
@@ -35,6 +35,7 @@ export const EDLFW_LOGIN_FORM = ( { config, loadTree, setLoadTree, errors, url, 
         }
 
         // enable the listing.
+        setErrors( false )
         setLoadTree( ! loadTree )
         setEnabled( true )
     }
