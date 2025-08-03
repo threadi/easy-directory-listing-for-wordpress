@@ -4,7 +4,8 @@
 
 ### Changed
 
-- Hide previous error on next login 
+- Hide previous error on next login
+- Set expiration for transients to one day
 
 ## [3.1.2] - 02.08.2025
 
