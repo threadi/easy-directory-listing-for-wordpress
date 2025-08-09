@@ -11,6 +11,7 @@ import {EDLFW_LOGIN_FORM} from "./forms/login_form";
 import {EDLFW_SIMPLE_API_FORM} from "./forms/simple_api";
 import {EDLFW_FILE_FORM} from "./forms/file";
 import {EDLFW_ERRORS} from "./errors";
+import {EDLFW_AWS_S3_FORM} from "./forms/aws_s3";
 
 /**
  * Define the Easy Directory Listing for WordPress.
@@ -108,7 +109,15 @@ const EDLFW_Directory_Viewer = ( props ) => {
   if( ! enabled && config.requires_simple_api && ! config.term ) {
     return (
         <>
-          <EDLFW_SIMPLE_API_FORM config={config} loadTree={loadTree} setLoadTree={setLoadTree} errors={errors} setErrors={setErrors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
+          <EDLFW_SIMPLE_API_FORM config={config} loadTree={loadTree} setLoadTree={setLoadTree} errors={errors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
+        </>)
+  }
+
+  // show 3 fields API form if directory is not enabled and API should be requested.
+  if( ! enabled && config.requires_3fields_api && ! config.term ) {
+    return (
+        <>
+          <EDLFW_AWS_S3_FORM config={config} loadTree={loadTree} setLoadTree={setLoadTree} errors={errors} login={login} setLogin={setLogin} password={password} setPassword={setPassword} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
         </>)
   }
 
@@ -116,7 +125,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
   if( ! enabled && ! config.directory && ! config.term ) {
     return (
         <>
-          <EDLFW_FILE_FORM errors={errors} setErrors={setErrors} loadTree={loadTree} setLoadTree={setLoadTree}  apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
+          <EDLFW_FILE_FORM errors={errors} loadTree={loadTree} setLoadTree={setLoadTree}  apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
         </>)
   }
 
@@ -141,7 +150,6 @@ const EDLFW_Directory_Viewer = ( props ) => {
     setOpenDirectoryPath( Object.keys(tree)[0] )
   }
 
-  // set class on body if listing is loaded.
   document.body.classList.add('easy-directory-listing-for-wordpress-loaded');
 
   // generate output.
@@ -154,11 +162,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
         </div>
         <div id="easy-directory-listing-for-wordpress-listing-view">
           <div id="easy-directory-listing-for-wordpress-listing">
-            <ul><EDLFW_Directory_Listing tree={tree} actualDirectoryPath={actualDirectoryPath}
-                                         setActualDirectory={setActualDirectory}
-                                         setActualDirectoryPath={setActualDirectoryPath}
-                                         openDirectoryPath={openDirectoryPath}
-                                         setOpenDirectoryPath={setOpenDirectoryPath}/></ul>
+            <ul><EDLFW_Directory_Listing tree={tree} actualDirectoryPath={actualDirectoryPath} setActualDirectory={setActualDirectory} setActualDirectoryPath={setActualDirectoryPath} openDirectoryPath={openDirectoryPath} setOpenDirectoryPath={setOpenDirectoryPath} /></ul>
           </div>
           <div id="easy-directory-listing-for-wordpress-details">
             <table className="wp-list-table widefat fixed striped table-view-list">

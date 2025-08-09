@@ -445,6 +445,25 @@ class Init {
                     'label' => 'Show directory',
                 ),
             ),
+            'aws_s3_api'            => array(
+                'title'            => 'Enter your credentials',
+                'description'      => '',
+                'access_key'              => array(
+                    'label' => 'Access Key',
+                ),
+                'secret_key'              => array(
+                    'label' => 'Secret Key',
+                ),
+                'bucket'              => array(
+                    'label' => 'Bucket',
+                ),
+                'save_credentials' => array(
+                    'label' => 'Save this credentials in directory archive',
+                ),
+                'button'           => array(
+                    'label' => 'Show directory',
+                ),
+            ),
             'services'            => array(
                 'local' => array(
                     'label' => 'Local server directory',
