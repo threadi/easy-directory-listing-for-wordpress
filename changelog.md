@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.3.0] - 09.08.2025
+
+### Added
+
+- Added new form for 3 fields API
+
 ## [3.2.0] - 03.08.2025
 
 ### Added

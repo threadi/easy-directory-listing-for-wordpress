@@ -59,6 +59,13 @@ class Directory_Listing_Base {
     protected bool $requires_simple_api = false;
 
     /**
+     * Marker if API with 3 fields is required (with API Key).
+     *
+     * @var bool
+     */
+    protected bool $requires_3fields_api = false;
+
+    /**
      * List of global actions for this listing object.
      *
      * @var array<int,array<string,string>>
@@ -135,12 +142,21 @@ class Directory_Listing_Base {
     }
 
     /**
-     * Return whether this directory is protected with simple API key.
+     * Return whether this directory is protected with simple API.
      *
      * @return bool
      */
     public function is_simple_api_required(): bool {
         return $this->requires_simple_api;
+    }
+
+    /**
+     * Return whether this directory is protected with 3fields API credentials.
+     *
+     * @return bool
+     */
+    public function is_3fields_api_required(): bool {
+        return $this->requires_3fields_api;
     }
 
     /**
@@ -250,6 +266,7 @@ class Directory_Listing_Base {
             'listing_base_object_name' => $this->get_name(),
             'requires_login'           => $this->is_login_required(),
             'requires_simple_api'      => $this->is_simple_api_required(),
+            'requires_3fields_api'      => $this->is_3fields_api_required(),
             'nonce'                    => wp_create_nonce( $this->get_nonce_name() ),
             'actions'                  => $this->get_actions(),
             'global_actions'           => $this->get_global_actions(),
