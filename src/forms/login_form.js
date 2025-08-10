@@ -43,7 +43,7 @@ export const EDLFW_LOGIN_FORM = ( { config, loadTree, setLoadTree, errors, setEr
     return (
         <>
             <h2>{edlfwJsVars.form_login.title}</h2>
-            {edlfwJsVars.form_login.description.length > 0 && <p>{edlfwJsVars.form_login.description}</p>}
+            {edlfwJsVars.form_login.description.length > 0 && <p dangerouslySetInnerHTML={{__html: edlfwJsVars.form_login.description}} />}
             {errors && <EDLFW_ERRORS errors={errors}/>}
             <InputControl label={edlfwJsVars.form_login.url.label} value={url} onChange={(value) => setUrl( value )}/>
             <InputControl label={edlfwJsVars.form_login.login.label} value={login} onChange={(value) => setLogin( value )}/>

@@ -20,7 +20,7 @@ import {EDLFW_ERRORS} from "../errors";
  * @returns {JSX.Element}
  * @constructor
  */
-export const EDLFW_AWS_S3_FORM = ( { config, loadTree, setLoadTree, errors, login, setLogin, password, setPassword, apiKey, setApiKey, setEnabled, url, setUrl, saveCredentials, setSaveCredentials } ) => {
+export const EDLFW_AWS_S3_FORM = ( { config, loadTree, setLoadTree, errors, setErrors, login, setLogin, password, setPassword, apiKey, setApiKey, setEnabled, url, setUrl, saveCredentials, setSaveCredentials } ) => {
     /**
      * Handle the login itself.
      */
@@ -31,6 +31,7 @@ export const EDLFW_AWS_S3_FORM = ( { config, loadTree, setLoadTree, errors, logi
         }
 
         // enable the listing.
+        setErrors( false )
         setLoadTree( ! loadTree )
         setEnabled( true );
     }
@@ -38,7 +39,7 @@ export const EDLFW_AWS_S3_FORM = ( { config, loadTree, setLoadTree, errors, logi
     return (
         <>
             <h2>{edlfwJsVars.form_api.title}</h2>
-            {edlfwJsVars.form_api.description.length > 0 && <p>{edlfwJsVars.form_api.description}</p>}
+            {edlfwJsVars.aws_s3_api.description.length > 0 && <p dangerouslySetInnerHTML={{__html: edlfwJsVars.aws_s3_api.description}} />}
             {errors && <EDLFW_ERRORS errors={errors}/>}
             <InputControl label={edlfwJsVars.aws_s3_api.access_key.label} value={login} onChange={(value) => setLogin( value )}/>
             <InputControl label={edlfwJsVars.aws_s3_api.secret_key.label} value={password} onChange={(value) => setPassword( value )}/>

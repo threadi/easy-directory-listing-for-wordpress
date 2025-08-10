@@ -35,7 +35,7 @@ export const EDLFW_FILE_FORM = ( { errors, setErrors, loadTree, setLoadTree, set
     return (
         <>
             <h2>{edlfwJsVars.form_file.title}</h2>
-            {edlfwJsVars.form_file.description.length > 0 && <p>{edlfwJsVars.form_file.description}</p>}
+            {edlfwJsVars.form_file.description.length > 0 && <p dangerouslySetInnerHTML={{__html: edlfwJsVars.form_file.description}} />}
             {errors && <EDLFW_ERRORS errors={errors}/>}
             <InputControl label={edlfwJsVars.form_file.url.label} value={url} onChange={(value) => setUrl( value )}/>
             <Button variant="primary" onClick={() => do_login()} disabled={ url.length === 0 }>{edlfwJsVars.form_file.button.label}</Button>
