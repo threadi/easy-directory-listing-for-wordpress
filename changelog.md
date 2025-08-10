@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.3.1] - 10.08.2025
+
+### Changed
+
+- Allow HTML-code for form descriptions
+- Small style optimizations
+
+### Fixed
+
+- Fixed wrong spelling in 3 fields API form
+- Fixed usage of file form
+
 ## [3.3.0] - 09.08.2025
 
 ### Added

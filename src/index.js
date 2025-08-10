@@ -109,7 +109,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
   if( ! enabled && config.requires_simple_api && ! config.term ) {
     return (
         <>
-          <EDLFW_SIMPLE_API_FORM config={config} loadTree={loadTree} setLoadTree={setLoadTree} errors={errors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
+          <EDLFW_SIMPLE_API_FORM config={config} loadTree={loadTree} setLoadTree={setLoadTree} errors={errors} setErrors={setErrors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
         </>)
   }
 
@@ -117,7 +117,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
   if( ! enabled && config.requires_3fields_api && ! config.term ) {
     return (
         <>
-          <EDLFW_AWS_S3_FORM config={config} loadTree={loadTree} setLoadTree={setLoadTree} errors={errors} login={login} setLogin={setLogin} password={password} setPassword={setPassword} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
+          <EDLFW_AWS_S3_FORM config={config} loadTree={loadTree} setLoadTree={setLoadTree} errors={errors} setErrors={setErrors} login={login} setLogin={setLogin} password={password} setPassword={setPassword} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
         </>)
   }
 
@@ -125,7 +125,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
   if( ! enabled && ! config.directory && ! config.term ) {
     return (
         <>
-          <EDLFW_FILE_FORM errors={errors} loadTree={loadTree} setLoadTree={setLoadTree}  apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
+          <EDLFW_FILE_FORM errors={errors} setErrors={setErrors} loadTree={loadTree} setLoadTree={setLoadTree} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
         </>)
   }
 

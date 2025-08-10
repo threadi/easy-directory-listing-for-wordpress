@@ -414,6 +414,17 @@ class Directory_Listing_Base {
     }
 
     /**
+     * Return the password from entry config.
+     *
+     * @param array<string,mixed> $config The entry config.
+     *
+     * @return string
+     */
+    public function get_api_key_from_archive_entry( array $config ): string {
+        return $config['api_key'];
+    }
+
+    /**
      * Return a custom view URL.
      *
      * @return string

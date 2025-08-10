@@ -39,7 +39,7 @@ export const EDLFW_SIMPLE_API_FORM = ( { config, loadTree, setLoadTree, errors, 
     return (
         <>
             <h2>{edlfwJsVars.form_api.title}</h2>
-            {edlfwJsVars.form_api.description.length > 0 && <p>{edlfwJsVars.form_api.description}</p>}
+            {edlfwJsVars.form_api.description.length > 0 && <p dangerouslySetInnerHTML={{__html: edlfwJsVars.form_api.description}} />}
             {errors && <EDLFW_ERRORS errors={errors}/>}
             <InputControl label={edlfwJsVars.form_api.url.label} value={url} onChange={(value) => setUrl( value )}/>
             <InputControl label={edlfwJsVars.form_api.key.label} value={apiKey} onChange={(value) => setApiKey( value )}/>
