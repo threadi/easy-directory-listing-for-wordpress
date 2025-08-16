@@ -104,6 +104,32 @@ class Local extends Directory_Listing_Base {
         \WP_Filesystem();
         global $wp_filesystem;
 
+        // bail if wp_filesystem is not set.
+        if( is_null( $wp_filesystem ) ) {
+            // create error object.
+            $error = new \WP_Error();
+            $error->add( 'efml_service_' . $this->get_name(), __( 'Could not load necessary WordPress-component WP_Filesystem. Possible faulty configuration of FS_METHOD.', 'external-files-in-media-library' ) );
+
+            // add the error to the list for response.
+            $this->add_error( $error );
+
+            // do nothing more.
+            return array();
+        }
+
+        // bail if wp_filesystem is not "direct".
+        if( ! $wp_filesystem instanceof \WP_Filesystem_Direct ) {
+            // create error object.
+            $error = new \WP_Error();
+            $error->add( 'efml_service_' . $this->get_name(), __( 'Could not load necessary WordPress-component WP_Filesystem. Possible faulty configuration of FS_METHOD.', 'external-files-in-media-library' ) );
+
+            // add the error to the list for response.
+            $this->add_error( $error );
+
+            // do nothing more.
+            return array();
+        }
+
         // get upload directory.
         $upload_dir_data = wp_get_upload_dir();
         $upload_dir      = trailingslashit( $upload_dir_data['basedir'] ) . 'edlfw/';
