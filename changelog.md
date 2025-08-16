@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.3.2] - 15.08.2025
+
+### Changed
+
+- Optimized error handling in Local listing
+
 ## [3.3.1] - 10.08.2025
 
 ### Changed
