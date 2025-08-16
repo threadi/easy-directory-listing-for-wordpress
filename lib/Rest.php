@@ -257,6 +257,16 @@ class Rest {
             }
         }
 
+        /**
+         * Filter whether we load any further directory.
+         *
+         * @since 3.3.3 Available since 3.3.3.
+         * @param bool $directory_loading True if more directories should be loaded.
+         * @param array $directory_list The list of directories.
+         * @param string $directory The directory to load.
+         */
+        $directory_loading = apply_filters( Init::get_instance()->get_prefix() . '_service_' . $listing_base_object->get_name() . '_directory_loading', $directory_loading, $directory_list, $directory );
+
         // bail if we must load further directories.
         if ( $directory_loading ) {
             return array(
