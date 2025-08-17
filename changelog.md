@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.3.4] - 16.08.2025
+
+### Added
+
+- Added new hook before the tree is build
+
+### Changed
+
+- Delete transient of listing if any error occurred
+
+### Fixed
+
+- Fixed some typos
+
 ## [3.3.3] - 15.08.2025
 
 ### Added
