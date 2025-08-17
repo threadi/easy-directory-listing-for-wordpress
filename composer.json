@@ -1,6 +1,6 @@
 {
     "name": "threadi/easy-directory-listing-for-wordpress",
-    "version": "3.3.2",
+    "version": "3.3.4",
     "type": "library",
     "license": "GPL-3.0-or-later",
     "scripts": {

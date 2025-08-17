@@ -363,8 +363,8 @@ class Init {
     private function get_basic_translations(): void {
         $this->translations = array(
             'is_loading'          => 'Please wait, directory is loading.',
-            'loading_directory'   => '1 sub-directory do load',
-            'loading_directories' => '%1$d sub-directories do load',
+            'loading_directory'   => '1 sub-directory to load',
+            'loading_directories' => '%1$d sub-directories to load',
             'could_not_load'      => 'Directory could not be loaded.',
             'reload'              => 'Reload',
             'import_directory'    => 'Import active directory',

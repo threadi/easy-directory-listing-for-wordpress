@@ -242,7 +242,7 @@ class Local extends Directory_Listing_Base {
         $hide_files = array(
             WP_CONTENT_DIR,
             ABSPATH . WPINC,
-            ABSPATH . 'wp-admin/',
+            ABSPATH . 'wp-admin',
             ABSPATH . 'wp-blog-header.php',
             ABSPATH . 'wp-comments-post.php',
             ABSPATH . 'wp-config-sample.php',

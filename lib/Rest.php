@@ -212,6 +212,10 @@ class Rest {
 
         // bail if any error has been submitted from directory listing object.
         if( ! empty( $listing_base_object->get_errors() ) ) {
+            // remove the cache for this request.
+            delete_transient( $this->get_init_obj()->get_prefix() . '_' . get_current_user_id() . '_' . md5( $directory ) . '_tree' );
+
+            // return the error list.
             return array( 'errors' => $this->get_errors_for_response( $listing_base_object->get_errors() ) );
         }
 
@@ -257,6 +261,16 @@ class Rest {
             }
         }
 
+        /**
+         * Filter whether we load any further directory.
+         *
+         * @since 3.3.3 Available since 3.3.3.
+         * @param bool $directory_loading True if more directories should be loaded.
+         * @param array $directory_list The list of directories.
+         * @param string $directory The directory to load.
+         */
+        $directory_loading = apply_filters( Init::get_instance()->get_prefix() . '_service_' . $listing_base_object->get_name() . '_directory_loading', $directory_loading, $directory_list, $directory );
+
         // bail if we must load further directories.
         if ( $directory_loading ) {
             return array(
@@ -270,11 +284,22 @@ class Rest {
             unset( $directory_list['completed'] );
         }
 
+        /**
+         * Filter the resulting tree of files and directories before we build the tree.
+         *
+         * @since 3.3.4 Available since 3.3.4.
+         *
+         * @param array $tree The tree of directories and files.
+         * @param string $directory The base-directory used.
+         * @param string $name The service name.
+         */
+        $directory_list = apply_filters( $this->get_init_obj()->get_prefix() . '_directory_listing_before_tree_building', $directory_list, $directory, $listing_base_object->get_name() );
+
         // build the resulting tree.
         $tree = $this->build_tree( $directory_list );
 
         /**
-         * Filter the resulting tree of files and directories.
+         * Filter the resulting tree of files and directories after the tree has been build.
          *
          * @since 1.0.0 Available since 1.0.0.
          *
