@@ -1,6 +1,10 @@
 # Changelog
 
-## [3.3.5] - 24.08.2025
+## [3.4.0] - 24.08.2025
+
+### Added
+
+- Added cancel button
 
 ### Changed
 
