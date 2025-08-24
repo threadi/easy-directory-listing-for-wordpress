@@ -38,6 +38,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
   const [ saveCredentials, setSaveCredentials ] = useState( false );
   const [ loadTree, setLoadTree ] = useState( true );
   const [ directoriesToLoad, setDirectoriesToLoad ] = useState( 0 );
+  let [ cancelLoading, setCancelLoading ] = useState( false );
 
   // get configuration.
   let config = props.config;
@@ -55,6 +56,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
   // if error occurred reset the term.
   if( errors ) {
     config.term = false;
+    setCancelLoading = false;
   }
 
   // get the recursive listing for the given directory.
@@ -68,7 +70,8 @@ const EDLFW_Directory_Viewer = ( props ) => {
       listing_base_object_name: config.listing_base_object_name,
       saveCredentials: saveCredentials,
       nonce: config.nonce,
-      term: config.term
+      term: config.term,
+      cancelLoading: cancelLoading
     }
     apiFetch( { path: edlfwJsVars.get_directory_endpoint, method: 'POST', data: params } ).then( ( response ) => {
       // bail on any returning error.
@@ -89,7 +92,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
       setTree( response );
       setErrors( false );
     } ).catch( ( err ) => {
-      let fetch_errors = new Array();
+      let fetch_errors = [];
       fetch_errors.push( edlfwJsVars.serverside_error );
       fetch_errors.push( err.message );
       setErrors( fetch_errors );
@@ -109,7 +112,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
   if( ! enabled && config.requires_simple_api && ! config.term ) {
     return (
         <>
-          <EDLFW_SIMPLE_API_FORM config={config} loadTree={loadTree} setLoadTree={setLoadTree} errors={errors} setErrors={setErrors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
+          <EDLFW_SIMPLE_API_FORM config={config} loadTree={loadTree} setLoadTree={setLoadTree} errors={errors} apiKey={apiKey} setApiKey={setApiKey} setEnabled={setEnabled} url={url} setUrl={setUrl} saveCredentials={saveCredentials} setSaveCredentials={setSaveCredentials} />
         </>)
   }
 
@@ -139,7 +142,11 @@ const EDLFW_Directory_Viewer = ( props ) => {
   // bail if directory listing is empty (we assume it is still loading).
   if( ! tree || ( tree && tree instanceof Array ) ) {
     return (
-        <p className="is-loading"><span>{ edlfwJsVars.is_loading }</span> ({ directoriesToLoad > 1 && edlfwJsVars.loading_directories.replace( '%1$d', directoriesToLoad ) }{ directoriesToLoad <= 1 && edlfwJsVars.loading_directory })</p>
+        <div className="is-loading">
+          <p><span>{ edlfwJsVars.is_loading }</span> ({ directoriesToLoad > 1 && edlfwJsVars.loading_directories.replace( '%1$d', directoriesToLoad ) }{ directoriesToLoad <= 1 && edlfwJsVars.loading_directory })</p>
+          {!cancelLoading && <p>{<Button variant="secondary" onClick={() => setCancelLoading(true)}>{edlfwJsVars.cancel}</Button>}</p>}
+          {cancelLoading && <p>{edlfwJsVars.please_wait}</p>}
+        </div>
     )
   }
 
@@ -150,6 +157,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
     setOpenDirectoryPath( Object.keys(tree)[0] )
   }
 
+  // add class on body as marker that listing is loaded.
   document.body.classList.add('easy-directory-listing-for-wordpress-loaded');
 
   // generate output.

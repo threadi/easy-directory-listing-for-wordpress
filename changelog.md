@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.4.0] - 24.08.2025
+
+### Added
+
+- Added cancel button
+
+### Changed
+
+- Do not lowercase the requested directory in REST API
+- Rename *_service_*_directory_loading hook to *_directory_listing_*_directory_loading
+
 ## [3.3.4] - 16.08.2025
 
 ### Added

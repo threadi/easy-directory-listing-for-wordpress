@@ -363,6 +363,8 @@ class Init {
     private function get_basic_translations(): void {
         $this->translations = array(
             'is_loading'          => 'Please wait, directory is loading.',
+            'cancel'              => 'Cancel',
+            'please_wait'         => 'Cancel loading, please wait',
             'loading_directory'   => '1 sub-directory to load',
             'loading_directories' => '%1$d sub-directories to load',
             'could_not_load'      => 'Directory could not be loaded.',
