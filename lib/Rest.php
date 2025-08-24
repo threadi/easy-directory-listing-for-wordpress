@@ -163,7 +163,7 @@ class Rest {
         }
 
         // get the directory.
-        $directory = strtolower( $params['directory'] );
+        $directory = $params['directory'];
 
         // get the login.
         $listing_base_object->set_login( $params['login'] );
@@ -269,7 +269,7 @@ class Rest {
          * @param array $directory_list The list of directories.
          * @param string $directory The directory to load.
          */
-        $directory_loading = apply_filters( Init::get_instance()->get_prefix() . '_service_' . $listing_base_object->get_name() . '_directory_loading', $directory_loading, $directory_list, $directory );
+        $directory_loading = apply_filters( Init::get_instance()->get_prefix() . '_directory_listing_' . $listing_base_object->get_name() . '_directory_loading', $directory_loading, $directory_list, $directory );
 
         // bail if we must load further directories.
         if ( $directory_loading ) {
