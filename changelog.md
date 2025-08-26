@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.4.1] - 26.08.2025
+
+### Changed
+
+- Check if constants are already defined
+
 ## [3.4.0] - 24.08.2025
 
 ### Added

@@ -130,8 +130,12 @@ class Init {
      */
     public function init(): void {
         // define constants.
-        define( 'EDLFW_HASH', 'edlfw_hash' );
-        define( 'EDLFW_SODIUM_HASH', 'edlfw_sodium_hash' );
+        if( ! defined( 'EDLFW_HASH' ) ) {
+            define( 'EDLFW_HASH', 'edlfw_hash' );
+        }
+        if( ! defined( 'EDLFW_SODIUM_HASH' ) ) {
+            define( 'EDLFW_SODIUM_HASH', 'edlfw_sodium_hash' );
+        }
 
         // add scripts.
         add_action( 'admin_enqueue_scripts', array( $this, 'add_scripts' ) );
