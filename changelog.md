@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.4.2] - 27.08.2025
+
+### Changed
+
+- Extended REST hook
+
 ## [3.4.1] - 26.08.2025
 
 ### Changed
