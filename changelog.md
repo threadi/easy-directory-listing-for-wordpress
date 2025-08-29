@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.5.0] - 29.08.2025
+
+### Added
+
+- Cleanup the directory to thumbnails from directory listings (max age 1 day)
+
 ## [3.4.2] - 27.08.2025
 
 ### Changed

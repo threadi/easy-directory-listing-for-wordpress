@@ -58,6 +58,9 @@ class Directory_Listings {
 		foreach ( $this->get_directory_listings_objects() as $obj ) {
 			$obj->init();
 		}
+
+        // use hooks.
+        add_action( 'admin_init', array( $this, 'cleanup' ) );
 	}
 
 	/**
@@ -115,4 +118,40 @@ class Directory_Listings {
 			get_admin_url() . 'edit-tags.php'
 		);
 	}
+
+    /**
+     * Cleanup our own directory for files used to preview images in listings.
+     *
+     * @return void
+     */
+    public function cleanup(): void {
+        // get upload directory.
+        $upload_dir_data = wp_get_upload_dir();
+        $upload_dir      = trailingslashit( $upload_dir_data['basedir'] ) . 'edlfw/';
+
+        // get WP Filesystem-handler.
+        require_once ABSPATH . '/wp-admin/includes/file.php'; // @phpstan-ignore requireOnce.fileNotFound
+        \WP_Filesystem();
+        global $wp_filesystem;
+
+        // bail if directory does not exist.
+        if( ! $wp_filesystem->exists( $upload_dir ) ) {
+            return;
+        }
+
+        // get all files from the directory.
+        $files = glob( $upload_dir . '/*.*' );
+
+        // loop through them and delete the files which are older than 1 day.
+        $max_age = time() - DAY_IN_SECONDS;
+        foreach( $files as $file ) {
+            // bail if file is younger than 1 day.
+            if( filemtime( $file ) > $max_age ) {
+                continue;
+            }
+
+            // delete the file.
+            $wp_filesystem->delete( $file );
+        }
+    }
 }
