@@ -284,6 +284,8 @@ class Rest {
             unset( $directory_list['completed'] );
         }
 
+        $name = $listing_base_object->get_name();
+
         /**
          * Filter the resulting tree of files and directories before we build the tree.
          *
@@ -293,7 +295,7 @@ class Rest {
          * @param string $directory The base-directory used.
          * @param string $name The service name.
          */
-        $directory_list = apply_filters( $this->get_init_obj()->get_prefix() . '_directory_listing_before_tree_building', $directory_list, $directory, $listing_base_object->get_name() );
+        $directory_list = apply_filters( $this->get_init_obj()->get_prefix() . '_directory_listing_before_tree_building', $directory_list, $directory, $name );
 
         // build the resulting tree.
         $tree = $this->build_tree( $directory_list );
@@ -305,8 +307,9 @@ class Rest {
          *
          * @param array $tree The tree of directories and files.
          * @param string $directory The base-directory used.
+         * @param string $name The service name.         *
          */
-        $tree = apply_filters( $this->get_init_obj()->get_prefix() . '_directory_listing', $tree, $directory );
+        $tree = apply_filters( $this->get_init_obj()->get_prefix() . '_directory_listing', $tree, $directory, $name );
 
         // remove the cache for this request.
         delete_transient( $this->get_init_obj()->get_prefix() . '_' . get_current_user_id() . '_' . md5( $directory ) . '_tree' );
