@@ -108,6 +108,13 @@ class Directory_Listing_Base {
     protected array $actions = array();
 
     /**
+     * Marker for export files.
+     *
+     * @var bool
+     */
+    protected bool $export_files = false;
+
+    /**
      * Initialize this object.
      *
      * @return void
@@ -442,5 +449,37 @@ class Directory_Listing_Base {
      */
     public function get_translations( array $translations ): array {
         return $translations;
+    }
+
+    /**
+     * Return whether this listing could also be used to export files.
+     *
+     * @return bool
+     */
+    public function can_export_files(): bool {
+        return $this->export_files;
+    }
+
+    /**
+     * Export a file to this service. Returns true if it was successfully.
+     *
+     * @param int $attachment_id The attachment ID.
+     * @param string $target The target.
+     * @param array $credentials The credentials.
+     * @return bool
+     */
+    public function export_file( int $attachment_id, string $target, array $credentials ): bool {
+        return false;
+    }
+
+    /**
+     * Delete an exported file.
+     *
+     * @param string $url The given URL to delete.
+     * @param array $credentials The credentials.
+     * @return bool
+     */
+    public function delete_exported_file( string $url, array $credentials ): bool {
+        return false;
     }
 }

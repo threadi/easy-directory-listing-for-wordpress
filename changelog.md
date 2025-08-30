@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.6.0] - 30.08.2025
+
+### Added
+
+- Added export flag for each listing object
+
 ## [3.5.0] - 29.08.2025
 
 ### Added
