@@ -1,6 +1,6 @@
 {
 	"name": "@easy-directory-listing-for-wordpress/directory-view",
-	"version": "3.5.0",
+	"version": "3.6.0",
 	"description": "Provides a simple react-driven directory view for WordPress-backend.",
 	"author": "Thomas Zwirner",
 	"license": "GPL-2.0-or-later",

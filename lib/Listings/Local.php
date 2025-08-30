@@ -27,6 +27,13 @@ class Local extends Directory_Listing_Base {
     protected string $name = 'local';
 
     /**
+     * Marker for export files.
+     *
+     * @var bool
+     */
+    protected bool $export_files = true;
+
+    /**
      * Instance of actual object.
      *
      * @var ?Local
@@ -281,5 +288,67 @@ class Local extends Directory_Listing_Base {
      */
     public function get_actions(): array {
         return $this->actions;
+    }
+
+    /**
+     * Export a file to this service. Returns true if it was successfully.
+     *
+     * @param int $attachment_id The attachment ID.
+     * @param string $target The target.
+     * @param array $credentials The credentials.
+     * @return bool
+     */
+    public function export_file( int $attachment_id, string $target, array $credentials ): bool {
+        // get WP Filesystem-handler.
+        require_once ABSPATH . '/wp-admin/includes/file.php'; // @phpstan-ignore requireOnce.fileNotFound
+        \WP_Filesystem();
+        global $wp_filesystem;
+
+        // get the file path.
+        $file_path = get_attached_file( $attachment_id );
+
+        // bail if source file does not exist.
+        if( ! $wp_filesystem->exists( $file_path ) ) {
+            return false;
+        }
+
+        // bail if target file does already exist.
+        if( $wp_filesystem->exists( $target ) ) {
+            return false;
+        }
+
+        // copy file to the given local directory.
+        if( ! $wp_filesystem->copy( $file_path, $target ) ) {
+            return false;
+        }
+
+        // return true as file has been saved extern.
+        return true;
+    }
+
+    /**
+     * Delete an exported file.
+     *
+     * @param string $url
+     * @param array  $credentials
+     *
+     * @return bool
+     */
+    public function delete_exported_file( string $url, array $credentials ): bool {
+        // get WP Filesystem-handler.
+        require_once ABSPATH . '/wp-admin/includes/file.php'; // @phpstan-ignore requireOnce.fileNotFound
+        \WP_Filesystem();
+        global $wp_filesystem;
+
+        // bail if file does not exist.
+        if( ! $wp_filesystem->exists( $url ) ) {
+            return false;
+        }
+
+        // delete the file.
+        $wp_filesystem->delete( $url );
+
+        // return true as file has been deleted.
+        return true;
     }
 }
