@@ -289,6 +289,7 @@ class Taxonomy {
 		add_term_meta( $term_id, 'login', Crypt::get_instance()->encrypt( $login ) );
 		add_term_meta( $term_id, 'password', Crypt::get_instance()->encrypt( $password ) );
 		add_term_meta( $term_id, 'api_key', Crypt::get_instance()->encrypt( $api_key ) );
+        add_term_meta( $term_id, 'path', $directory );
 
 		/**
 		 * Run action after adding this term.
@@ -317,7 +318,8 @@ class Taxonomy {
 
 		// return the data.
 		return array(
-			'directory' => $term->name,
+            'title' => $term->name,
+            'directory' => get_term_meta( $term_id, 'path', true ),
 			'login'     => Crypt::get_instance()->decrypt( get_term_meta( $term_id, 'login', true ) ),
 			'password'  => Crypt::get_instance()->decrypt( get_term_meta( $term_id, 'password', true ) ),
 			'api_key'   => Crypt::get_instance()->decrypt( get_term_meta( $term_id, 'api_key', true ) ),
@@ -402,10 +404,19 @@ class Taxonomy {
 			return;
 		}
 
-		// update the credentials.
-		update_term_meta( $term_id, 'login', Crypt::get_instance()->encrypt( (string) filter_input( INPUT_POST, 'login', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) );
-		update_term_meta( $term_id, 'password', Crypt::get_instance()->encrypt( (string) filter_input( INPUT_POST, 'password', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) );
-		update_term_meta( $term_id, 'api_key', Crypt::get_instance()->encrypt( (string) filter_input( INPUT_POST, 'api_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) );
+        // update the credentials, if set.
+        $login = (string) filter_input( INPUT_POST, 'login', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+        if( ! empty( $login ) ) {
+            update_term_meta( $term_id, 'login', Crypt::get_instance()->encrypt( $login ) );
+        }
+        $password = (string) filter_input( INPUT_POST, 'password', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+        if( ! empty( $password ) ) {
+            update_term_meta( $term_id, 'password', Crypt::get_instance()->encrypt( $password ) );
+        }
+        $api_key = (string) filter_input( INPUT_POST, 'api_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+        if( ! empty( $login ) ) {
+            update_term_meta( $term_id, 'api_key', Crypt::get_instance()->encrypt( $api_key ) );
+        }
 	}
 
 	/**

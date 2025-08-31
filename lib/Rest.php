@@ -116,7 +116,8 @@ class Rest {
 
             // if term could be loaded, set the credentials.
             if ( ! empty( $term_data ) ) {
-                $params['directory'] = $term_data['directory'];
+                $params['title'] = $term_data['title'];
+                $params['directory'] = get_term_meta( $term_id, 'path', true );
                 $params['login']     = $term_data['login'];
                 $params['password']  = $term_data['password'];
                 $params['api_key']   = $term_data['api_key'];
@@ -136,6 +137,11 @@ class Rest {
         // bail if nonce value does not match.
         if ( ! wp_verify_nonce( $params['nonce'], $this->get_init_obj()->get_nonce_name() ) ) {
             return array();
+        }
+
+        // set title, if not set.
+        if ( empty( $params['title'] ) ) {
+            $params['title'] = basename( $params['directory'] );
         }
 
         // get listing base object name.
@@ -284,6 +290,7 @@ class Rest {
             unset( $directory_list['completed'] );
         }
 
+        // set the name.
         $name = $listing_base_object->get_name();
 
         /**
@@ -299,6 +306,9 @@ class Rest {
 
         // build the resulting tree.
         $tree = $this->build_tree( $directory_list );
+
+        // use the configured title.
+        $tree[ trailingslashit( $directory )]['title'] = $params['title'];
 
         /**
          * Filter the resulting tree of files and directories after the tree has been build.
