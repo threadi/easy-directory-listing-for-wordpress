@@ -185,7 +185,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
               </tr>
               </thead>
               <tbody>
-              <EDLFW_Files_Listing directoryToList={actualDirectory} config={config} url={url} login={login} password={password} term={config.term} />
+              <EDLFW_Files_Listing directoryToList={actualDirectory} config={config} url={url} login={login} password={password} term={config.term} apiKey={apiKey} />
               </tbody>
             </table>
           </div>
@@ -197,9 +197,12 @@ const EDLFW_Directory_Viewer = ( props ) => {
 /**
  * Show recursive directory listings.
  *
- * @param directoryToList
+ * @param tree
+ * @param actualDirectoryPath
  * @param setActualDirectory
- * @param setActiveDirectoryPath
+ * @param setActualDirectoryPath
+ * @param openDirectoryPath
+ * @param setOpenDirectoryPath
  * @returns {*}
  * @constructor
  */
@@ -258,10 +261,11 @@ const EDLFW_Directory_Listing = ( { tree, actualDirectoryPath, setActualDirector
  * @param login
  * @param password
  * @param term
+ * @param apiKey
  * @returns {*}
  * @constructor
  */
-const EDLFW_Files_Listing = ( { directoryToList, config, url, login, password, term } ) => {
+const EDLFW_Files_Listing = ( { directoryToList, config, url, login, password, term, apiKey } ) => {
   if ( ! directoryToList.length ) {
     return (<tr><td colSpan="6"><p>{edlfwJsVars.empty_directory}</p></td></tr>)
   }

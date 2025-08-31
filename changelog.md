@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.6.1] - 31.08.2025
+
+### Changed
+
+- Save listing path in term meta
+- Added used API key to listing object
+
 ## [3.6.0] - 30.08.2025
 
 ### Added
