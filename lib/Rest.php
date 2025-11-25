@@ -117,16 +117,9 @@ class Rest {
             // if term could be loaded, set the credentials.
             if ( ! empty( $term_data ) ) {
                 $params['title'] = $term_data['title'];
-                $params['directory'] = get_term_meta( $term_id, 'path', true );
-                $params['login']     = $term_data['login'];
-                $params['password']  = $term_data['password'];
-                $params['api_key']   = $term_data['api_key'];
+                $params['directory'] = $term_data['directory'];
+                $params['fields']     = $term_data['fields'];
             }
-        }
-
-        // bail if directory param is missing.
-        if ( empty( $params['directory'] ) ) {
-            return array();
         }
 
         // bail if nonce param is missing.
@@ -139,11 +132,6 @@ class Rest {
             return array();
         }
 
-        // set title, if not set.
-        if ( empty( $params['title'] ) ) {
-            $params['title'] = basename( $params['directory'] );
-        }
-
         // get listing base object name.
         $listing_base_object_name = $params['listing_base_object_name'];
 
@@ -152,7 +140,7 @@ class Rest {
             return array();
         }
 
-        // get the object.
+        // get the listing object.
         $listing_base_object = false;
         foreach ( Directory_Listings::get_instance()->get_directory_listings_objects() as $obj ) {
             // bail if names does not match.
@@ -168,17 +156,14 @@ class Rest {
             return array();
         }
 
-        // get the directory.
-        $directory = $params['directory'];
+        // set the fields from request which configures the listing object.
+        $listing_base_object->set_fields( $params['fields'] );
 
-        // get the login.
-        $listing_base_object->set_login( $params['login'] );
+        // set the directory on listing object, if set.
+        $listing_base_object->set_directory( isset( $params['directory'] ) ? $params['directory'] : '' );
 
-        // get the password.
-        $listing_base_object->set_password( $params['password'] );
-
-        // get the API key.
-        $listing_base_object->set_api_key( $params['api_key'] );
+        // get the directory to load from listing object.
+        $directory = $listing_base_object->get_directory();
 
         // bail if login failed.
         if ( ! $listing_base_object->do_login( $directory ) ) {
@@ -187,11 +172,7 @@ class Rest {
 
         // save the directory as directory archive if this is enabled.
         if ( $params['saveCredentials'] ) {
-            // get the taxonomy object.
-            $taxonomy_obj = Taxonomy::get_instance();
-
-            // add the credentials.
-            $taxonomy_obj->add( $listing_base_object->get_name(), $params['directory'], $params['login'], $params['password'], $params['api_key'] );
+            Taxonomy::get_instance()->add( $listing_base_object->get_name(), $directory, $params['fields'] );
         }
 
         // get the cached tree for requested URL.
@@ -202,7 +183,7 @@ class Rest {
             $directory_list = array();
         }
 
-        // check how many directories in the tree must be loaded and which one next.
+        // check how many directories in the tree must be still be loaded.
         $next_directories = $this->get_next_directory( $directory, $directory_list );
 
         // mark which directory to load.
@@ -279,6 +260,9 @@ class Rest {
 
         // bail if we must load further directories.
         if ( $directory_loading && ! $params['cancelLoading'] ) {
+            // reload the next directory list.
+            $next_directories = $this->get_next_directory( $directory, $directory_list );
+
             return array(
                 'directory_loading' => true,
                 'directory_to_load' => count( $next_directories ),
@@ -306,9 +290,6 @@ class Rest {
 
         // build the resulting tree.
         $tree = $this->build_tree( $directory_list );
-
-        // use the configured title.
-        $tree[ trailingslashit( $directory )]['title'] = $params['title'];
 
         /**
          * Filter the resulting tree of files and directories after the tree has been build.

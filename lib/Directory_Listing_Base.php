@@ -45,25 +45,32 @@ class Directory_Listing_Base {
     protected string $description = '';
 
     /**
-     * Marker if login (with login and password) is required.
+     * The public form title.
      *
-     * @var bool
+     * @var string
      */
-    protected bool $requires_login = false;
+    protected string $form_title = '';
 
     /**
-     * Marker if simple API is required (with API Key).
+     * The public form description.
      *
-     * @var bool
+     * @var string
      */
-    protected bool $requires_simple_api = false;
+    protected string $form_description = '';
 
     /**
-     * Marker if API with 3 fields is required (with API Key).
+     * List of fields to request for the listing.
      *
      * @var bool
      */
-    protected bool $requires_3fields_api = false;
+    protected array $fields = array();
+
+    /**
+     * The directory.
+     *
+     * @var string
+     */
+    protected string $directory = '';
 
     /**
      * List of global actions for this listing object.
@@ -136,34 +143,36 @@ class Directory_Listing_Base {
      * @return string
      */
     public function get_directory(): string {
-        return '';
+        return $this->directory;
     }
 
     /**
-     * Return whether this directory is login protected.
+     * Set the directory to use.
      *
-     * @return bool
+     * @return void
      */
-    public function is_login_required(): bool {
-        return $this->requires_login;
+    public function set_directory( string $directory ): void {
+        $this->directory = $directory;
     }
 
     /**
-     * Return whether this directory is protected with simple API.
+     * Return list of fields we need for this listing.
      *
-     * @return bool
+     * @return array<string,array<string,mixed>>
      */
-    public function is_simple_api_required(): bool {
-        return $this->requires_simple_api;
+    public function get_fields(): array {
+        return $this->fields;
     }
 
     /**
-     * Return whether this directory is protected with 3fields API credentials.
+     * Set the fields we need for this listing.
      *
-     * @return bool
+     * @param array<string,array<string,mixed>> $fields
+     *
+     * @return void
      */
-    public function is_3fields_api_required(): bool {
-        return $this->requires_3fields_api;
+    public function set_fields( array $fields ): void {
+        $this->fields = $fields;
     }
 
     /**
@@ -205,46 +214,6 @@ class Directory_Listing_Base {
     }
 
     /**
-     * Return the used login.
-     *
-     * @return string
-     */
-    protected function get_login(): string {
-        return $this->login;
-    }
-
-    /**
-     * Set the login.
-     *
-     * @param string $login The login.
-     *
-     * @return void
-     */
-    public function set_login( string $login ): void {
-        $this->login = $login;
-    }
-
-    /**
-     * Return the used passwort.
-     *
-     * @return string
-     */
-    protected function get_password(): string {
-        return $this->password;
-    }
-
-    /**
-     * Set the login.
-     *
-     * @param string $password The login.
-     *
-     * @return void
-     */
-    public function set_password( string $password ): void {
-        $this->password = $password;
-    }
-
-    /**
      * Return the label.
      *
      * @return string
@@ -263,17 +232,26 @@ class Directory_Listing_Base {
     }
 
     /**
+     * Return the form title.
+     *
+     * @return string
+     */
+    public function get_form_title(): string {
+        return $this->form_title;
+    }
+
+    /**
      * Return config for display of listing in backend.
      *
      * @return array<string,mixed>
      */
     public function get_config(): array {
         return array(
+            'form_title'                    => $this->get_form_title(),
+            'form_description'              => $this->get_form_description(),
             'directory'                => $this->get_directory(),
             'listing_base_object_name' => $this->get_name(),
-            'requires_login'           => $this->is_login_required(),
-            'requires_simple_api'      => $this->is_simple_api_required(),
-            'requires_3fields_api'      => $this->is_3fields_api_required(),
+            'fields' => $this->get_fields(),
             'nonce'                    => wp_create_nonce( $this->get_nonce_name() ),
             'actions'                  => $this->get_actions(),
             'global_actions'           => $this->get_global_actions(),
@@ -319,26 +297,6 @@ class Directory_Listing_Base {
     }
 
     /**
-     * Return the API key.
-     *
-     * @return string
-     */
-    public function get_api_key(): string {
-        return $this->api_key;
-    }
-
-    /**
-     * Set the API key to use.
-     *
-     * @param string $api_key The API key to use.
-     *
-     * @return void
-     */
-    public function set_api_key( string $api_key ): void {
-        $this->api_key = $api_key;
-    }
-
-    /**
      * Add error to the list.
      *
      * @param WP_Error $error The error as WP_Error.
@@ -377,6 +335,15 @@ class Directory_Listing_Base {
     }
 
     /**
+     * Return the description for this listing object.
+     *
+     * @return string
+     */
+    public function get_form_description(): string {
+        return $this->form_description;
+    }
+
+    /**
      * Set actions.
      *
      * @param array<int,array<string,string>> $actions List of actions for each file.
@@ -396,39 +363,6 @@ class Directory_Listing_Base {
      */
     public function get_url( string $url ): string {
         return $url;
-    }
-
-    /**
-     * Return the login from entry config.
-     *
-     * @param array<string,mixed> $config The entry config.
-     *
-     * @return string
-     */
-    public function get_login_from_archive_entry( array $config ): string {
-        return $config['login'];
-    }
-
-    /**
-     * Return the password from entry config.
-     *
-     * @param array<string,mixed> $config The entry config.
-     *
-     * @return string
-     */
-    public function get_password_from_archive_entry( array $config ): string {
-        return $config['password'];
-    }
-
-    /**
-     * Return the password from entry config.
-     *
-     * @param array<string,mixed> $config The entry config.
-     *
-     * @return string
-     */
-    public function get_api_key_from_archive_entry( array $config ): string {
-        return $config['api_key'];
     }
 
     /**
