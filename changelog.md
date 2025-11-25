@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.0.0] - 25.11.2025
+
+### Added
+
+- Reengined the form handling to dynamic fields
+
 ## [3.6.1] - 31.08.2025
 
 ### Changed

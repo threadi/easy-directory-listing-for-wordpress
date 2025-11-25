@@ -82,6 +82,12 @@ class Local extends Directory_Listing_Base {
      * @return string
      */
     public function get_directory(): string {
+        // bail if directory is set on object.
+        if( ! empty( $this->directory ) ) {
+            return $this->directory;
+        }
+
+        // return default path in hosting.
         return 'file://' . trailingslashit( ABSPATH );
     }
 
