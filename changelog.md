@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.1] - 25.11.2025
+
+### Fixed
+
+- Fixed wrong error embedding
+- Fixed field loading for terms
+
 ## [4.0.0] - 25.11.2025
 
 ### Added
