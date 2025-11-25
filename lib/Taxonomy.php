@@ -327,7 +327,7 @@ class Taxonomy {
      *
      * @param int $term_id The ID of the term.
      *
-     * @return array<string,string>
+     * @return array<string,mixed>
      */
     public function get_entry( int $term_id ): array {
         // get the term.
