@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.0.2] - 25.11.2025
+
+### Changed
+
+- Optimizations for PHPStan
+
 ## [4.0.1] - 25.11.2025
 
 ### Fixed
