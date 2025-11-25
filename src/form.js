@@ -8,7 +8,7 @@ import {
     SelectControl,
     TextareaControl
 } from '@wordpress/components';
-import {EDLFW_ERRORS} from "../errors";
+import {EDLFW_ERRORS} from "./errors";
 
 /**
  * Show login form.

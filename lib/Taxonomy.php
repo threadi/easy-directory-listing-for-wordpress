@@ -339,7 +339,14 @@ class Taxonomy {
         }
 
         // get the fields.
-        $fields = json_decode( Crypt::get_instance()->decrypt( get_term_meta( $term_id, 'fields', true ), true ), true );
+        $fields = array();
+        $fields_encoded_string = get_term_meta( $term_id, 'fields', true );
+        if( is_string( $fields_encoded_string ) ) {
+            $fields = json_decode( Crypt::get_instance()->decrypt( $fields_encoded_string ), true );
+            if( ! is_array( $fields )  ) {
+                $fields = array();
+            }
+        }
 
         // convert old credential fields to new fields-array.
         $login = Crypt::get_instance()->decrypt( get_term_meta( $term_id, 'login', true ), true );
