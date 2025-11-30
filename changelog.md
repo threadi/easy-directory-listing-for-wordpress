@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.0.3] - 30.11.2025
+
+### Removed
+
+- Removed export marker
+
 ## [4.0.2] - 25.11.2025
 
 ### Changed
