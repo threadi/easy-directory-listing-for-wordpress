@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.0.4] - 07.12.2025
+
+### Changed
+
+- Removed now unused code
+
 ## [4.0.3] - 30.11.2025
 
 ### Removed
