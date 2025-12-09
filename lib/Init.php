@@ -406,71 +406,7 @@ class Init {
                 'password'        => 'Password',
                 'api_key'         => 'API Key',
             ),
-            'form_file'           => array(
-                'title'       => 'Enter the path to a local file',
-                'description' => '',
-                'url'         => array(
-                    'label' => 'File',
-                ),
-                'button'      => array(
-                    'label' => 'Show file',
-                ),
-            ),
-            'form_api'            => array(
-                'title'            => 'Enter your credentials',
-                'description'      => '',
-                'url'              => array(
-                    'label' => 'Login',
-                ),
-                'key'              => array(
-                    'label' => 'Password',
-                ),
-                'save_credentials' => array(
-                    'label' => 'Save this credentials in directory archive',
-                ),
-                'button'           => array(
-                    'label' => 'Show directory',
-                ),
-            ),
-            'form_login'          => array(
-                'title'            => 'Enter your credentials',
-                'description'      => '',
-                'url'              => array(
-                    'label' => 'URL',
-                ),
-                'login'            => array(
-                    'label' => 'Login',
-                ),
-                'password'         => array(
-                    'label' => 'Password',
-                ),
-                'save_credentials' => array(
-                    'label' => 'Save this credentials in directory archive',
-                ),
-                'button'           => array(
-                    'label' => 'Show directory',
-                ),
-            ),
-            'aws_s3_api'            => array(
-                'title'            => 'Enter your credentials',
-                'description'      => '',
-                'access_key'              => array(
-                    'label' => 'Access Key',
-                ),
-                'secret_key'              => array(
-                    'label' => 'Secret Key',
-                ),
-                'bucket'              => array(
-                    'label' => 'Bucket',
-                ),
-                'save_credentials' => array(
-                    'label' => 'Save this credentials in directory archive',
-                ),
-                'button'           => array(
-                    'label' => 'Show directory',
-                ),
-            ),
-            'services'            => array(
+             'services'            => array(
                 'local' => array(
                     'label' => 'Local server directory',
                     'title' => 'Choose file(s) from local server directory',
