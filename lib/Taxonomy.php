@@ -178,8 +178,12 @@ class Taxonomy {
      */
     public function set_actions( array $actions, WP_Term $term ): array {
         $new_actions           = array();
-        $new_actions['edit']   = $actions['edit'];
-        $new_actions['delete'] = $actions['delete'];
+        if( ! empty( $actions['edit'] ) ) {
+            $new_actions['edit'] = $actions['edit'];
+        }
+        if( ! empty( $actions['delete'] ) ) {
+            $new_actions['delete'] = $actions['delete'];
+        }
 
         // get the type name.
         $type = get_term_meta( $term->term_id, 'type', true );

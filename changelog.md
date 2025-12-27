@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.0.5] - 26.12.2025
+
+### Fixed
+
+- Do not use unused actions
+
 ## [4.0.4] - 07.12.2025
 
 ### Changed
