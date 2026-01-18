@@ -377,4 +377,13 @@ class Directory_Listing_Base {
     public function get_translations( array $translations ): array {
         return $translations;
     }
+
+    /**
+     * Return the permission name to use this listing.
+     *
+     * @return string
+     */
+    public function get_permission_name(): string {
+        return Init::get_instance()->get_capability();
+    }
 }

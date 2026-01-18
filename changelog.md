@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.0.6] - 16.02.2025
+
+### Added
+
+- Added permission function for each listing to return the required capability
+
 ## [4.0.5] - 26.12.2025
 
 ### Fixed
