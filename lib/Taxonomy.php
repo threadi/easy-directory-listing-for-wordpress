@@ -103,7 +103,9 @@ class Taxonomy {
                 'public'            => false,
                 'meta_box_cb'       => false,
                 'capabilities' => array(
-                        'manage_terms' => Init::get_instance()->get_capability()
+                    'manage_terms' => Init::get_instance()->get_capability(),
+                    'edit_terms'   => Init::get_instance()->get_capability(),
+                    'delete_terms' => Init::get_instance()->get_capability(),
                 )
         );
 
