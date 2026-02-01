@@ -1,6 +1,12 @@
 # Changelog
 
-## [4.0.6] - 16.02.2025
+## [4.0.7] - 01.02.2026
+
+### Changed
+
+- Optimized the capabilities for our own terms
+
+## [4.0.6] - 16.01.2026
 
 ### Added
 
