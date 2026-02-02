@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.0.8] - 02.02.2026
+
+### Changed
+
+- Use multiple capabilities
+
 ## [4.0.7] - 01.02.2026
 
 ### Changed
