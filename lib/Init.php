@@ -71,6 +71,13 @@ class Init {
     private string $capability = 'manage_options';
 
     /**
+     * The capabilities.
+     *
+     * @var array
+     */
+    private array $capabilities = array();
+
+    /**
      * Instance of actual object.
      *
      * @var ?Init
@@ -479,5 +486,32 @@ class Init {
      */
     public function set_capability( string $capability ): void {
         $this->capability = $capability;
+    }
+
+    /**
+     * Return the capabilities.
+     *
+     * @return array
+     */
+    public function get_capabilities(): array {
+        if( empty( $this->capabilities ) ) {
+            $this->capabilities = array(
+                'manage_terms' => $this->get_capability(),
+                'edit_terms'   => $this->get_capability(),
+                'delete_terms' => $this->get_capability(),
+            );
+        }
+        return $this->capabilities;
+    }
+
+    /**
+     * Set the capabilities.
+     *
+     * @param array $capabilities The capabilities to use.
+     *
+     * @return void
+     */
+    public function set_capabilities( array $capabilities ): void {
+        $this->capabilities = $capabilities;
     }
 }
