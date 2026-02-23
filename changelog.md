@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.0.9] - 23.02.2026
+
+### Changed
+
+- Now also checkboxes are supported in the form
+
 ## [4.0.8] - 02.02.2026
 
 ### Changed
