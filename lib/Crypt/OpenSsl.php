@@ -16,7 +16,7 @@ use easyDirectoryListingForWordPress\Crypt_Base;
 /**
  * Object to handle crypt tasks with OpenSSL.
  */
-class OpenSSL extends Crypt_Base {
+class OpenSsl extends Crypt_Base {
 
     /**
      * Name of the method.

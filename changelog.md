@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.0.11] - 01.03.2026
+
+## Fixed
+
+- Fixed spelling of "OpenSsl" class name
+
 ## [4.0.10] - 01.03.2026
 
 ### Changed
