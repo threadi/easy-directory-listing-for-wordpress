@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.0.10] - 01.03.2026
+
+### Changed
+
+- Updated crypt methods
+
 ## [4.0.9] - 23.02.2026
 
 ### Changed
