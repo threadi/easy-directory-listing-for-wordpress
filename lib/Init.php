@@ -137,11 +137,11 @@ class Init {
      */
     public function init(): void {
         // define constants.
-        if( ! defined( 'EDLFW_HASH' ) ) {
-            define( 'EDLFW_HASH', 'edlfw_hash' );
+        if( ! defined( 'EDLFW_DB_HASH' ) ) {
+            define( 'EDLFW_DB_HASH', 'edlfw_hash' );
         }
-        if( ! defined( 'EDLFW_SODIUM_HASH' ) ) {
-            define( 'EDLFW_SODIUM_HASH', 'edlfw_sodium_hash' );
+        if( ! defined( 'EDLFW_SODIUM_DB_HASH' ) ) {
+            define( 'EDLFW_SODIUM_DB_HASH', 'edlfw_sodium_hash' );
         }
 
         // add scripts.

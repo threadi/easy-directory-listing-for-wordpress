@@ -114,7 +114,7 @@ class Local extends Directory_Listing_Base {
         if( is_null( $wp_filesystem ) ) {
             // create error object.
             $error = new \WP_Error();
-            $error->add( 'efml_service_' . $this->get_name(), __( 'Could not load necessary WordPress-component WP_Filesystem. Possible faulty configuration of FS_METHOD.', 'external-files-in-media-library' ) );
+            $error->add( 'efml_service_' . $this->get_name(), __( 'Could not load necessary WordPress-component WP_Filesystem. Possible faulty configuration of FS_METHOD.', 'easy-directory-listing-for-wordpress' ) );
 
             // add the error to the list for response.
             $this->add_error( $error );
@@ -127,7 +127,7 @@ class Local extends Directory_Listing_Base {
         if( ! $wp_filesystem instanceof \WP_Filesystem_Direct ) {
             // create error object.
             $error = new \WP_Error();
-            $error->add( 'efml_service_' . $this->get_name(), __( 'Could not load necessary WordPress-component WP_Filesystem. Possible faulty configuration of FS_METHOD.', 'external-files-in-media-library' ) );
+            $error->add( 'efml_service_' . $this->get_name(), __( 'Could not load necessary WordPress-component WP_Filesystem. Possible faulty configuration of FS_METHOD.', 'easy-directory-listing-for-wordpress' ) );
 
             // add the error to the list for response.
             $this->add_error( $error );
