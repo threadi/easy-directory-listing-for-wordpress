@@ -127,11 +127,6 @@ class Taxonomy {
 
             // get the listing object by this name.
             $listing_obj = Directory_Listings::get_instance()->get_directory_listing_object_by_name( $type );
-
-            // bail if no object could be found.
-            if ( ! $listing_obj ) {
-                return '';
-            }
         }
 
         // check if this is the type column.
