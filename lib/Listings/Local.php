@@ -70,6 +70,24 @@ class Local extends Directory_Listing_Base {
     }
 
     /**
+     * Return the label.
+     *
+     * @return string
+     */
+    public function get_label(): string {
+        return Init::get_instance()->get_translations()['services']['local']['label'];
+    }
+
+    /**
+     * Return the title.
+     *
+     * @return string
+     */
+    public function get_title(): string {
+        return Init::get_instance()->get_translations()['services']['local']['title'];
+    }
+
+    /**
      * Return the directory to use.
      *
      * @return string

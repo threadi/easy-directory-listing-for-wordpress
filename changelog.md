@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.0.13] - 08.03.2026
+
+### Fixed
+
+- Fixed missing translations of title and label for local service
+
 ## [4.0.12] - 02.03.2026
 
 ### Changed
