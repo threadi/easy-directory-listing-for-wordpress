@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.1.0] - 26.04.2026
+
+### Changed
+
+- Now using "Crypt for WordPress" for any encryption of texts
+
 ## [4.0.13] - 08.03.2026
 
 ### Fixed

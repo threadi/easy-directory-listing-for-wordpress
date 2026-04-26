@@ -1,7 +1,16 @@
 {
     "name": "threadi/easy-directory-listing-for-wordpress",
+    "version": "4.0.14",
+    "description": "Provides a react-driven directory listing for WordPress plugins and themes.",
     "type": "library",
     "license": "GPL-3.0-or-later",
+    "authors": [
+      {
+        "name": "Thomas Zwirner",
+        "email": "info@thomaszwirner.de"
+      }
+    ],
+    "minimum-stability": "stable",
     "scripts": {
         "post-install-cmd": [
             "\"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs,vendor/phpcsstandards/phpcsutils,vendor/phpcsstandards/phpcsextra,vendor/sirbrillig/phpcs-variable-analysis,vendor/automattic/vipwpcs"
@@ -25,6 +34,7 @@
         "automattic/vipwpcs": "^3.0"
     },
     "require": {
-        "php": "^8.0"
+        "php": "^8.0",
+        "threadi/crypt-for-wordpress": "^1.2.0"
     }
 }

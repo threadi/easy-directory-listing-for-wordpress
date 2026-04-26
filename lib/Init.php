@@ -78,6 +78,13 @@ class Init {
     private array $capabilities = array();
 
     /**
+     * The plugin path.
+     *
+     * @var string
+     */
+    private string $plugin_path = '';
+
+    /**
      * Instance of actual object.
      *
      * @var ?Init
@@ -143,6 +150,9 @@ class Init {
         if( ! defined( 'EDLFW_SODIUM_DB_HASH' ) ) {
             define( 'EDLFW_SODIUM_DB_HASH', 'edlfw_sodium_hash' );
         }
+
+        // embed the composer autoloader.
+        require_once __DIR__ . '/../vendor/autoload.php';
 
         // add scripts.
         add_action( 'admin_enqueue_scripts', array( $this, 'add_scripts' ) );
@@ -513,5 +523,24 @@ class Init {
      */
     public function set_capabilities( array $capabilities ): void {
         $this->capabilities = $capabilities;
+    }
+
+    /**
+     * Return the plugin path.
+     *
+     * @return string
+     */
+    public function get_plugin_path(): string {
+        return $this->plugin_path;
+    }
+
+    /**
+     * Set the plugin path.
+     *
+     * @param string $plugin_path The plugin path.
+     * @return void
+     */
+    public function set_plugin_path( string $plugin_path ): void {
+        $this->plugin_path = $plugin_path;
     }
 }
