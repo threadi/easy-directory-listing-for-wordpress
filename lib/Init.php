@@ -151,9 +151,6 @@ class Init {
 			define( 'EDLFW_SODIUM_DB_HASH', 'edlfw_sodium_hash' );
 		}
 
-		// embed the composer autoloader.
-		require_once __DIR__ . '/../vendor/autoload.php';
-
 		// add scripts.
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_scripts' ) );
 
