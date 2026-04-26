@@ -2,9 +2,18 @@
 
 ## [4.1.0] - 26.04.2026
 
+### Added
+
+- Added GitHub action to check for requirements before any release
+
 ### Changed
 
 - Now using "Crypt for WordPress" for any encryption of texts
+- Now compatible with PHPStan and WordPress Coding Standards
+
+### Removed
+
+- Removed editing of terms in detail page
 
 ## [4.0.13] - 08.03.2026
 
