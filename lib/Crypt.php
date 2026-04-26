@@ -1,8 +1,9 @@
 <?php
 /**
- * File to handle crypt-tasks.
+ * File with the handler for any crypt tasks in this library.
+ * We use the composer package "Crypt for WordPress" as help for these tasks.
  *
- * @package easy-directory-listing-for-wordpress
+ * @package personio-integration-light
  */
 
 namespace easyDirectoryListingForWordPress;
@@ -10,16 +11,18 @@ namespace easyDirectoryListingForWordPress;
 // prevent direct access.
 defined( 'ABSPATH' ) || exit;
 
+use CryptForWordPress\Method_Base;
+
 /**
- * Object to handle crypt tasks.
+ * Object to handle any crypt tasks in this plugin.
  */
 class Crypt {
     /**
-     * Define the method for crypt-tasks.
+     * The used crypt object.
      *
-     * @var false|Crypt_Base
+     * @var \CryptForWordPress\Crypt|null
      */
-    private false|Crypt_Base $method = false;
+    private ?\CryptForWordPress\Crypt $crypt_obj = null;
 
     /**
      * Instance of this object.
@@ -29,7 +32,7 @@ class Crypt {
     private static ?Crypt $instance = null;
 
     /**
-     * Constructor which sets the active method.
+     * Constructor for this object.
      */
     private function __construct() {}
 
@@ -52,138 +55,60 @@ class Crypt {
     }
 
     /**
-     * Return the method object to use for encryption.
+     * Return the crypt object with its configuration for this plugin.
      *
-     * @return false|Crypt_Base
+     * @return \CryptForWordPress\Crypt
      */
-    public function get_method(): false|Crypt_Base {
-        if ( $this->method instanceof Crypt_Base ) {
-            return $this->method;
+    private function get_crypt_obj(): \CryptForWordPress\Crypt {
+        if ( null === $this->crypt_obj ) {
+            // configure the crypt object.
+            $this->crypt_obj = new \CryptForWordPress\Crypt( Init::get_instance()->get_plugin_path() );
+            $this->crypt_obj->set_config(
+                array(
+                    'openssl' => array(
+                        'hash_type'        => 'hash',
+                        'hash_algorithm'   => 'sha256',
+                        'cipher_algorithm' => 'AES-128-CBC',
+                    ),
+                    'sodium'  => array(
+                        'hash_type' => 'sodium_crypto_secretbox_keygen',
+                    ),
+                )
+            );
         }
 
-        // loop through the objects to check which one we could use.
-        foreach ( $this->get_methods_as_objects() as $obj ) {
-            // bail if the method is not usable.
-            if ( ! $obj->is_usable() ) {
-                continue;
-            }
-
-            // initiate the method.
-            $obj->init();
-
-            // set method as our method to use.
-            $this->method = $obj;
-
-            return $this->method;
-        }
-
-        // return false if no usable method has been found.
-        return false;
+        // return the crypt object.
+        return $this->crypt_obj;
     }
 
     /**
-     * Return an encrypted string.
+     * Encrypt a given string.
      *
-     * @param string $encrypted_text Text to decrypt.
+     * @param string $plain_text The plain string.
      *
      * @return string
      */
-    public function encrypt( string $encrypted_text ): string {
-        // get the active method.
-        $method_obj = $this->get_method();
-
-        // bail if the method could not be found.
-        if ( false === $method_obj ) {
-            return '';
-        }
-
-        // encrypt the string with the detected method.
-        return $method_obj->encrypt( $encrypted_text );
+    public function encrypt( string $plain_text ): string {
+        return $this->get_crypt_obj()->encrypt( $plain_text );
     }
 
     /**
-     * Return the decrypted string.
+     * Decrypt a given string.
      *
-     * @param string $encrypted_text Text to decrypt.
+     * @param string $encrypted_string The encrypted string.
      *
      * @return string
      */
-    public function decrypt( string $encrypted_text ): string {
-        // get the active method.
-        $method_obj = $this->get_method();
-
-        // bail if the method could not be found.
-        if ( false === $method_obj ) {
-            return '';
-        }
-
-        // decrypt the string with the detected method.
-        return $method_obj->decrypt( $encrypted_text );
+    public function decrypt( string $encrypted_string ): string {
+        return $this->get_crypt_obj()->decrypt( $encrypted_string );
     }
 
     /**
-     * Return the list of supported methods.
+     * Return the used method.
      *
-     * @return array<int,string>
+     * @return Method_Base|false
      */
-    private function get_available_methods(): array {
-        $methods = array(
-            'easyDirectoryListingForWordPress\Crypt\OpenSsl',
-            'easyDirectoryListingForWordPress\Crypt\Sodium',
-        );
-
-        /**
-         * Filter the available crypt-methods.
-         *
-         * @since 2.0.0 Available since 2.0.0.
-         * @param array<int,string> $methods List of methods.
-         */
-        return apply_filters( Init::get_instance()->get_prefix() . '_crypt_methods', $methods );
-    }
-
-    /**
-     * Return the list of available methods as objects.
-     *
-     * @return array<int,Crypt_Base>
-     */
-    private function get_methods_as_objects(): array {
-        // define the list for objects.
-        $list = array();
-
-        // get all available methods.
-        foreach ( $this->get_available_methods() as $method_class_name ) {
-            // create the classname.
-            $class_name = $method_class_name . '::get_instance';
-
-            // bail if it is not callable.
-            if ( ! is_callable( $class_name ) ) {
-                continue;
-            }
-
-            // get the object.
-            $obj = $class_name();
-
-            // bail if the object could not be loaded.
-            if ( ! $obj instanceof Crypt_Base ) {
-                continue;
-            }
-
-            // add the object to the list.
-            $list[] = $obj;
-        }
-
-        // return the resulting list of objects.
-        return $list;
-    }
-
-    /**
-     * Run uninstall tasks for crypt.
-     *
-     * @return void
-     */
-    public function uninstall(): void {
-        foreach ( $this->get_methods_as_objects() as $obj ) {
-            $obj->uninstall();
-        }
+    public function get_method(): Method_Base|false {
+        return $this->get_crypt_obj()->get_method();
     }
 }
