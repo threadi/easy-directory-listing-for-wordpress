@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.1] - 02.05.2026
+
+### Changed
+
+- Do not use top.document.xy for the listing for better compatibility with the new WordPress desktop mode,
+  which runs in an iframe
+
 ## [4.1.0] - 26.04.2026
 
 ### Added

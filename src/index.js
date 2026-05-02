@@ -266,7 +266,7 @@ const EDLFW_Files_Listing = ( { directoryToList, config, term } ) => {
  */
 function edfw_add_directory_view() {
     // get object.
-    let obj = top.document.getElementById('easy-directory-listing-for-wordpress')
+    let obj = document.getElementById('easy-directory-listing-for-wordpress')
 
     // bail if config is not set.
     if( ! obj || ! obj.dataset.config ) {
@@ -278,12 +278,12 @@ function edfw_add_directory_view() {
 
     if( ReactDOM.createRoot === undefined ) {
         // old style way: use render.
-        const container = top.document.getElementById('easy-directory-listing-for-wordpress');
+        const container = document.getElementById('easy-directory-listing-for-wordpress');
         render(<EDLFW_Directory_Viewer config={config}/>, container);
     }
     else {
         // modern way: use createRoot.
-        let edfw_directory = ReactDOM.createRoot(top.document.getElementById('easy-directory-listing-for-wordpress'));
+        let edfw_directory = ReactDOM.createRoot(document.getElementById('easy-directory-listing-for-wordpress'));
         edfw_directory.render(
             <EDLFW_Directory_Viewer config={config}/>
         );
