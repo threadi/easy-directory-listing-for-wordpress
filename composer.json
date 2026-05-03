@@ -1,6 +1,6 @@
 {
     "name": "threadi/easy-directory-listing-for-wordpress",
-    "version": "4.1.0",
+    "version": "4.1.1",
     "description": "Provides a react-driven directory listing for WordPress plugins and themes.",
     "type": "library",
     "license": "GPL-3.0-or-later",
