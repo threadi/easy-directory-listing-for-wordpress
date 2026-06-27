@@ -1,6 +1,6 @@
 {
     "name": "threadi/easy-directory-listing-for-wordpress",
-    "version": "4.1.1",
+    "version": "4.1.2",
     "description": "Provides a react-driven directory listing for WordPress plugins and themes.",
     "type": "library",
     "license": "GPL-3.0-or-later",
@@ -49,6 +49,6 @@
     },
     "require": {
         "php": "^8.0",
-        "threadi/crypt-for-wordpress": "^1.2.0"
+        "threadi/crypt-for-wordpress": "^2.0.1"
     }
 }
