@@ -1,5 +1,9 @@
 # Changelog
 
+## [4.1.2] - 27.06.2026
+
+- Updated crypt library
+
 ## [4.1.1] - 03.05.2026
 
 ### Changed
