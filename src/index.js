@@ -201,7 +201,7 @@ const EDLFW_Directory_Listing = ( { tree, actualDirectoryPath, setActualDirector
 
     return (Object.keys(tree).map( directory => {
             // set button class.
-            let buttonClassName = 'secondary';
+            let buttonClassName = '';
             if( actualDirectoryPath === directory ) {
                 buttonClassName = 'primary';
             }

@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Now requires PHP 8.2 or newer
+- Removed the secondary class on each directory button for better styling in WordPress >= 7.0
+
 ## [4.1.2] - 27.06.2026
 
 - Updated crypt library
