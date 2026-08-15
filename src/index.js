@@ -273,6 +273,9 @@ function edfw_add_directory_view() {
         return;
     }
 
+    // remove the inner content.
+    obj.innerHTML = '';
+
     // get the configuration.
     let config = JSON.parse(obj.dataset.config);
 

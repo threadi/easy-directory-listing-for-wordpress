@@ -7,6 +7,7 @@
 - Now requires PHP 8.2 or newer
 - Removed the secondary class on each directory button for better styling in WordPress >= 7.0
 - Renamed the XML file for checks against the WordPress Coding Standards
+- Remove the inner content of the main element
 
 ## [4.1.2] - 27.06.2026
 
