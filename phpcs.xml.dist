@@ -20,7 +20,7 @@
     <rule ref="WordPress-Docs"/>
     <rule ref="WordPress-Extra"/>
     <rule ref="WordPress">
-        <!-- Excluded in favour to match PSR-4-namings of classes. -->
+        <!-- Excluded in favor to match PSR-4-namings of classes. -->
         <exclude name="WordPress.Files.FileName"/>
         <!-- Exclude base64-warnings for backwards-compatibility with older plugin-version, but it also disabled serialize-warning .. -->
         <exclude name="WordPress.PHP.DiscouragedPHPFunctions"/>

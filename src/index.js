@@ -201,7 +201,7 @@ const EDLFW_Directory_Listing = ( { tree, actualDirectoryPath, setActualDirector
 
     return (Object.keys(tree).map( directory => {
             // set button class.
-            let buttonClassName = 'secondary';
+            let buttonClassName = '';
             if( actualDirectoryPath === directory ) {
                 buttonClassName = 'primary';
             }
@@ -272,6 +272,9 @@ function edfw_add_directory_view() {
     if( ! obj || ! obj.dataset.config ) {
         return;
     }
+
+    // remove the inner content.
+    obj.innerHTML = '';
 
     // get the configuration.
     let config = JSON.parse(obj.dataset.config);

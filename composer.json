@@ -1,6 +1,6 @@
 {
     "name": "threadi/easy-directory-listing-for-wordpress",
-    "version": "4.1.2",
+    "version": "4.1.3",
     "description": "Provides a react-driven directory listing for WordPress plugins and themes.",
     "type": "library",
     "license": "GPL-3.0-or-later",
@@ -11,14 +11,6 @@
       }
     ],
     "minimum-stability": "stable",
-    "scripts": {
-        "post-install-cmd": [
-            "\"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs,vendor/phpcsstandards/phpcsutils,vendor/phpcsstandards/phpcsextra,vendor/sirbrillig/phpcs-variable-analysis,vendor/automattic/vipwpcs"
-        ],
-        "post-update-cmd": [
-            "\"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs,vendor/phpcsstandards/phpcsutils,vendor/phpcsstandards/phpcsextra,vendor/sirbrillig/phpcs-variable-analysis,vendor/automattic/vipwpcs"
-        ]
-    },
     "autoload": {
         "psr-4": {
             "easyDirectoryListingForWordPress\\": "lib/"
@@ -37,10 +29,10 @@
       "platform-check": false
     },
     "require-dev": {
-      "wp-coding-standards/wpcs": "^3.1.0",
-      "pronamic/wp-documentor": "^1.3.2",
-      "automattic/vipwpcs": "^3.0",
-      "phpstan/phpstan": "^2.1",
+      "wp-coding-standards/wpcs": "^3.4.1",
+      "pronamic/wp-documentor": "^1.4.0",
+      "automattic/vipwpcs": "^3.1",
+      "phpstan/phpstan": "^2.2",
       "szepeviktor/phpstan-wordpress": "^2.0",
       "phpstan/extension-installer": "^1.4",
       "php-stubs/wp-cli-stubs": "^2.11",
@@ -48,7 +40,7 @@
       "dealerdirect/phpcodesniffer-composer-installer": "^1.2"
     },
     "require": {
-        "php": "^8.0",
-        "threadi/crypt-for-wordpress": "^2.0.1"
+        "php": "^8.2",
+        "threadi/crypt-for-wordpress": "^3.0.0"
     }
 }
