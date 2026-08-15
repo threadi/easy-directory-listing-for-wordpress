@@ -32,4 +32,4 @@ jobs:
         run: vendor/bin/phpstan analyse
 
       - name: Run WordPress Coding Standard fixes
-        run: vendor/bin/phpcbf --standard=ruleset.xml .
+        run: vendor/bin/phpcbf .
