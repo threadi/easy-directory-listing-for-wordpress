@@ -22,12 +22,12 @@
 
 ### Run
 
-`vendor/bin/phpcs --standard=ruleset.xml .`
+`vendor/bin/phpcs .`
 
 ### Repair
 
-`vendor/bin/phpcbf --standard=ruleset.xml .`
+`vendor/bin/phpcbf .`
 
-## Analyse with PHPStan
+## Analyze with PHPStan
 
 `vendor/bin/phpstan analyse`
