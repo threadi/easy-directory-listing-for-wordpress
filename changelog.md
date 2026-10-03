@@ -1,6 +1,13 @@
 # Changelog
 
-## [Unreleased]
+## [4.1.5] - 03.10.2026
+
+### Changed
+
+- Check for encrypted fields before returning a listing entry
+- Explicit use the local WP_Filesystem handler during cleanup
+
+## [4.1.4] - 03.10.2026
 
 ### Changed
 
