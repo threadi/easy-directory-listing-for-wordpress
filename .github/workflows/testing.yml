@@ -10,20 +10,9 @@ jobs:
   build:
     name: Run tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        php-version: ['8.4']
-    services:
-      database:
-        image: mysql:latest
-        env:
-          MYSQL_DATABASE: wordpress_tests
-          MYSQL_ROOT_PASSWORD: root
-        ports:
-          - 3306:3306
     steps:
       - name: Check out source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install dependencies
         run: composer install
