@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Updated dependencies
+
 ## [4.1.3] - 15.08.2026
 
 ### Changed
