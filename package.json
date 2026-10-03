@@ -9,6 +9,6 @@
 		"build": "wp-scripts build src/index.js --output-path=build/"
 	},
 	"devDependencies": {
-		"@wordpress/scripts": "~34.2"
+		"@wordpress/scripts": "~36.0"
 	}
 }
