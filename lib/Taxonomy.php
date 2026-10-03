@@ -348,11 +348,16 @@ class Taxonomy {
 			}
 		}
 
+		// check if encrypted fields are saved for this entry. If they are saved, but could not be decrypted
+		// (e.g., if the key is missing after a migration), they must never be overwritten by the conversion
+		// below, as the saved credentials would be lost then.
+		$has_encrypted_fields = is_string( $fields_encoded_string ) && '' !== $fields_encoded_string;
+
 		// convert old credential fields to new fields-array.
 		$login    = Crypt::get_instance()->decrypt( get_term_meta( $term_id, 'login', true ) );
 		$password = Crypt::get_instance()->decrypt( get_term_meta( $term_id, 'password', true ) );
 		$api_key  = Crypt::get_instance()->decrypt( get_term_meta( $term_id, 'api_key', true ) );
-		if ( empty( $fields ) && ( ! $login || ! $password || ! $api_key ) ) {
+		if ( empty( $fields ) && ! $has_encrypted_fields && ( ! $login || ! $password || ! $api_key ) ) {
 			// get the type.
 			switch ( get_term_meta( $term_id, 'type', true ) ) {
 				case 'google-drive':

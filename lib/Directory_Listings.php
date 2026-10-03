@@ -129,10 +129,9 @@ class Directory_Listings {
 		$upload_dir_data = wp_get_upload_dir();
 		$upload_dir      = trailingslashit( $upload_dir_data['basedir'] ) . 'edlfw/';
 
-		// get WP Filesystem-handler.
-		require_once ABSPATH . '/wp-admin/includes/file.php'; // @phpstan-ignore requireOnce.fileNotFound
-		\WP_Filesystem();
-		global $wp_filesystem;
+		// get the local WP Filesystem-handler. We do not use the global one here, as it could be
+		// an unconnected FTP- or SSH-handler, which would result in a fatal error on each request in wp-admin.
+		$wp_filesystem = Helper::get_wp_filesystem( true );
 
 		// bail if directory does not exist.
 		if ( ! $wp_filesystem->exists( $upload_dir ) ) {
