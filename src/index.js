@@ -3,12 +3,22 @@
  */
 import './style.scss';
 import { render } from "react-dom";
-import { useState, useEffect } from "@wordpress/element"
+import { useState, useEffect, useMemo } from "@wordpress/element"
 import apiFetch from '@wordpress/api-fetch';
 import { Button } from '@wordpress/components';
-import { human_file_size } from './helper';
+import { human_file_size, edlfw_text, edlfw_get_search_terms, edlfw_search_tree, edlfw_split_by_term } from './helper';
 import {EDLFW_FORM} from "./form";
 import {EDLFW_ERRORS} from "./errors";
+
+/**
+ * The minimum amount of chars to start the search in the loaded tree.
+ */
+const EDLFW_SEARCH_MIN_CHARS = 2;
+
+/**
+ * The max amount of search results to show.
+ */
+const EDLFW_SEARCH_MAX_RESULTS = 200;
 
 /**
  * Define the Easy Directory Listing for WordPress.
@@ -27,6 +37,12 @@ const EDLFW_Directory_Viewer = ( props ) => {
     const [ directoriesToLoad, setDirectoriesToLoad ] = useState( 0 );
     const [ updated, setUpdated ] = useState( false );
     let [ cancelLoading, setCancelLoading ] = useState( false );
+    const [ search, setSearch ] = useState( '' );
+
+    // search in the complete loaded tree: this does not need any further request.
+    const searchTerms = useMemo( () => edlfw_get_search_terms( search, EDLFW_SEARCH_MIN_CHARS ), [search] );
+    const searchData = useMemo( () => edlfw_search_tree( tree, searchTerms, EDLFW_SEARCH_MAX_RESULTS ), [tree, searchTerms] );
+    const isSearching = searchTerms.length > 0;
 
     // get configuration.
     let config = props.config;
@@ -135,17 +151,46 @@ const EDLFW_Directory_Viewer = ( props ) => {
     // add class on body as marker that listing is loaded.
     document.body.classList.add('easy-directory-listing-for-wordpress-loaded');
 
+    // open the directory of a search result and end the search.
+    function openSearchResult( result ) {
+        setActualDirectory( result.node.files );
+        setActualDirectoryPath( result.directory );
+        setOpenDirectoryPath( result.directory );
+        setSearch( '' );
+    }
+
+    // get the summary for the actual search.
+    let searchSummary = '';
+    if( isSearching ) {
+        if( searchData.hits === 0 ) {
+            searchSummary = edlfw_text( edlfwJsVars.search_no_hits, search.trim() );
+        }
+        else if( searchData.hits === 1 ) {
+            searchSummary = edlfw_text( edlfwJsVars.search_hit, search.trim() );
+        }
+        else if( searchData.hitDirectories === 1 ) {
+            searchSummary = edlfw_text( edlfwJsVars.search_hits_dir, searchData.hits, search.trim() );
+        }
+        else {
+            searchSummary = edlfw_text( edlfwJsVars.search_hits_dirs, searchData.hits, searchData.hitDirectories, search.trim() );
+        }
+    }
+
     // generate output.
     return (
         <>
             <div id="easy-directory-listing-for-wordpress-options">
-                {config.global_actions.map( action => {
-                    return (<Button variant="primary" key={action.action} onClick={() => eval( action.action )}>{action.label}</Button>)
-                } )}
+                <div className="edlfw-global-actions">
+                    {! isSearching && config.global_actions.map( action => {
+                        return (<Button variant="primary" key={action.action} onClick={() => eval( action.action )}>{action.label}</Button>)
+                    } )}
+                    {isSearching && <p className="edlfw-search-summary" role="status"><strong>{searchSummary}</strong> <Button variant="link" onClick={() => setSearch( '' )}>{edlfwJsVars.search_end}</Button></p>}
+                </div>
+                <EDLFW_Search search={search} setSearch={setSearch} />
             </div>
             <div id="easy-directory-listing-for-wordpress-listing-view">
-                <div id="easy-directory-listing-for-wordpress-listing">
-                    <ul><EDLFW_Directory_Listing tree={tree} actualDirectoryPath={actualDirectoryPath} setActualDirectory={setActualDirectory} setActualDirectoryPath={setActualDirectoryPath} openDirectoryPath={openDirectoryPath} setOpenDirectoryPath={setOpenDirectoryPath} /></ul>
+                <div id="easy-directory-listing-for-wordpress-listing" className={isSearching ? 'is-searching' : ''}>
+                    <ul><EDLFW_Directory_Listing tree={tree} actualDirectoryPath={actualDirectoryPath} setActualDirectory={setActualDirectory} setActualDirectoryPath={setActualDirectoryPath} openDirectoryPath={openDirectoryPath} setOpenDirectoryPath={setOpenDirectoryPath} searchData={isSearching ? searchData : false} setSearch={setSearch} /></ul>
                 </div>
                 <div id="easy-directory-listing-for-wordpress-details">
                     <table className="wp-list-table widefat fixed striped table-view-list">
@@ -160,12 +205,44 @@ const EDLFW_Directory_Viewer = ( props ) => {
                         </tr>
                         </thead>
                         <tbody>
-                        <EDLFW_Files_Listing directoryToList={actualDirectory} config={config} term={config.term} />
+                        <EDLFW_Files_Listing directoryToList={isSearching ? searchData.results : actualDirectory} config={config} term={config.term} searchData={isSearching ? searchData : false} searchTerms={searchTerms} search={search} setSearch={setSearch} openSearchResult={openSearchResult} />
                         </tbody>
                     </table>
                 </div>
             </div>
         </>
+    )
+}
+
+/**
+ * Show the search field to search for files in the complete loaded tree.
+ *
+ * @param search
+ * @param setSearch
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const EDLFW_Search = ( { search, setSearch } ) => {
+    return (
+        <div className="edlfw-search">
+            <label className="screen-reader-text" htmlFor="edlfw-search-input">{edlfwJsVars.search_label}</label>
+            <span className="dashicons dashicons-search" aria-hidden="true"></span>
+            <input
+                id="edlfw-search-input"
+                type="search"
+                autoComplete="off"
+                value={search}
+                placeholder={edlfwJsVars.search_placeholder}
+                onChange={( event ) => setSearch( event.target.value )}
+                onKeyDown={( event ) => {
+                    if( event.key === 'Escape' ) {
+                        setSearch( '' );
+                    }
+                }}
+            />
+            {search.length > 0 && <button type="button" className="edlfw-search-clear" aria-label={edlfwJsVars.search_clear} title={edlfwJsVars.search_clear} onClick={() => setSearch( '' )}><span className="dashicons dashicons-no-alt" aria-hidden="true"></span></button>}
+            {search.trim().length > 0 && search.trim().length < EDLFW_SEARCH_MIN_CHARS && <p className="edlfw-search-hint">{edlfw_text( edlfwJsVars.search_min_chars, EDLFW_SEARCH_MIN_CHARS )}</p>}
+        </div>
     )
 }
 
@@ -178,10 +255,12 @@ const EDLFW_Directory_Viewer = ( props ) => {
  * @param setActualDirectoryPath
  * @param openDirectoryPath
  * @param setOpenDirectoryPath
+ * @param searchData
+ * @param setSearch
  * @returns {*}
  * @constructor
  */
-const EDLFW_Directory_Listing = ( { tree, actualDirectoryPath, setActualDirectory, setActualDirectoryPath, openDirectoryPath, setOpenDirectoryPath } ) => {
+const EDLFW_Directory_Listing = ( { tree, actualDirectoryPath, setActualDirectory, setActualDirectoryPath, openDirectoryPath, setOpenDirectoryPath, searchData, setSearch } ) => {
     // bail if no directories are given.
     if( ! tree ) {
         return '';
@@ -192,6 +271,11 @@ const EDLFW_Directory_Listing = ( { tree, actualDirectoryPath, setActualDirector
         setActualDirectory(tree[directory].files);
         setActualDirectoryPath( directory );
         setOpenDirectoryPath( directory )
+
+        // end the search to show the files of this directory.
+        if( searchData ) {
+            setSearch( '' );
+        }
     }
 
     // open this directory.
@@ -202,7 +286,7 @@ const EDLFW_Directory_Listing = ( { tree, actualDirectoryPath, setActualDirector
     return (Object.keys(tree).map( directory => {
             // set button class.
             let buttonClassName = '';
-            if( actualDirectoryPath === directory ) {
+            if( ! searchData && actualDirectoryPath === directory ) {
                 buttonClassName = 'primary';
             }
 
@@ -212,15 +296,27 @@ const EDLFW_Directory_Listing = ( { tree, actualDirectoryPath, setActualDirector
                 directoryClassName = 'open';
             }
 
-            return (<li key={directory} className={directoryClassName}>
+            // during a search: mark the directories with hits and show the amount of hits in this directory.
+            let hits = 0;
+            if( searchData ) {
+                hits = searchData.counts[directory] ?? 0;
+                directoryClassName += ( searchData.subtree[directory] ?? 0 ) > 0 ? ' has-results' : ' no-results';
+                if( hits === 0 ) {
+                    directoryClassName += ' no-own-results';
+                }
+            }
+
+            return (<li key={directory} className={directoryClassName.trim()}>
                     <a href="#" onClick={() => openDirectory( directory )}>&nbsp;</a>
                     <Button variant={buttonClassName}
                             onClick={() => changeDirectory( directory )}>{tree[directory].title}</Button>
+                    {hits > 0 && <span className="edlfw-search-count">{hits}</span>}
                     {tree[directory].dirs &&
                         <ul><EDLFW_Directory_Listing tree={tree[directory].dirs} actualDirectoryPath={actualDirectoryPath}
                                                      setActualDirectory={setActualDirectory}
                                                      setActualDirectoryPath={setActualDirectoryPath}
-                                                     openDirectoryPath={openDirectoryPath} setOpenDirectoryPath={setOpenDirectoryPath} /></ul>}
+                                                     openDirectoryPath={openDirectoryPath} setOpenDirectoryPath={setOpenDirectoryPath}
+                                                     searchData={searchData} setSearch={setSearch} /></ul>}
                 </li>
             )
         }
@@ -228,22 +324,42 @@ const EDLFW_Directory_Listing = ( { tree, actualDirectoryPath, setActualDirector
 }
 
 /**
- * Show files in given directory.
+ * Show files in given directory or, during a search, the files found in the complete tree.
  *
  * @param directoryToList
  * @param config
  * @param term
+ * @param searchData
+ * @param searchTerms
+ * @param search
+ * @param setSearch
+ * @param openSearchResult
  * @returns {*}
  * @constructor
  */
-const EDLFW_Files_Listing = ( { directoryToList, config, term } ) => {
+const EDLFW_Files_Listing = ( { directoryToList, config, term, searchData, searchTerms, search, setSearch, openSearchResult } ) => {
+    // show hint if the search does not have any hit.
+    if ( searchData && ! directoryToList.length ) {
+        return (<tr className="edlfw-search-empty"><td colSpan="6">
+            <p><strong>{edlfw_text( edlfwJsVars.search_no_hits, search.trim() )}</strong></p>
+            <p>{edlfw_text( edlfwJsVars.search_scope, searchData.files, searchData.directories )}</p>
+            <p><Button variant="link" onClick={() => setSearch( '' )}>{edlfwJsVars.search_reset}</Button></p>
+        </td></tr>)
+    }
+
     if ( ! directoryToList.length ) {
         return (<tr><td colSpan="6"><p>{edlfwJsVars.empty_directory}</p></td></tr>)
     }
 
-    return (Object.keys(directoryToList).map( directory => {
-        let file = directoryToList[directory];
-        return (<tr key={file.title}>
+    // get the parts of the text around the link to the directory of a search result.
+    const inDirectory = String( edlfwJsVars.search_in_directory ?? '%1$s' ).split( '%1$s' );
+
+    const rows = Object.keys(directoryToList).map( directory => {
+        // during a search each entry contains the file and the directory where it has been found.
+        let searchResult = searchData ? directoryToList[directory] : false;
+        let file = searchResult ? searchResult.file : directoryToList[directory];
+        let titleParts = edlfw_split_by_term( file.title, searchResult ? searchTerms[0] : '' );
+        return (<tr key={( searchResult ? searchResult.directory : '' ) + file.title}>
             <td className="actions">
                 {config.actions.map( action => {
                     if( typeof action.show !== 'undefined' && typeof action.hint !== 'undefined' && ! eval( action.show ) ) {
@@ -253,12 +369,22 @@ const EDLFW_Files_Listing = ( { directoryToList, config, term } ) => {
                 } )}
             </td>
             <td className="filepreview"><span dangerouslySetInnerHTML={{__html: file.preview}} /></td>
-            <td className="filename">{file.title}</td>
+            <td className="filename">
+                {titleParts.before}{titleParts.match.length > 0 && <mark>{titleParts.match}</mark>}{titleParts.after}
+                {searchResult && <span className="edlfw-search-path">{inDirectory[0]}<Button variant="link" onClick={() => openSearchResult( searchResult )}>{searchResult.label}</Button>{inDirectory[1] ?? ''}</span>}
+            </td>
             <td className="date">{file['last-modified']}</td>
             <td className="type"><span dangerouslySetInnerHTML={{__html: file.icon}} /></td>
             <td className="filesize">{human_file_size( file.filesize )}</td>
         </tr>)
-    } ))
+    } );
+
+    // show hint if not all hits are shown.
+    if ( searchData && searchData.hits > directoryToList.length ) {
+        rows.push( <tr key="edlfw-search-limited" className="edlfw-search-limited"><td colSpan="6"><p>{edlfw_text( edlfwJsVars.search_limited, directoryToList.length, searchData.hits )}</p></td></tr> );
+    }
+
+    return rows;
 }
 
 /**
