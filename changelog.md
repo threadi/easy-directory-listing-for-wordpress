@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.2.0] - 03.10.2026
+
+### Added
+
+- Added field to search for files in the directory view
+
 ## [4.1.5] - 03.10.2026
 
 ### Changed

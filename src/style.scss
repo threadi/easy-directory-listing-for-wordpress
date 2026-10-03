@@ -21,11 +21,68 @@
 }
 
 #easy-directory-listing-for-wordpress-options {
+  align-items: flex-start;
   border-bottom: 1px solid #ccc;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+  justify-content: space-between;
   margin: 0 0 1em;
   padding-bottom: 1em;
-  button {
+  .edlfw-global-actions button {
     margin-right: 1em;
+  }
+  .edlfw-search-summary {
+    line-height: 30px;
+    margin: 0;
+    button {
+      margin: 0 0 0 .6em;
+    }
+  }
+}
+
+.edlfw-search {
+  max-width: 100%;
+  position: relative;
+  width: 300px;
+  input[type="search"] {
+    margin: 0;
+    min-height: 30px;
+    padding: 0 30px;
+    width: 100%;
+    &::-webkit-search-cancel-button {
+      display: none;
+    }
+  }
+  > .dashicons-search {
+    color: #50575e;
+    font-size: 18px;
+    height: 18px;
+    left: 7px;
+    pointer-events: none;
+    position: absolute;
+    top: 6px;
+    width: 18px;
+  }
+  .edlfw-search-clear {
+    background: none;
+    border: 0;
+    color: #50575e;
+    cursor: pointer;
+    height: 26px;
+    padding: 3px;
+    position: absolute;
+    right: 2px;
+    top: 2px;
+    width: 26px;
+    &:hover, &:focus {
+      color: #1d2327;
+    }
+  }
+  .edlfw-search-hint {
+    color: #50575e;
+    font-size: 12px;
+    margin: .3em 0 0;
   }
 }
 
@@ -136,6 +193,51 @@
   .type { width: 24px; }
   .filepreview { width: 32px }
   p:last-child { margin: 0 }
+  .filename mark {
+    background: #fff2a8;
+    border-radius: 2px;
+    color: inherit;
+    padding: 0 1px;
+  }
+  .edlfw-search-path {
+    color: #50575e;
+    display: block;
+    font-size: 12px;
+    margin-top: 2px;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+  .edlfw-search-empty p, .edlfw-search-limited p {
+    margin: 0 0 .6em;
+  }
+}
+
+/* During a search: show each directory with hits and hide all others (except the first level). */
+#easy-directory-listing-for-wordpress-listing.is-searching {
+  li.has-results > ul {
+    display: block;
+  }
+  li li.no-results {
+    display: none;
+  }
+  li.no-own-results > button {
+    opacity: .6;
+  }
+}
+
+#easy-directory-listing-for-wordpress-listing .edlfw-search-count {
+  background: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+  border-radius: 9px;
+  box-sizing: border-box;
+  color: #fff;
+  display: inline-block;
+  font-size: 11px;
+  line-height: 18px;
+  margin-left: .5em;
+  min-width: 18px;
+  padding: 0 6px;
+  text-align: center;
+  vertical-align: middle;
 }
 
 body.taxonomy-edlfw_archive {
