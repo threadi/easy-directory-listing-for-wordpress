@@ -34,6 +34,20 @@ class Local extends Directory_Listing_Base {
 	private static ?Local $instance = null;
 
 	/**
+	 * The local WP Filesystem object.
+	 *
+	 * @var \WP_Filesystem_Base|null
+	 */
+	private ?\WP_Filesystem_Base $filesystem = null;
+
+	/**
+	 * Map of allowed file extensions to their mime types.
+	 *
+	 * @var array<string,string>|null
+	 */
+	private ?array $mime_types = null;
+
+	/**
 	 * Constructor, not used as this a Singleton object.
 	 */
 	private function __construct() {}
@@ -123,16 +137,11 @@ class Local extends Directory_Listing_Base {
 			'dirs'  => array(),
 		);
 
-		// get WP Filesystem-handler.
-		require_once ABSPATH . '/wp-admin/includes/file.php'; // @phpstan-ignore requireOnce.fileNotFound
-		\WP_Filesystem();
-		global $wp_filesystem;
-
-		// bail if wp_filesystem is not set.
-		if ( is_null( $wp_filesystem ) ) {
+		// bail if another stream wrapper than "file://" is used (e.g., "ftp://", "phar://" or "http://").
+		if ( str_contains( $directory, '://' ) && ! str_starts_with( $directory, 'file://' ) ) {
 			// create error object.
 			$error = new \WP_Error();
-			$error->add( 'efml_service_' . $this->get_name(), __( 'Could not load necessary WordPress-component WP_Filesystem. Possible faulty configuration of FS_METHOD.', 'easy-directory-listing-for-wordpress' ) );
+			$error->add( 'efml_service_' . $this->get_name(), __( 'The given directory is not a local directory.', 'easy-directory-listing-for-wordpress' ) );
 
 			// add the error to the list for response.
 			$this->add_error( $error );
@@ -140,6 +149,9 @@ class Local extends Directory_Listing_Base {
 			// do nothing more.
 			return array();
 		}
+
+		// get WP Filesystem-handler.
+		$wp_filesystem = $this->get_filesystem();
 
 		// bail if wp_filesystem is not "direct".
 		if ( ! $wp_filesystem instanceof \WP_Filesystem_Direct ) {
@@ -172,6 +184,19 @@ class Local extends Directory_Listing_Base {
 			return array();
 		}
 
+		// get the real path of the requested directory to detect symlink loops.
+		$real_directory = realpath( str_replace( 'file://', '', $directory ) );
+
+		/**
+		 * Filter the max file size in bytes for images to generate a preview for.
+		 *
+		 * Larger images are not loaded in the image editor, as this needs a lot of memory and time.
+		 *
+		 * @since 4.3.0 Available since 4.3.0.
+		 * @param int $max_size The max file size in bytes.
+		 */
+		$preview_max_size = absint( apply_filters( Init::get_instance()->get_prefix() . '_service_local_preview_max_filesize', 10 * MB_IN_BYTES ) );
+
 		// loop through the directories and files.
 		foreach ( $dir_list as $filename => $file ) {
 			// get path.
@@ -195,68 +220,161 @@ class Local extends Directory_Listing_Base {
 
 			// prepare an array for the entry.
 			$entry = array(
-				'title' => basename( $filename ),
+				'title' => basename( (string) $filename ),
 			);
 
 			// if this is a directory, add it to the directory list.
-			if ( is_dir( $path ) ) {
-				$listing['dirs'][ trailingslashit( $path ) ] = $entry;
-			} else {
-				// get content type of this file.
-				$mime_type = wp_check_filetype( $path );
-
-				// bail if file is not allowed.
-				if ( empty( $mime_type['type'] ) ) {
-					continue;
-				}
-
-				// define the thumb.
-				$thumbnail = '';
-
-				// get the thumb via image editor object.
-				if ( str_contains( $mime_type['type'], 'image/' ) && Init::get_instance()->is_preview_enabled() ) {
-					// get the real image mime.
-					$image_mime = wp_get_image_mime( $path );
-
-					// do nothing if the real mime does not start with "image/".
-					if ( is_string( $image_mime ) && str_contains( $image_mime, 'image/' ) ) {
-						// generate the path for WP-functions.
-						$wp_compatible_path = str_replace( 'file://', '', $path );
-
-						// get image editor object of the file to get a thumb of it.
-						$editor = wp_get_image_editor( $wp_compatible_path, $mime_type );
-
-						// check if object is WP_Image_Editor.
-						if ( $editor instanceof WP_Image_Editor ) {
-							// set size for the preview.
-							$editor->resize( 32, 32 );
-
-							// save the thumbnail.
-							$results = $editor->save( $upload_dir . '/' . basename( $path ) );
-
-							// add a thumb to output if it does not result in an error.
-							if ( ! is_wp_error( $results ) ) {
-								$thumbnail = '<img src="' . esc_url( $upload_url . $results['file'] ) . '" alt="">';
-							}
-						}
+			if ( 'd' === $file['type'] ) {
+				// bail if this is a symlink to the actual directory or one of its parents, as this would result in an endless loop.
+				$local_path = str_replace( 'file://', '', $path );
+				if ( is_link( $local_path ) && is_string( $real_directory ) ) {
+					$real_target = realpath( $local_path );
+					if ( ! is_string( $real_target ) || str_starts_with( trailingslashit( $real_directory ), trailingslashit( $real_target ) ) ) {
+						continue;
 					}
 				}
 
-				// add some more data to the file.
-				$entry['file']          = $path;
-				$entry['filesize']      = filesize( $path );
-				$entry['mime-type']     = $mime_type['type'];
-				$entry['last-modified'] = Helper::get_format_date_time( gmdate( 'Y-m-d H:i:s', (int) $wp_filesystem->mtime( $path ) ) );
-				$entry['icon']          = '<span class="dashicons dashicons-media-default" data-type="' . esc_attr( $mime_type['type'] ) . '"></span>';
-				$entry['preview']       = $thumbnail;
-
-				// add the entry to the list.
-				$listing['files'][] = $entry;
+				$listing['dirs'][ trailingslashit( $path ) ] = $entry;
+				continue;
 			}
+
+			// get content type of this file.
+			$mime_type = $this->get_mime_type( (string) $filename );
+
+			// bail if file is not allowed.
+			if ( empty( $mime_type ) ) {
+				continue;
+			}
+
+			// get size and modification time from the directory list (no further file system requests necessary).
+			$filesize = (int) $file['size'];
+			$mtime    = (int) ( $file['lastmodunix'] ?? 0 );
+
+			// define the thumb.
+			$thumbnail = '';
+
+			// get the thumb via image editor object.
+			if ( str_starts_with( $mime_type, 'image/' ) && Init::get_instance()->is_preview_enabled() && $filesize <= $preview_max_size ) {
+				$thumbnail = $this->get_thumbnail( $path, $mime_type, $mtime, $upload_dir, $upload_url );
+			}
+
+			// add some more data to the file.
+			$entry['file']          = $path;
+			$entry['filesize']      = $filesize;
+			$entry['mime-type']     = $mime_type;
+			$entry['last-modified'] = Helper::get_format_date_time( gmdate( 'Y-m-d H:i:s', $mtime ) );
+			$entry['icon']          = '<span class="dashicons dashicons-media-default" data-type="' . esc_attr( $mime_type ) . '"></span>';
+			$entry['preview']       = $thumbnail;
+
+			// add the entry to the list.
+			$listing['files'][] = $entry;
 		}
 
 		// return the listing.
 		return $listing;
+	}
+
+	/**
+	 * Return the local WP Filesystem object.
+	 *
+	 * The object is only loaded once per request, as WP_Filesystem() checks the filesystem method
+	 * via a temporary test file on each call.
+	 *
+	 * @return \WP_Filesystem_Base|null
+	 */
+	private function get_filesystem(): ?\WP_Filesystem_Base {
+		if ( null === $this->filesystem ) {
+			require_once ABSPATH . '/wp-admin/includes/file.php'; // @phpstan-ignore requireOnce.fileNotFound
+			\WP_Filesystem();
+			global $wp_filesystem;
+			if ( $wp_filesystem instanceof \WP_Filesystem_Base ) {
+				$this->filesystem = $wp_filesystem;
+			}
+		}
+		return $this->filesystem;
+	}
+
+	/**
+	 * Return the mime type of the given file name, if it is allowed in this WordPress.
+	 *
+	 * Same result as wp_check_filetype(), but the list of allowed types is only loaded once.
+	 *
+	 * @param string $filename The file name.
+	 *
+	 * @return string
+	 */
+	private function get_mime_type( string $filename ): string {
+		// build the map of extensions to mime types.
+		if ( null === $this->mime_types ) {
+			$this->mime_types = array();
+			foreach ( get_allowed_mime_types() as $extensions => $mime_type ) {
+				foreach ( explode( '|', $extensions ) as $extension ) {
+					if ( ! isset( $this->mime_types[ $extension ] ) ) {
+						$this->mime_types[ $extension ] = $mime_type;
+					}
+				}
+			}
+		}
+
+		// return the mime type for the extension of this file.
+		return $this->mime_types[ strtolower( pathinfo( $filename, PATHINFO_EXTENSION ) ) ] ?? '';
+	}
+
+	/**
+	 * Return the HTML code for the preview of the given image.
+	 *
+	 * The preview is generated only once per image and modification time.
+	 *
+	 * @param string $path The path of the image.
+	 * @param string $mime_type The mime type from the file name.
+	 * @param int    $mtime The modification time of the image.
+	 * @param string $upload_dir The directory for the previews.
+	 * @param string $upload_url The URL of the directory for the previews.
+	 *
+	 * @return string
+	 */
+	private function get_thumbnail( string $path, string $mime_type, int $mtime, string $upload_dir, string $upload_url ): string {
+		// generate the path for WP-functions.
+		$wp_compatible_path = str_replace( 'file://', '', $path );
+
+		// get a unique file name for this image and its modification time, so images with the same name
+		// in different directories do not overwrite each other and changed images get a new preview.
+		$thumb_name = md5( $wp_compatible_path . '|' . $mtime ) . '.' . strtolower( pathinfo( $wp_compatible_path, PATHINFO_EXTENSION ) );
+
+		// use the existing preview.
+		if ( file_exists( $upload_dir . $thumb_name ) ) {
+			return '<img src="' . esc_url( $upload_url . $thumb_name ) . '" alt="">';
+		}
+
+		// get the real image mime.
+		$image_mime = wp_get_image_mime( $wp_compatible_path );
+
+		// do nothing if the real mime does not start with "image/".
+		if ( ! is_string( $image_mime ) || ! str_starts_with( $image_mime, 'image/' ) ) {
+			return '';
+		}
+
+		// get image editor object of the file to get a thumb of it.
+		$editor = wp_get_image_editor( $wp_compatible_path, array( 'mime_type' => $mime_type ) );
+
+		// bail if object is not WP_Image_Editor.
+		if ( ! $editor instanceof WP_Image_Editor ) {
+			return '';
+		}
+
+		// set size for the preview.
+		$editor->resize( 32, 32 );
+
+		// save the thumbnail.
+		$results = $editor->save( $upload_dir . $thumb_name );
+
+		// bail on error.
+		if ( is_wp_error( $results ) ) {
+			return '';
+		}
+
+		// return the HTML code for the preview.
+		return '<img src="' . esc_url( $upload_url . $results['file'] ) . '" alt="">';
 	}
 
 	/**

@@ -15,6 +15,7 @@ add_action(
 		$directory_listing_obj = \easyDirectoryListingForWordPress\Init::get_instance();
 		$directory_listing_obj->set_path( trailingslashit( plugin_dir_path( __FILE__ ) ) );
 		$directory_listing_obj->set_url( plugin_dir_url( __FILE__ ) );
+		$directory_listing_obj->set_plugin_path( __FILE__ ); // necessary for the encryption of saved credentials.
 		$directory_listing_obj->set_prefix( 'your-plugin-slug' );
 		$directory_listing_obj->set_nonce_name( 'your-custom-nonce' );
 		$directory_listing_obj->init();

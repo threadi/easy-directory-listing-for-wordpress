@@ -95,18 +95,26 @@ class Rest {
 	/**
 	 * Return the listing of requested local directory.
 	 *
+	 * As many directories as possible are loaded within one request (limited by a time budget).
+	 * Only if the budget is exhausted, the partial tree is cached and the client requests the rest.
+	 *
 	 * @param WP_REST_Request $request The request object.
 	 *
-	 * @return array<string,mixed>
+	 * @return array<string,mixed>|WP_Error
 	 */
-	public function get_directory( WP_REST_Request $request ): array {
+	public function get_directory( WP_REST_Request $request ): array|WP_Error {
 		// bail if user is not logged in.
 		if ( ! is_user_logged_in() ) {
-			return array();
+			return new WP_Error( 'edlfw_not_logged_in', $this->get_translation( 'nonce_invalid' ), array( 'status' => 401 ) );
 		}
 
 		// get params.
 		$params = $request->get_params();
+
+		// bail if nonce is missing or does not match. This is checked before anything else is done.
+		if ( empty( $params['nonce'] ) || ! is_string( $params['nonce'] ) || ! wp_verify_nonce( $params['nonce'], $this->get_init_obj()->get_nonce_name() ) ) {
+			return new WP_Error( 'edlfw_invalid_nonce', $this->get_translation( 'nonce_invalid' ), array( 'status' => 403 ) );
+		}
 
 		// get term, if set.
 		$term_id = ! empty( $params['term'] ) ? absint( $params['term'] ) : 0;
@@ -122,18 +130,8 @@ class Rest {
 			}
 		}
 
-		// bail if nonce param is missing.
-		if ( empty( $params['nonce'] ) ) {
-			return array();
-		}
-
-		// bail if nonce value does not match.
-		if ( ! wp_verify_nonce( $params['nonce'], $this->get_init_obj()->get_nonce_name() ) ) {
-			return array();
-		}
-
 		// get listing base object name.
-		$listing_base_object_name = $params['listing_base_object_name'];
+		$listing_base_object_name = isset( $params['listing_base_object_name'] ) && is_string( $params['listing_base_object_name'] ) ? $params['listing_base_object_name'] : '';
 
 		// bail if no listing base is set.
 		if ( empty( $listing_base_object_name ) ) {
@@ -141,26 +139,26 @@ class Rest {
 		}
 
 		// get the listing object.
-		$listing_base_object = false;
-		foreach ( Directory_Listings::get_instance()->get_directory_listings_objects() as $obj ) {
-			// bail if names does not match.
-			if ( $listing_base_object_name !== $obj->get_name() ) {
-				continue;
-			}
-
-			$listing_base_object = $obj;
-		}
+		$listing_base_object = Directory_Listings::get_instance()->get_directory_listing_object_by_name( $listing_base_object_name );
 
 		// bail if no listing object could be found.
 		if ( ! $listing_base_object ) {
 			return array();
 		}
 
-		// set the fields from request which configures the listing object.
-		$listing_base_object->set_fields( $params['fields'] );
+		// bail if the actual user is not allowed to use this listing object.
+		if ( ! current_user_can( $listing_base_object->get_permission_name() ) ) {
+			return new WP_Error( 'edlfw_not_allowed', $this->get_translation( 'nonce_invalid' ), array( 'status' => 403 ) );
+		}
+
+		// get the fields from request which configures the listing object.
+		$fields = isset( $params['fields'] ) && is_array( $params['fields'] ) ? $params['fields'] : array();
+
+		// set the fields on the listing object.
+		$listing_base_object->set_fields( $fields );
 
 		// set the directory on listing object, if set.
-		$listing_base_object->set_directory( isset( $params['directory'] ) ? $params['directory'] : '' );
+		$listing_base_object->set_directory( isset( $params['directory'] ) && is_string( $params['directory'] ) ? $params['directory'] : '' );
 
 		// get the directory to load from listing object.
 		$directory = $listing_base_object->get_directory();
@@ -171,82 +169,100 @@ class Rest {
 		}
 
 		// save the directory as directory archive if this is enabled.
-		if ( $params['saveCredentials'] ) {
-			Taxonomy::get_instance()->add( $listing_base_object->get_name(), $directory, $params['fields'] );
+		if ( ! empty( $params['saveCredentials'] ) ) {
+			Taxonomy::get_instance()->add( $listing_base_object->get_name(), $directory, $fields );
 		}
 
-		// get the cached tree for requested URL.
-		$directory_list = get_transient( $this->get_init_obj()->get_prefix() . '_' . get_current_user_id() . '_' . md5( $directory ) . '_tree' );
+		// get the cache key for the tree of this user and directory.
+		$cache_key = $this->get_init_obj()->get_prefix() . '_' . get_current_user_id() . '_' . md5( $directory ) . '_tree';
 
-		// directory list must be an array.
-		if ( ! is_array( $directory_list ) ) {
+		// get the cached tree for requested URL.
+		$directory_list = get_transient( $cache_key );
+
+		// directory list must be an array. It is ignored if the client starts a new loading process,
+		// so an aborted loading process (e.g., closed browser tab) does not result in an outdated tree.
+		if ( ! is_array( $directory_list ) || ! empty( $params['restart'] ) ) {
 			$directory_list = array();
 		}
 
-		// check how many directories in the tree must be still be loaded.
-		$next_directories = $this->get_next_directory( $directory, $directory_list );
+		// whether the user wants to cancel the loading.
+		$cancel_loading = ! empty( $params['cancelLoading'] );
 
-		// mark which directory to load.
-		$directory_to_load = $directory;
+		/**
+		 * Filter the time budget in seconds for loading directories in a single request.
+		 *
+		 * If the budget is exhausted, the partial tree is cached and the client requests the next directories.
+		 * Use a small value for slow external sources to prevent timeouts.
+		 *
+		 * @since 4.3.0 Available since 4.3.0.
+		 * @param float $time_budget The time budget in seconds.
+		 * @param string $name The service name.
+		 */
+		$time_budget = (float) apply_filters( $this->get_init_obj()->get_prefix() . '_directory_listing_time_budget', 3.0, $listing_base_object->get_name() );
 
-		// get the next directory from list, if set.
-		if ( ! empty( $next_directories ) ) {
-			$directory_to_load = array_shift( $next_directories );
+		// get the queue of directories which must be loaded. The first request loads the main directory.
+		$queue = empty( $directory_list ) ? array( $directory ) : $this->get_next_directory( $directory_list );
+		$start = microtime( true );
+
+		// load directories until all are loaded or the time budget is exhausted.
+		for ( $index = 0; $index < count( $queue ); $index++ ) { // phpcs:ignore Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed,Squiz.PHP.DisallowSizeFunctionsInLoops.Found
+			$directory_to_load = $queue[ $index ];
+
+			// bail if this directory is already loaded.
+			if ( isset( $directory_list[ $directory_to_load ] ) ) {
+				continue;
+			}
+
+			// get the directory listing and collect all files and directories as array.
+			$subs = $listing_base_object->get_directory_listing( $directory_to_load );
+
+			// bail if any error has been submitted from directory listing object.
+			if ( ! empty( $listing_base_object->get_errors() ) ) {
+				// remove the cache for this request.
+				delete_transient( $cache_key );
+
+				// return the error list.
+				return array( 'errors' => $this->get_errors_for_response( $listing_base_object->get_errors() ) );
+			}
+
+			// add the result of the loaded directory in the list.
+			if ( isset( $subs['completed'] ) ) {
+				// the listing object has returned the complete tree at once.
+				$directory_list = $subs;
+				break;
+			} elseif ( isset( $subs[ $directory_to_load ] ) ) {
+				$directory_list[ $directory_to_load ] = $subs[ $directory_to_load ];
+			} elseif ( empty( $subs ) ) {
+				// directory could not be read (e.g., missing permissions): add it as empty directory,
+				// so it is marked as loaded and the tree can be built.
+				$directory_list[ $directory_to_load ] = array(
+					'title' => basename( untrailingslashit( $directory_to_load ) ),
+					'files' => array(),
+					'dirs'  => array(),
+				);
+			} else {
+				$directory_list[ $directory_to_load ] = $subs;
+			}
+
+			// add the sub-directories of the loaded directory to the queue.
+			$loaded_entry = $directory_list[ $directory_to_load ];
+			if ( is_array( $loaded_entry ) && isset( $loaded_entry['dirs'] ) && is_array( $loaded_entry['dirs'] ) ) {
+				foreach ( array_keys( $loaded_entry['dirs'] ) as $path ) {
+					if ( ! isset( $directory_list[ $path ] ) ) {
+						$queue[] = (string) $path;
+					}
+				}
+			}
+
+			// bail if the time budget is exhausted or the user wants to cancel the loading.
+			if ( $cancel_loading || ( microtime( true ) - $start ) >= $time_budget ) {
+				break;
+			}
 		}
-
-		// get the directory listing and collect all files and directories as array.
-		$subs = $listing_base_object->get_directory_listing( $directory_to_load );
-
-		// bail if any error has been submitted from directory listing object.
-		if ( ! empty( $listing_base_object->get_errors() ) ) {
-			// remove the cache for this request.
-			delete_transient( $this->get_init_obj()->get_prefix() . '_' . get_current_user_id() . '_' . md5( $directory ) . '_tree' );
-
-			// return the error list.
-			return array( 'errors' => $this->get_errors_for_response( $listing_base_object->get_errors() ) );
-		}
-
-		// add the result of the loaded directory in the list.
-		if ( isset( $subs['completed'] ) ) {
-			$directory_list = $subs;
-		} elseif ( isset( $subs[ $directory_to_load ] ) ) {
-			$directory_list[ $directory_to_load ] = $subs[ $directory_to_load ];
-		} else {
-			$directory_list[ $directory_to_load ] = $subs;
-		}
-
-		// save the actual tree as user-specific transient.
-		set_transient( $this->get_init_obj()->get_prefix() . '_' . get_current_user_id() . '_' . md5( $directory ) . '_tree', $directory_list, DAY_IN_SECONDS );
 
 		// check if all directories have been loaded.
-		$directory_loading = false;
-		foreach ( $directory_list as $entry ) {
-			// bail if loading is already enabled.
-			if ( $directory_loading ) {
-				continue;
-			}
-
-			// bail if no directories are given.
-			if ( ! isset( $entry['dirs'] ) ) {
-				continue;
-			}
-
-			// loop through the directories.
-			foreach ( $entry['dirs'] as $path => $sub ) {
-				// bail if loading is already enabled.
-				if ( $directory_loading ) {
-					continue;
-				}
-
-				// bail if URL is already loaded.
-				if ( isset( $directory_list[ $path ] ) ) {
-					continue;
-				}
-
-				// mark that we must load more directories.
-				$directory_loading = true;
-			}
-		}
+		$next_directories  = $this->get_next_directory( $directory_list );
+		$directory_loading = ! empty( $next_directories );
 
 		/**
 		 * Filter whether we load any further directory.
@@ -259,9 +275,9 @@ class Rest {
 		$directory_loading = apply_filters( Init::get_instance()->get_prefix() . '_directory_listing_' . $listing_base_object->get_name() . '_directory_loading', $directory_loading, $directory_list, $directory );
 
 		// bail if we must load further directories.
-		if ( $directory_loading && ! $params['cancelLoading'] ) {
-			// reload the next directory list.
-			$next_directories = $this->get_next_directory( $directory, $directory_list );
+		if ( $directory_loading && ! $cancel_loading ) {
+			// save the actual tree as user-specific transient for the next request.
+			set_transient( $cache_key, $directory_list, DAY_IN_SECONDS );
 
 			return array(
 				'directory_loading' => true,
@@ -303,10 +319,22 @@ class Rest {
 		$tree = apply_filters( $this->get_init_obj()->get_prefix() . '_directory_listing', $tree, $directory, $name );
 
 		// remove the cache for this request.
-		delete_transient( $this->get_init_obj()->get_prefix() . '_' . get_current_user_id() . '_' . md5( $directory ) . '_tree' );
+		delete_transient( $cache_key );
 
 		// return the resulting tree.
 		return $tree;
+	}
+
+	/**
+	 * Return a translated text by its key with fallback to the key itself.
+	 *
+	 * @param string $key The key.
+	 *
+	 * @return string
+	 */
+	private function get_translation( string $key ): string {
+		$translations = $this->get_init_obj()->get_translations();
+		return isset( $translations[ $key ] ) && is_string( $translations[ $key ] ) ? $translations[ $key ] : $key;
 	}
 
 	/**
@@ -337,7 +365,8 @@ class Rest {
 			}
 
 			// add the text to the list.
-			$error_texts[] = $error->get_error_message();
+			// texts may contain messages from external sources: allow only safe HTML (e.g. links).
+			$error_texts[] = wp_kses_post( $error->get_error_message() );
 		}
 
 		// return resulting list of error texts.
@@ -345,33 +374,32 @@ class Rest {
 	}
 
 	/**
-	 * Recursive check for next directory in tree.
+	 * Return the list of directories in the tree, which are not loaded yet.
 	 *
-	 * @param string              $directory The main directory.
-	 * @param array<string,mixed> $directory_list The tree.
+	 * @param array<int|string,mixed> $directory_list The tree.
 	 *
 	 * @return array<int,string>
 	 */
-	private function get_next_directory( string $directory, array $directory_list ): array {
+	private function get_next_directory( array $directory_list ): array {
 		// collect all directories which must be loaded.
 		$next_directories = array();
 
 		// loop through the list of directories.
 		foreach ( $directory_list as $entry ) {
 			// bail if no dirs exist.
-			if ( ! isset( $entry['dirs'] ) ) {
+			if ( ! is_array( $entry ) || ! isset( $entry['dirs'] ) || ! is_array( $entry['dirs'] ) ) {
 				continue;
 			}
 
 			// loop through the sub directories of this directory.
-			foreach ( $entry['dirs'] as $path => $dir ) {
+			foreach ( array_keys( $entry['dirs'] ) as $path ) {
 				// bail if this directory is already loaded.
 				if ( isset( $directory_list[ $path ] ) ) {
 					continue;
 				}
 
 				// use this directory.
-				$next_directories[] = $path;
+				$next_directories[] = (string) $path;
 			}
 		}
 
@@ -382,47 +410,70 @@ class Rest {
 	/**
 	 * Build the tree.
 	 *
-	 * @param array<string,mixed> $directory_list The list of all directories.
-	 * @param string              $parent_url The parent URL.
+	 * Each entry, which is not a sub-directory of another entry, is a root of the resulting tree.
+	 *
+	 * @param array<int|string,mixed> $directory_list The list of all directories.
 	 *
 	 * @return array<string,mixed>
 	 */
-	private function build_tree( array $directory_list, string $parent_url = '' ) {
+	private function build_tree( array $directory_list ): array {
+		// collect all paths which are sub-directories of any entry.
+		$sub_directories = array();
+		foreach ( $directory_list as $entry ) {
+			if ( ! is_array( $entry ) || ! isset( $entry['dirs'] ) || ! is_array( $entry['dirs'] ) ) {
+				continue;
+			}
+			foreach ( array_keys( $entry['dirs'] ) as $path ) {
+				$sub_directories[ $path ] = true;
+			}
+		}
+
 		// collect the tree.
 		$tree = array();
 
-		// ignore list.
-		$ignore_dirs = array();
-
-		// loop through all directories.
+		// add all root entries with their children.
 		foreach ( $directory_list as $url => $entry ) {
-			// bail if given URL does not match with entry.
-			if ( ! empty( $parent_url ) && $url !== $parent_url ) {
+			// bail if this entry is not usable or a sub-directory of another entry.
+			if ( ! is_array( $entry ) || isset( $sub_directories[ $url ] ) ) {
 				continue;
 			}
 
-			// loop through the given dirs and add them to the tree.
-			foreach ( $entry['dirs'] as $path => $subdir ) {
-				// get the children.
-				$children = $this->build_tree( $directory_list, $path );
-
-				// add the children.
-				if ( $children ) {
-					$entry['dirs'][ trailingslashit( $path ) ] = array_shift( $children );
-				}
-
-				if ( empty( $parent_url ) ) {
-					$ignore_dirs[] = $path;
-				}
-			}
-
 			// add this element to the tree.
-			if ( ! in_array( $url, $ignore_dirs, true ) ) {
-				$tree[ trailingslashit( $url ) ] = $entry;
-			}
+			$tree[ trailingslashit( (string) $url ) ] = $this->build_node( $directory_list, $entry, array( (string) $url => true ) );
 		}
 
 		// return resulting tree.
 		return $tree;
+	}
+
+	/**
+	 * Return a single entry of the tree with all its children.
+	 *
+	 * @param array<int|string,mixed> $directory_list The list of all directories.
+	 * @param array<string,mixed>     $entry The entry.
+	 * @param array<string,bool>      $parents List of parent paths to prevent endless recursion.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function build_node( array $directory_list, array $entry, array $parents ): array {
+		// bail if entry does not have any sub-directories.
+		if ( ! isset( $entry['dirs'] ) || ! is_array( $entry['dirs'] ) ) {
+			$entry['dirs'] = array();
+			return $entry;
+		}
+
+		// loop through the given dirs and add them with their children to the entry.
+		foreach ( array_keys( $entry['dirs'] ) as $path ) {
+			// bail if this directory is not loaded or already a parent.
+			if ( ! isset( $directory_list[ $path ] ) || ! is_array( $directory_list[ $path ] ) || isset( $parents[ $path ] ) ) {
+				continue;
+			}
+
+			// add the children.
+			$entry['dirs'][ trailingslashit( (string) $path ) ] = $this->build_node( $directory_list, $directory_list[ $path ], $parents + array( (string) $path => true ) );
+		}
+
+		// return the resulting entry.
+		return $entry;
 	}
 }

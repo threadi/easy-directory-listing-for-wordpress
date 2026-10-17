@@ -1,5 +1,33 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Added filter "PREFIX_directory_listing_time_budget" to set the time budget for loading directories per request (default: 3 seconds)
+- Added filter "PREFIX_service_local_preview_max_filesize" to skip previews for large images (default: 10 MB)
+
+### Changed
+
+- Load as many directories as possible in a single request instead of one directory per request
+- Previews of local images are generated only once and are now named uniquely per file
+- Local listing uses the data of the directory list instead of further file system requests
+- Cleanup of the preview directory runs at most once per hour instead of on every request in wp-admin
+- REST endpoint is passed as route to apiFetch (works with every permalink setting and different home URL)
+- Nonce is checked before anything else in the REST endpoint; invalid nonce results in an error message
+- The permission of the listing object is checked in the REST endpoint
+- Error texts are sanitized with wp_kses_post() before output
+
+### Fixed
+
+- Fixed endless reloading of the directory tree in the backend if the tree contains an even number of directories
+- Fixed endless loading hint on an empty or invalid server response
+- Fixed endless loading if a directory contains a symlink to itself or one of its parents
+- Fixed PHP warnings if a sub-directory could not be read
+- Fixed outdated tree after an aborted loading process
+- Fixed missing removal of term meta (encrypted credentials) on uninstallation
+- Local listing accepts only local directories (no other stream wrappers like ftp:// or phar://)
+
 ## [4.2.0] - 03.10.2026
 
 ### Added

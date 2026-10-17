@@ -3,7 +3,7 @@
  */
 import './style.scss';
 import { render } from "react-dom";
-import { useState, useEffect, useMemo } from "@wordpress/element"
+import { useState, useEffect, useMemo, useRef } from "@wordpress/element"
 import apiFetch from '@wordpress/api-fetch';
 import { Button } from '@wordpress/components';
 import { human_file_size, edlfw_text, edlfw_get_search_terms, edlfw_search_tree, edlfw_split_by_term } from './helper';
@@ -36,8 +36,10 @@ const EDLFW_Directory_Viewer = ( props ) => {
     const [ saveCredentials, setSaveCredentials ] = useState( false );
     const [ directoriesToLoad, setDirectoriesToLoad ] = useState( 0 );
     const [ updated, setUpdated ] = useState( false );
-    let [ cancelLoading, setCancelLoading ] = useState( false );
+    const [ cancelLoading, setCancelLoading ] = useState( false );
     const [ search, setSearch ] = useState( '' );
+    const isFirstRun = useRef( true );
+    const isContinuation = useRef( false );
 
     // search in the complete loaded tree: this does not need any further request.
     const searchTerms = useMemo( () => edlfw_get_search_terms( search, EDLFW_SEARCH_MIN_CHARS ), [search] );
@@ -60,12 +62,16 @@ const EDLFW_Directory_Viewer = ( props ) => {
     // if error occurred reset the term.
     if( errors ) {
         config.term = false;
-        setCancelLoading = false;
     }
 
     // get the recursive listing for the given directory.
+    // Each change of "loadTree" triggers exactly one request. The responses must therefore never
+    // change "loadTree" except to request the next part of the tree.
     useEffect( () => {
-        if( ! loadTree && Object.keys(config.fields).length > 0 && directoriesToLoad === 0 ){
+        // on mount: do not load if a form must be submitted first or a saved term will be loaded (this triggers its own request).
+        const firstRun = isFirstRun.current;
+        isFirstRun.current = false;
+        if( firstRun && ( Object.keys(config.fields).length > 0 || config.term ) ){
             return;
         }
         // collect params for request.
@@ -75,35 +81,51 @@ const EDLFW_Directory_Viewer = ( props ) => {
             saveCredentials: saveCredentials,
             nonce: config.nonce,
             term: config.term,
-            cancelLoading: cancelLoading
+            cancelLoading: cancelLoading,
+            // start with an empty tree on the server, if this is not the next part of a running loading process.
+            restart: ! isContinuation.current
         }
+        isContinuation.current = false;
         apiFetch( {path: edlfwJsVars.get_directory_endpoint, method: 'POST', data: params} ).then( (response) => {
+            // bail on an empty or unusable response (otherwise the loading hint would be shown forever).
+            if ( ! response || typeof response !== 'object' || Array.isArray( response ) ) {
+                setErrors( [ edlfwJsVars.serverside_error ] );
+                setEnabled( false );
+                setCancelLoading( false );
+                return;
+            }
+
             // bail on any returning error.
             if (response.errors) {
                 setErrors( response.errors );
                 setEnabled( false );
-                setLoadTree( false );
+                setCancelLoading( false );
                 return;
             }
 
             // if we got the directory_loading marker, trigger next request.
             if ( response.directory_loading ) {
+                isContinuation.current = true;
                 setDirectoriesToLoad( response.directory_to_load );
                 setLoadTree( ! loadTree );
                 return;
             }
 
             // on all other responses set the tree and show it.
+            // Hint: do not change "loadTree" here, as this would start the complete loading again.
             setTree( response );
-            setLoadTree( false );
+            setDirectoriesToLoad( 0 );
+            setCancelLoading( false );
             setErrors( false );
         } ).catch( (err) => {
             let fetch_errors = [];
             fetch_errors.push( edlfwJsVars.serverside_error );
-            fetch_errors.push( err.message );
+            if ( err && err.message ) {
+                fetch_errors.push( err.message );
+            }
             setErrors( fetch_errors );
             setEnabled( false );
-            setLoadTree( false );
+            setCancelLoading( false );
         } );
     }, [loadTree] );
 

@@ -247,18 +247,18 @@ class Init {
 		// embed the dialog-components CSS-script.
 		$admin_css      = $url . 'build/style-index.css';
 		$admin_css_path = $path . 'build/style-index.css';
-		wp_enqueue_style(
-			'easy-directory-listing-for-wordpress',
-			$admin_css,
-			array( 'wp-components' ),
-			(string) filemtime( $admin_css_path )
-		);
+		if ( file_exists( $admin_css_path ) ) {
+			wp_enqueue_style(
+				'easy-directory-listing-for-wordpress',
+				$admin_css,
+				array( 'wp-components' ),
+				(string) filemtime( $admin_css_path )
+			);
+		}
 
-		// get parsed endpoint URL.
-		$rest_url = rest_url( 'easy-directory-listing-for-wordpress/v1/directory' );
-
-		// remove domain and /wp-json/ from URL.
-		$rest_url = str_replace( trailingslashit( get_option( 'siteurl' ) ) . 'wp-json', '', $rest_url );
+		// use the route as path: apiFetch adds the REST root itself. This works with every permalink
+		// setting and also if WordPress is installed in a subdirectory (home URL differs from site URL).
+		$rest_url = '/easy-directory-listing-for-wordpress/v1/directory';
 
 		// add php-vars to our js-script.
 		wp_localize_script(
@@ -394,6 +394,7 @@ class Init {
 			'date'                => 'Date',
 			'config_missing'      => 'Configuration for Directory Listing missing!',
 			'nonce_missing'       => 'Secure token for Directory Listing missing!',
+			'nonce_invalid'       => 'The secure token is invalid or has expired. Please reload the page.',
 			'empty_directory'     => 'Loaded an empty directory.',
 			'search_label'        => 'Search for files in the loaded directories',
 			'search_placeholder'  => 'Search files …',

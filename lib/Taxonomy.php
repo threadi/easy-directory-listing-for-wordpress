@@ -419,8 +419,14 @@ class Taxonomy {
 			)
 		);
 
-		// delete them.
+		// delete them with their meta-data (which contains the encrypted credentials).
 		foreach ( $terms as $term ) {
+			$wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$wpdb->termmeta,
+				array(
+					'term_id' => $term->term_id,
+				)
+			);
 			$wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 				$wpdb->terms,
 				array(
