@@ -125,6 +125,13 @@ class Directory_Listings {
 	 * @return void
 	 */
 	public function cleanup(): void {
+		// run this cleanup only once per hour, not on every request in wp-admin.
+		$transient_name = Init::get_instance()->get_prefix() . '_edlfw_cleanup';
+		if ( false !== get_transient( $transient_name ) ) {
+			return;
+		}
+		set_transient( $transient_name, 1, HOUR_IN_SECONDS );
+
 		// get upload directory.
 		$upload_dir_data = wp_get_upload_dir();
 		$upload_dir      = trailingslashit( $upload_dir_data['basedir'] ) . 'edlfw/';
@@ -139,7 +146,7 @@ class Directory_Listings {
 		}
 
 		// get all files from the directory.
-		$files = glob( $upload_dir . '/*.*' );
+		$files = glob( $upload_dir . '*.*' );
 
 		// bail if no files could be loaded.
 		if ( ! is_array( $files ) ) {

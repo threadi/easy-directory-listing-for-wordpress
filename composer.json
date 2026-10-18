@@ -1,6 +1,6 @@
 {
     "name": "threadi/easy-directory-listing-for-wordpress",
-    "version": "4.2.0",
+    "version": "4.3.0",
     "description": "Provides a react-driven directory listing for WordPress plugins and themes.",
     "type": "library",
     "license": "GPL-3.0-or-later",
@@ -11,9 +11,19 @@
       }
     ],
     "minimum-stability": "stable",
+    "scripts": {
+        "test": "phpunit",
+        "test-install": "bash bin/install-wp-tests.sh wordpress_test root 'debian' 127.0.0.1 latest",
+        "test-install-during-build": "bash bin/install-wp-tests.sh wordpress_test root 'debian' 127.0.0.1 latest false true"
+    },
     "autoload": {
         "psr-4": {
             "easyDirectoryListingForWordPress\\": "lib/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "easyDirectoryListingForWordPress\\Tests\\": "tests/"
         }
     },
   "config": {
@@ -37,7 +47,9 @@
       "phpstan/extension-installer": "^1.4",
       "php-stubs/wp-cli-stubs": "^2.11",
       "phpcompatibility/phpcompatibility-wp": "^2.1",
-      "dealerdirect/phpcodesniffer-composer-installer": "^1.2"
+      "dealerdirect/phpcodesniffer-composer-installer": "^1.2",
+      "yoast/phpunit-polyfills": "^1.0",
+      "wp-phpunit/wp-phpunit": "^7.1"
     },
     "require": {
         "php": "^8.2",
