@@ -17,7 +17,7 @@ jest.mock(
 		const Control = ( props ) => createElement( 'div', { className: 'control' }, props.label );
 		return {
 			__esModule: true,
-			Button: ( props ) => createElement( 'button', { onClick: props.onClick, disabled: props.disabled }, props.children ),
+			Button: ( props ) => createElement( 'button', { type: 'button', onClick: props.onClick, disabled: props.disabled }, props.children ),
 			ToggleControl: Control,
 			SelectControl: Control,
 			TextareaControl: Control,
@@ -308,5 +308,135 @@ describe( 'errors during the loading', () => {
 
 		expect( container.textContent ).toContain( texts.nonce_missing );
 		expect( apiFetch ).not.toHaveBeenCalled();
+	} );
+} );
+
+describe( 'form with file upload and field groups', () => {
+	/**
+	 * The fields of a listing, which loads a list from an uploaded file or a URL.
+	 *
+	 * @param {string} url The URL to use.
+	 * @return {Object} The fields.
+	 */
+	const fields = ( url = '' ) => ( {
+		file: { type: 'file', label: 'File', one_of: 'source', one_of_error: 'Use only one source.', accept: '.csv', value: '' },
+		url: { type: 'url', label: 'URL', one_of: 'source', value: url },
+		login: { type: 'text', label: 'Login', not_required: true, value: '' },
+	} );
+
+	/**
+	 * Choose a file in the file input of the form.
+	 *
+	 * @param {HTMLElement} container The container.
+	 * @param {string}      name The file name.
+	 * @return {Promise<void>}
+	 */
+	const chooseFile = async ( container, name ) => {
+		const input = container.querySelector( 'input[type="file"]' );
+		expect( input ).not.toBeNull();
+		const file = new File( [ 'url\nhttps://example.com/a.jpg' ], name, { type: 'text/csv' } );
+		Object.defineProperty( input, 'files', { value: [ file ], configurable: true } );
+		await act( async () => {
+			input.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+		} );
+	};
+
+	test( 'the submit button is disabled until one source is given', async () => {
+		const container = await renderViewer( { fields: fields(), form_title: 'List' } );
+		const button = [ ...container.querySelectorAll( 'button' ) ].find( ( element ) => element.textContent === 'Connect' );
+		expect( button.disabled ).toBe( true );
+
+		await chooseFile( container, 'list.csv' );
+		expect( button.disabled ).toBe( false );
+	} );
+
+	test( 'uploads the chosen file and uses its ID as value of the field', async () => {
+		apiFetch.mockImplementation( ( options ) => {
+			if ( '/wp/v2/media' === options.path ) {
+				return Promise.resolve( { id: 42 } );
+			}
+			return simulateEndpoint( options );
+		} );
+
+		const container = await renderViewer( { fields: fields(), form_title: 'List' } );
+		await chooseFile( container, 'list.csv' );
+		await clickButton( container, 'Connect' );
+		await settle();
+
+		// the first request uploads the file, the second loads the tree with the ID of the file.
+		expect( apiFetch.mock.calls[ 0 ][ 0 ].path ).toBe( '/wp/v2/media' );
+		expect( apiFetch.mock.calls[ 0 ][ 0 ].body ).toBeInstanceOf( FormData );
+		expect( server.requests ).toHaveLength( 1 );
+		expect( server.requests[ 0 ].fields.file.value ).toBe( '42' );
+		expect( container.querySelector( '#easy-directory-listing-for-wordpress-listing' ) ).not.toBeNull();
+	} );
+
+	test( 'shows the error of a failed upload and does not load the tree', async () => {
+		apiFetch.mockImplementation( ( options ) => {
+			if ( '/wp/v2/media' === options.path ) {
+				return Promise.reject( { message: 'Sorry, this file type is not permitted.' } );
+			}
+			return simulateEndpoint( options );
+		} );
+
+		const container = await renderViewer( { fields: fields(), form_title: 'List' } );
+		await chooseFile( container, 'list.csv' );
+		await clickButton( container, 'Connect' );
+		await settle();
+
+		expect( container.textContent ).toContain( 'Sorry, this file type is not permitted.' );
+		expect( server.requests ).toHaveLength( 0 );
+	} );
+
+	test( 'shows an error if more than one field of a group is filled', async () => {
+		const container = await renderViewer( { fields: fields( 'https://example.com/list.csv' ), form_title: 'List' } );
+		await chooseFile( container, 'list.csv' );
+		await clickButton( container, 'Connect' );
+		await settle();
+
+		expect( container.textContent ).toContain( 'Use only one source.' );
+		expect( apiFetch ).not.toHaveBeenCalled();
+	} );
+
+	test( 'shows the option to save the entry only if the required field is filled', async () => {
+		let container = await renderViewer( { fields: fields(), form_title: 'List', archive: true, archive_requires_field: 'url' } );
+		expect( container.textContent ).not.toContain( 'Save credentials' );
+
+		container = await renderViewer( { fields: fields( 'https://example.com/list.csv' ), form_title: 'List', archive: true, archive_requires_field: 'url' } );
+		expect( container.textContent ).toContain( 'Save credentials' );
+	} );
+} );
+
+describe( 'global actions', () => {
+	test( 'shows only global actions whose condition is fulfilled', async () => {
+		const container = await renderViewer( {
+			global_actions: [
+				{ action: 'setTree( false );setLoadTree( ! loadTree );', label: 'Reload' },
+				{ action: 'void 0;', label: 'Visible', show: 'true' },
+				{ action: 'void 1;', label: 'Hidden', show: 'config.listing_base_object_name === "other"' },
+			],
+		} );
+
+		const labels = [ ...container.querySelectorAll( '.edlfw-global-actions button' ) ].map( ( element ) => element.textContent );
+		expect( labels ).toEqual( [ 'Reload', 'Visible' ] );
+	} );
+} );
+
+describe( 'saved terms', () => {
+	test( 'loads the tree of a saved term with exactly one request', async () => {
+		const container = await renderViewer( { term: 42, fields: { login: { type: 'text', label: 'Login', value: '' } } } );
+		await settle( 50 );
+
+		expect( apiFetch ).toHaveBeenCalledTimes( 1 );
+		expect( server.requests[ 0 ].term ).toBe( 42 );
+		expect( container.querySelector( '#easy-directory-listing-for-wordpress-listing' ) ).not.toBeNull();
+	} );
+
+	test( 'loads the tree of a saved term without fields with exactly one request', async () => {
+		const container = await renderViewer( { term: 7 } );
+		await settle( 50 );
+
+		expect( apiFetch ).toHaveBeenCalledTimes( 1 );
+		expect( container.querySelector( '#easy-directory-listing-for-wordpress-listing' ) ).not.toBeNull();
 	} );
 } );

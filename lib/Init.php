@@ -412,6 +412,13 @@ class Init {
 			'error_title'         => 'The following error occurred:',
 			'errors_title'        => 'The following errors occurred:',
 			'serverside_error'    => 'Incorrect response received from the server, possibly a server-side error.',
+			'form_file'           => array(
+				'uploading'       => 'Uploading file …',
+				'uploaded'        => 'Uploaded file:',
+				'remove'          => 'Remove file',
+				'upload_error'    => 'The file could not be uploaded.',
+				'one_of_multiple' => 'Please fill in only one of the fields.',
+			),
 			'directory_archive'   => array(
 				'connect_now'     => 'Open now',
 				'labels'          => array(

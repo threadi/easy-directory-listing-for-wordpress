@@ -1,5 +1,20 @@
 # Changelog
 
+## [4.4.0] - 18.10.2026
+
+### Added
+
+- Added field type "file" for forms: the chosen file is uploaded via REST API (default: media library of WordPress) on submit and its ID is used as value
+- Added "one_of" for fields: from fields with the same value at least one must be filled, more than one results in the error message from "one_of_error"
+- Added "archive_requires_field" in the configuration to show the option to save the entry as archive only if the named field is filled
+- Added "show" as condition for global actions
+- Added method "is_archive_allowed()" in listing objects to prevent the saving of the actual configuration as archive entry
+
+### Fixed
+
+- Fixed endless loading hint on opening a saved archive entry
+- Fixed required checkbox fields never counting as filled
+
 ## [4.3.0] - 18.10.2026
 
 ### Added

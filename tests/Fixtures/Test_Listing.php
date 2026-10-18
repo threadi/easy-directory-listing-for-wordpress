@@ -50,6 +50,13 @@ class Test_Listing extends Directory_Listing_Base {
 	public bool $login_result = true;
 
 	/**
+	 * Whether the actual configuration could be saved as archive entry.
+	 *
+	 * @var bool
+	 */
+	public bool $archive_allowed = true;
+
+	/**
 	 * List of requested directories.
 	 *
 	 * @var array<int,string>
@@ -104,6 +111,15 @@ class Test_Listing extends Directory_Listing_Base {
 	 *
 	 * @return string
 	 */
+	/**
+	 * Return whether the actual configuration could be saved as archive entry.
+	 *
+	 * @return bool
+	 */
+	public function is_archive_allowed(): bool {
+		return $this->archive_allowed;
+	}
+
 	public function get_permission_name(): string {
 		return empty( $this->permission ) ? parent::get_permission_name() : $this->permission;
 	}

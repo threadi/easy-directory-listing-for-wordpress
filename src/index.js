@@ -68,10 +68,11 @@ const EDLFW_Directory_Viewer = ( props ) => {
     // Each change of "loadTree" triggers exactly one request. The responses must therefore never
     // change "loadTree" except to request the next part of the tree.
     useEffect( () => {
-        // on mount: do not load if a form must be submitted first or a saved term will be loaded (this triggers its own request).
+        // on mount: do not load if a form must be submitted first.
+        // A saved term is loaded with this first run: its "loadTree" change happens already during the first render.
         const firstRun = isFirstRun.current;
         isFirstRun.current = false;
-        if( firstRun && ( Object.keys(config.fields).length > 0 || config.term ) ){
+        if( firstRun && Object.keys(config.fields).length > 0 && ! config.term ){
             return;
         }
         // collect params for request.
@@ -203,7 +204,7 @@ const EDLFW_Directory_Viewer = ( props ) => {
         <>
             <div id="easy-directory-listing-for-wordpress-options">
                 <div className="edlfw-global-actions">
-                    {! isSearching && config.global_actions.map( action => {
+                    {! isSearching && config.global_actions.filter( action => typeof action.show === 'undefined' || eval( action.show ) ).map( action => {
                         return (<Button variant="primary" key={action.action} onClick={() => eval( action.action )}>{action.label}</Button>)
                     } )}
                     {isSearching && <p className="edlfw-search-summary" role="status"><strong>{searchSummary}</strong> <Button variant="link" onClick={() => setSearch( '' )}>{edlfwJsVars.search_end}</Button></p>}
