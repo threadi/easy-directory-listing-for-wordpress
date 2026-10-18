@@ -222,7 +222,6 @@ abstract class easyDirectoryListingTests extends WP_UnitTestCase {
 		$image = imagecreatetruecolor( 64, 48 );
 		imagefilledrectangle( $image, 0, 0, 32, 24, (int) imagecolorallocate( $image, 200, 50, 50 ) );
 		imagejpeg( $image, $path );
-		imagedestroy( $image );
 	}
 
 	/**
