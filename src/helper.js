@@ -172,3 +172,105 @@ export const edlfw_split_by_term = ( title, term ) => {
     after: text.slice( position + term.length )
   };
 }
+
+
+/**
+ * Return whether the given form field has a value.
+ *
+ * A field of the type "file" also counts as filled if a file has been chosen, which is not uploaded yet.
+ *
+ * @param field The field configuration.
+ * @param pendingFile The chosen file of a field of the type "file", which is not uploaded yet.
+ *
+ * @return {boolean} True if the field has a value.
+ */
+export const edlfw_is_field_filled = ( field, pendingFile = false ) => {
+  // bail if no field is given.
+  if ( ! field ) {
+    return false;
+  }
+
+  // a chosen, but not uploaded file counts as value.
+  if ( 'file' === field.type && pendingFile ) {
+    return true;
+  }
+
+  // bail if no value is set.
+  if ( typeof field.value === 'undefined' || field.value === null || field.value === false ) {
+    return false;
+  }
+
+  // a checked checkbox has a value.
+  if ( field.value === true ) {
+    return true;
+  }
+
+  // all other values are checked as string (e.g. the ID of an uploaded file is a number).
+  return String( field.value ).length > 0;
+}
+
+/**
+ * Check the groups of fields, where exactly one field must be filled (fields with the same "one_of" value).
+ *
+ * @param fields The list of fields.
+ * @param pendingFiles The chosen files of fields of the type "file", which are not uploaded yet (field name as key).
+ *
+ * @return {{missing: string[], multiple: string[]}} The names of the groups without any and with more than one filled field.
+ */
+export const edlfw_check_field_groups = ( fields, pendingFiles = {} ) => {
+  // collect the count of filled fields per group.
+  const groups = {};
+  Object.keys( fields ?? {} ).forEach( name => {
+    const field = fields[name];
+
+    // bail if this field is not part of a group.
+    if ( ! field || ! field.one_of ) {
+      return;
+    }
+
+    // initialize the counter for this group.
+    if ( typeof groups[field.one_of] === 'undefined' ) {
+      groups[field.one_of] = 0;
+    }
+
+    // count this field if it is filled.
+    if ( edlfw_is_field_filled( field, pendingFiles[name] ?? false ) ) {
+      groups[field.one_of]++;
+    }
+  } );
+
+  // return the groups without filled field and with more than one filled field.
+  return {
+    missing: Object.keys( groups ).filter( group => groups[group] === 0 ),
+    multiple: Object.keys( groups ).filter( group => groups[group] > 1 )
+  };
+}
+
+/**
+ * Return whether all necessary fields of the form are filled.
+ *
+ * Fields with "not_required" are optional. From fields with the same "one_of" value exactly one
+ * must be filled, but this check only requires at least one (more than one results in an error message on submit).
+ *
+ * @param fields The list of fields.
+ * @param pendingFiles The chosen files of fields of the type "file", which are not uploaded yet (field name as key).
+ *
+ * @return {boolean} True if the form could be submitted.
+ */
+export const edlfw_is_form_completed = ( fields, pendingFiles = {} ) => {
+  // check each required field, which is not part of a group.
+  const completed = Object.keys( fields ?? {} ).every( name => {
+    const field = fields[name];
+
+    // optional fields and fields of a group are not checked here.
+    if ( ! field || field.not_required || field.one_of ) {
+      return true;
+    }
+
+    // return whether this field is filled.
+    return edlfw_is_field_filled( field, pendingFiles[name] ?? false );
+  } );
+
+  // return the result incl. the check of the groups.
+  return completed && edlfw_check_field_groups( fields, pendingFiles ).missing.length === 0;
+}

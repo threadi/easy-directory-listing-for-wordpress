@@ -437,6 +437,26 @@ class Rest extends easyDirectoryListingTests {
 	}
 
 	/**
+	 * Test that the configuration is not saved if the listing object does not allow it.
+	 *
+	 * @return void
+	 */
+	public function test_save_credentials_not_allowed(): void {
+		$this->test_listing->listings        = array( '/not-allowed/' => $this->entry( 'not-allowed' ) );
+		$this->test_listing->archive_allowed = false;
+
+		$params                    = $this->get_test_listing_params( '/not-allowed/' );
+		$params['saveCredentials'] = true;
+		$data                      = $this->request( $params )->get_data();
+
+		// the tree is loaded, but nothing is saved.
+		$this->assertArrayHasKey( '/not-allowed/', $data );
+		$this->assertFalse( get_term_by( 'slug', md5( 'edlfw_test_listing/not-allowed/' ), \easyDirectoryListingForWordPress\Taxonomy::get_instance()->get_name() ) );
+
+		$this->test_listing->archive_allowed = true;
+	}
+
+	/**
 	 * Test if a saved term is used for the request.
 	 *
 	 * @return void

@@ -168,8 +168,8 @@ class Rest {
 			return array( 'errors' => $this->get_errors_for_response( $listing_base_object->get_errors() ) );
 		}
 
-		// save the directory as directory archive if this is enabled.
-		if ( ! empty( $params['saveCredentials'] ) ) {
+		// save the directory as directory archive if this is enabled and allowed for the actual configuration.
+		if ( ! empty( $params['saveCredentials'] ) && $listing_base_object->is_archive_allowed() ) {
 			Taxonomy::get_instance()->add( $listing_base_object->get_name(), $directory, $fields );
 		}
 

@@ -381,6 +381,19 @@ class Directory_Listing_Base {
 	}
 
 	/**
+	 * Return whether the actual configuration of this listing could be saved as archive entry.
+	 *
+	 * Listing objects could prevent the saving depending on their fields, e.g., if only a part
+	 * of the fields allows a reuse. Use "archive_requires_field" in the configuration to hide
+	 * the option in the form if a specific field is empty.
+	 *
+	 * @return bool
+	 */
+	public function is_archive_allowed(): bool {
+		return true;
+	}
+
+	/**
 	 * Return the permission name to use this listing.
 	 *
 	 * @return string
