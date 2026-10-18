@@ -16,6 +16,7 @@
     <exclude-pattern>*/node_modules/*</exclude-pattern>
     <exclude-pattern>*/src/*</exclude-pattern>
     <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/tests/*</exclude-pattern>
 
     <rule ref="WordPress-Docs"/>
     <rule ref="WordPress-Extra"/>

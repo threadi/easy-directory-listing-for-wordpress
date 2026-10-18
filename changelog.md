@@ -4,6 +4,7 @@
 
 ### Added
 
+- Added PHP Unit tests and JavaScript Unit tests (also as GitHub action)
 - Added filter "PREFIX_directory_listing_time_budget" to set the time budget for loading directories per request (default: 3 seconds)
 - Added filter "PREFIX_service_local_preview_max_filesize" to skip previews for large images (default: 10 MB)
 
@@ -23,6 +24,7 @@
 - Fixed endless reloading of the directory tree in the backend if the tree contains an even number of directories
 - Fixed endless loading hint on an empty or invalid server response
 - Fixed endless loading if a directory contains a symlink to itself or one of its parents
+- Fixed empty tree if a sub-directory links back to the main directory
 - Fixed PHP warnings if a sub-directory could not be read
 - Fixed outdated tree after an aborted loading process
 - Fixed missing removal of term meta (encrypted credentials) on uninstallation

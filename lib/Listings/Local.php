@@ -248,7 +248,7 @@ class Local extends Directory_Listing_Base {
 
 			// get size and modification time from the directory list (no further file system requests necessary).
 			$filesize = (int) $file['size'];
-			$mtime    = (int) ( $file['lastmodunix'] ?? 0 );
+			$mtime    = (int) $file['lastmodunix'];
 
 			// define the thumb.
 			$thumbnail = '';

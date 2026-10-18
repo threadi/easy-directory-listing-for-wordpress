@@ -12,3 +12,6 @@
 /changelog.md export-ignore
 /phpcs.xml.dist export-ignore
 /phpstan.neon export-ignore
+/bin            export-ignore
+/tests          export-ignore
+/phpunit.xml.dist export-ignore

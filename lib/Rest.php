@@ -305,7 +305,7 @@ class Rest {
 		$directory_list = apply_filters( $this->get_init_obj()->get_prefix() . '_directory_listing_before_tree_building', $directory_list, $directory, $name );
 
 		// build the resulting tree.
-		$tree = $this->build_tree( $directory_list );
+		$tree = $this->build_tree( $directory_list, $directory );
 
 		/**
 		 * Filter the resulting tree of files and directories after the tree has been build.
@@ -411,12 +411,14 @@ class Rest {
 	 * Build the tree.
 	 *
 	 * Each entry, which is not a sub-directory of another entry, is a root of the resulting tree.
+	 * The main directory is always a root, also if a sub-directory links back to it.
 	 *
 	 * @param array<int|string,mixed> $directory_list The list of all directories.
+	 * @param string                  $main_directory The requested main directory.
 	 *
 	 * @return array<string,mixed>
 	 */
-	private function build_tree( array $directory_list ): array {
+	private function build_tree( array $directory_list, string $main_directory = '' ): array {
 		// collect all paths which are sub-directories of any entry.
 		$sub_directories = array();
 		foreach ( $directory_list as $entry ) {
@@ -434,7 +436,7 @@ class Rest {
 		// add all root entries with their children.
 		foreach ( $directory_list as $url => $entry ) {
 			// bail if this entry is not usable or a sub-directory of another entry.
-			if ( ! is_array( $entry ) || isset( $sub_directories[ $url ] ) ) {
+			if ( ! is_array( $entry ) || ( isset( $sub_directories[ $url ] ) && (string) $url !== $main_directory ) ) {
 				continue;
 			}
 
