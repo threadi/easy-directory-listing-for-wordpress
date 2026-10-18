@@ -144,14 +144,12 @@ abstract class easyDirectoryListingTests extends WP_UnitTestCase {
 	protected function reset_listing_object( Directory_Listing_Base $obj ): void {
 		foreach ( array( 'errors' => array(), 'directory' => '', 'fields' => array() ) as $property => $value ) {
 			$reflection = new ReflectionProperty( Directory_Listing_Base::class, $property );
-			$reflection->setAccessible( true );
 			$reflection->setValue( $obj, $value );
 		}
 
 		// reset the cached mime types (they depend on the capabilities of the actual user).
 		if ( property_exists( $obj, 'mime_types' ) ) {
 			$reflection = new ReflectionProperty( $obj, 'mime_types' );
-			$reflection->setAccessible( true );
 			$reflection->setValue( $obj, null );
 		}
 	}

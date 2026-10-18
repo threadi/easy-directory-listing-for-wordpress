@@ -361,7 +361,6 @@ class Local extends easyDirectoryListingTests {
 	 */
 	public function test_mime_type_matches_wordpress( string $filename ): void {
 		$method = new ReflectionMethod( $this->get_obj(), 'get_mime_type' );
-		$method->setAccessible( true );
 
 		$expected = wp_check_filetype( $filename )['type'];
 		$this->assertEquals( false === $expected ? '' : $expected, $method->invoke( $this->get_obj(), $filename ) );
