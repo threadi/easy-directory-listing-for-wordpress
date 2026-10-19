@@ -422,6 +422,42 @@ describe( 'global actions', () => {
 	} );
 } );
 
+describe( 'notice and disabled files', () => {
+	test( 'shows the notice of a file and replaces its actions, if it is disabled', async () => {
+		server.response = () =>
+			Promise.resolve( {
+				'/root/': {
+					title: 'root',
+					dirs: {},
+					files: [
+						{ title: 'ok.pdf', filesize: 1024, preview: '', icon: '' },
+						{ title: 'hint.pdf', filesize: 2048, preview: '', icon: '', notice: 'Only a hint' },
+						{ title: 'big.pdf', filesize: 4096, preview: '', icon: '', notice: 'Too large', disabled: true },
+					],
+				},
+			} );
+
+		const container = await renderViewer( { actions: [ { action: 'void 0;', label: 'Import' } ] } );
+
+		const rows = [ ...container.querySelectorAll( '#easy-directory-listing-for-wordpress-details tbody tr' ) ];
+		const row = ( title ) => rows.find( ( element ) => element.querySelector( '.filename' )?.textContent.startsWith( title ) );
+
+		// a file without notice is unchanged.
+		expect( row( 'ok.pdf' ).querySelector( '.edlfw-file-notice' ) ).toBeNull();
+		expect( row( 'ok.pdf' ).querySelector( '.actions button' ).textContent ).toBe( 'Import' );
+
+		// a notice alone does not disable the actions.
+		expect( row( 'hint.pdf' ).querySelector( '.edlfw-file-notice' ).textContent ).toBe( 'Only a hint' );
+		expect( row( 'hint.pdf' ).querySelector( '.actions button' ) ).not.toBeNull();
+
+		// a disabled file shows its notice instead of the actions.
+		expect( row( 'big.pdf' ).classList.contains( 'edlfw-file-disabled' ) ).toBe( true );
+		expect( row( 'big.pdf' ).querySelector( '.edlfw-file-notice' ).textContent ).toBe( 'Too large' );
+		expect( row( 'big.pdf' ).querySelector( '.actions button' ) ).toBeNull();
+		expect( row( 'big.pdf' ).querySelector( '.actions .dashicons-warning' ).getAttribute( 'title' ) ).toBe( 'Too large' );
+	} );
+} );
+
 describe( 'saved terms', () => {
 	test( 'loads the tree of a saved term with exactly one request', async () => {
 		const container = await renderViewer( { term: 42, fields: { login: { type: 'text', label: 'Login', value: '' } } } );

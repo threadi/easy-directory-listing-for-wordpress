@@ -227,6 +227,20 @@
     overflow-wrap: anywhere;
     white-space: normal;
   }
+  .edlfw-file-notice {
+    color: #b32d2e;
+    display: block;
+    font-size: 12px;
+    margin-top: 2px;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+  .edlfw-file-disabled .actions .dashicons {
+    color: #b32d2e;
+  }
+  .edlfw-file-disabled .filepreview, .edlfw-file-disabled .filename > mark {
+    opacity: .6;
+  }
   .edlfw-search-empty p, .edlfw-search-limited p {
     margin: 0 0 .6em;
   }

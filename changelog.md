@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.4.1] - 19.10.2026
+
+### Added
+
+- Added "notice" for files in the listing: the text is shown below the file name
+- Added "disabled" for files in the listing: instead of the actions a warning icon with the notice as title is shown, so the file can not be used
+
 ## [4.4.0] - 18.10.2026
 
 ### Added
