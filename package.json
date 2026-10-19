@@ -7,7 +7,7 @@
 	"scripts": {
 		"start": "wp-scripts start src/index.js --output-path=build/",
 		"build": "wp-scripts build src/index.js --output-path=build/",
-        "test:unit": "wp-scripts test-unit-jest"
+        "test:unit": "wp-scripts test-unit-js"
 	},
 	"devDependencies": {
 		"@wordpress/scripts": "~34.2"
