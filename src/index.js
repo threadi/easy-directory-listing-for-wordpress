@@ -382,9 +382,13 @@ const EDLFW_Files_Listing = ( { directoryToList, config, term, searchData, searc
         let searchResult = searchData ? directoryToList[directory] : false;
         let file = searchResult ? searchResult.file : directoryToList[directory];
         let titleParts = edlfw_split_by_term( file.title, searchResult ? searchTerms[0] : '' );
-        return (<tr key={( searchResult ? searchResult.directory : '' ) + file.title}>
+        // a file can be marked as not usable: then it shows its notice instead of the actions.
+        let isDisabled = true === file.disabled;
+        let hasNotice = typeof file.notice === 'string' && file.notice.length > 0;
+        return (<tr key={( searchResult ? searchResult.directory : '' ) + file.title} className={isDisabled ? 'edlfw-file-disabled' : undefined}>
             <td className="actions">
-                {config.actions.map( action => {
+                {isDisabled && <span className="dashicons dashicons-warning" title={hasNotice ? file.notice : undefined} aria-hidden="true"></span>}
+                {! isDisabled && config.actions.map( action => {
                     if( typeof action.show !== 'undefined' && typeof action.hint !== 'undefined' && ! eval( action.show ) ) {
                         return (<span key={action.action} dangerouslySetInnerHTML={{__html: action.hint}}/>)
                     }
@@ -394,6 +398,7 @@ const EDLFW_Files_Listing = ( { directoryToList, config, term, searchData, searc
             <td className="filepreview"><span dangerouslySetInnerHTML={{__html: file.preview}} /></td>
             <td className="filename">
                 {titleParts.before}{titleParts.match.length > 0 && <mark>{titleParts.match}</mark>}{titleParts.after}
+                {hasNotice && <span className="edlfw-file-notice">{file.notice}</span>}
                 {searchResult && <span className="edlfw-search-path">{inDirectory[0]}<Button variant="link" onClick={() => openSearchResult( searchResult )}>{searchResult.label}</Button>{inDirectory[1] ?? ''}</span>}
             </td>
             <td className="date">{file['last-modified']}</td>
