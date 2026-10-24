@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.4.2] - 24.10.2026
+
+### Changed
+
+- Optimized the table style
+
 ## [4.4.1] - 19.10.2026
 
 ### Added
