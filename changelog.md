@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Fixed files with the same name being shown multiple times in the file list after changing the directory (unique row keys)
+
 ## [4.4.2] - 24.10.2026
 
 ### Changed

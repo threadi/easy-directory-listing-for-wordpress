@@ -385,7 +385,11 @@ const EDLFW_Files_Listing = ( { directoryToList, config, term, searchData, searc
         // a file can be marked as not usable: then it shows its notice instead of the actions.
         let isDisabled = true === file.disabled;
         let hasNotice = typeof file.notice === 'string' && file.notice.length > 0;
-        return (<tr key={( searchResult ? searchResult.directory : '' ) + file.title} className={isDisabled ? 'edlfw-file-disabled' : undefined}>
+        // the key must be unique in this list: file names are not unique (e.g., Google Drive allows the same name
+        // multiple times), so use the file identifier and the position in the list. Duplicate keys would result in
+        // rows which React could not remove anymore if the directory is changed.
+        let rowKey = ( searchResult ? searchResult.directory + '|' : '' ) + ( file.file ?? file.title ) + '|' + directory;
+        return (<tr key={rowKey} className={isDisabled ? 'edlfw-file-disabled' : undefined}>
             <td className="actions">
                 {isDisabled && <span className="dashicons dashicons-warning" title={hasNotice ? file.notice : undefined} aria-hidden="true"></span>}
                 {! isDisabled && config.actions.map( action => {
