@@ -229,4 +229,24 @@ class Taxonomy extends easyDirectoryListingTests {
 		$this->assertArrayHasKey( 2, $messages[ $this->get_obj()->get_name() ] );
 		$this->assertArrayHasKey( 3, $messages[ $this->get_obj()->get_name() ] );
 	}
+
+	/**
+	 * Test that the fields are bound to their context, and that fields saved before it has been used stay readable.
+	 *
+	 * @return void
+	 */
+	public function test_fields_with_context(): void {
+		$fields = array( 'login' => array( 'value' => 'user' ) );
+
+		// a new entry: its fields are bound to the context.
+		$term_id = $this->get_obj()->add( 'ftp', '/context/', $fields );
+		$this->assertEquals( $fields, $this->get_obj()->get_entry( $term_id )['fields'] );
+		$encrypted = (string) get_term_meta( $term_id, 'fields', true );
+		$this->assertEquals( wp_json_encode( $fields ), \easyDirectoryListingForWordPress\Crypt::get_instance()->decrypt( $encrypted, \easyDirectoryListingForWordPress\Taxonomy::FIELDS_CONTEXT ) );
+
+		// an entry saved by an older version (without context) stays readable.
+		$old_term_id = $this->get_obj()->add( 'ftp', '/old/', array() );
+		update_term_meta( $old_term_id, 'fields', \easyDirectoryListingForWordPress\Crypt::get_instance()->encrypt( (string) wp_json_encode( $fields ) ) );
+		$this->assertEquals( $fields, $this->get_obj()->get_entry( $old_term_id )['fields'] );
+	}
 }

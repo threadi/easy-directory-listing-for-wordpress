@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added filter "<prefix>_directory_listing_term_allowed" to forbid the use of a saved entry with its credentials in the directory listing (e.g. of another user)
+- Added optional context as second parameter of `Crypt::encrypt()` and `Crypt::decrypt()`: a value bound to a context can only be decrypted with the very same context
+- Values encrypted without context (e.g. by older versions) stay readable: `Crypt::decrypt()` with a context tries them without it, without reporting an error for the first attempt. Only if this fails too, the errors are reported once, with the requested context in their data - so the error names the affected value
+- Added `Crypt::get_save_callback()` and `Crypt::get_read_callback()` to encrypt and decrypt the value of a setting with a context
+
+### Changed
+
+- The fields of new entries in the taxonomy are bound to the context "term_fields" (constant `Taxonomy::FIELDS_CONTEXT`), fields saved before stay readable
+
 ### Fixed
 
 - Fixed files with the same name being shown multiple times in the file list after changing the directory (unique row keys)
