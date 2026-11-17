@@ -17,6 +17,13 @@ use WP_Term;
  */
 class Taxonomy {
 	/**
+	 * The context for the encryption of the fields of an entry.
+	 *
+	 * Fields saved before this context has been used stay readable (see Crypt::decrypt()).
+	 */
+	public const FIELDS_CONTEXT = 'term_fields';
+
+	/**
 	 * The name.
 	 *
 	 * @var string
@@ -280,7 +287,7 @@ class Taxonomy {
 		// add the credentials.
 		add_term_meta( $term_id, 'type', $type );
 		add_term_meta( $term_id, 'path', $directory );
-		add_term_meta( $term_id, 'fields', Crypt::get_instance()->encrypt( (string) wp_json_encode( $fields ) ) );
+		add_term_meta( $term_id, 'fields', Crypt::get_instance()->encrypt( (string) wp_json_encode( $fields ), self::FIELDS_CONTEXT ) );
 
 		/**
 		 * Run action after adding this term.
@@ -342,7 +349,7 @@ class Taxonomy {
 		$fields                = array();
 		$fields_encoded_string = get_term_meta( $term_id, 'fields', true );
 		if ( is_string( $fields_encoded_string ) ) {
-			$fields = json_decode( Crypt::get_instance()->decrypt( $fields_encoded_string ), true );
+			$fields = json_decode( Crypt::get_instance()->decrypt( $fields_encoded_string, self::FIELDS_CONTEXT ), true );
 			if ( ! is_array( $fields ) ) {
 				$fields = array();
 			}
@@ -354,9 +361,9 @@ class Taxonomy {
 		$has_encrypted_fields = is_string( $fields_encoded_string ) && '' !== $fields_encoded_string;
 
 		// convert old credential fields to new fields-array.
-		$login    = Crypt::get_instance()->decrypt( get_term_meta( $term_id, 'login', true ) );
-		$password = Crypt::get_instance()->decrypt( get_term_meta( $term_id, 'password', true ) );
-		$api_key  = Crypt::get_instance()->decrypt( get_term_meta( $term_id, 'api_key', true ) );
+		$login    = Crypt::get_instance()->decrypt( (string) get_term_meta( $term_id, 'login', true ), 'term_meta:login' );
+		$password = Crypt::get_instance()->decrypt( (string) get_term_meta( $term_id, 'password', true ), 'term_meta:password' );
+		$api_key  = Crypt::get_instance()->decrypt( (string) get_term_meta( $term_id, 'api_key', true ), 'term_meta:api_key' );
 		if ( empty( $fields ) && ! $has_encrypted_fields && ( ! $login || ! $password || ! $api_key ) ) {
 			// get the type.
 			switch ( get_term_meta( $term_id, 'type', true ) ) {

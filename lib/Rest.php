@@ -119,6 +119,17 @@ class Rest {
 		// get term, if set.
 		$term_id = ! empty( $params['term'] ) ? absint( $params['term'] ) : 0;
 		if ( $term_id > 0 ) {
+			/**
+			 * Filter whether the actual user is allowed to use the given saved entry (with its credentials).
+			 *
+			 * @since 4.5.0 Available since 4.5.0.
+			 * @param bool $allowed True if the entry could be used.
+			 * @param int  $term_id The ID of the entry.
+			 */
+			if ( ! apply_filters( $this->get_init_obj()->get_prefix() . '_directory_listing_term_allowed', true, $term_id ) ) {
+				return new WP_Error( 'edlfw_not_allowed', $this->get_translation( 'nonce_invalid' ), array( 'status' => 403 ) );
+			}
+
 			// get the term data.
 			$term_data = Taxonomy::get_instance()->get_entry( $term_id );
 

@@ -175,6 +175,29 @@ class Rest extends easyDirectoryListingTests {
 	}
 
 	/**
+	 * Test that a plugin could forbid the use of a saved entry, e.g. of another user.
+	 *
+	 * @return void
+	 */
+	public function test_term_could_be_forbidden(): void {
+		$term_id                      = \easyDirectoryListingForWordPress\Taxonomy::get_instance()->add( 'edlfw_test_listing', '/root/', array() );
+		$this->test_listing->listings = array( '/root/' => $this->entry( 'root' ) );
+
+		// forbidden.
+		$filter = static fn( bool $allowed, int $id ) => $id !== $term_id;
+		add_filter( self::hook( 'directory_listing_term_allowed' ), $filter, 10, 2 );
+		$response = $this->request( array_merge( $this->get_test_listing_params( '' ), array( 'term' => $term_id ) ) );
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertEquals( 'edlfw_not_allowed', $response->get_data()['code'] );
+		$this->assertEmpty( $this->test_listing->requested );
+		remove_filter( self::hook( 'directory_listing_term_allowed' ), $filter );
+
+		// allowed (default).
+		$response = $this->request( array_merge( $this->get_test_listing_params( '' ), array( 'term' => $term_id ) ) );
+		$this->assertEquals( 200, $response->get_status() );
+	}
+
+	/**
 	 * Test if fields with an invalid type do not result in an error.
 	 *
 	 * @return void
