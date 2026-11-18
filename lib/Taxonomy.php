@@ -447,6 +447,7 @@ class Taxonomy {
 
 		// cleanup options.
 		delete_option( $this->get_name() . '_children' );
+		delete_option( Directory_Listings::get_instance()->get_cleanup_option_name() );
 	}
 
 	/**

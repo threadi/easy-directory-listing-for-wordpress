@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- The hourly cleanup of the preview files saves its time in an autoloaded option instead of a transient, so it needs no own database query in each request in the backend
+
 ## [4.5.0] - 17.11.2026
 
 ### Added

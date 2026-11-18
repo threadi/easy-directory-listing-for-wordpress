@@ -119,6 +119,15 @@ class Directory_Listings {
 		);
 	}
 
+
+	/**
+	 * Return the name of the option with the time of the next cleanup.
+	 *
+	 * @return string
+	 */
+	public function get_cleanup_option_name(): string {
+		return Init::get_instance()->get_prefix() . '_edlfw_cleanup_next';
+	}
 	/**
 	 * Cleanup our own directory for files used to preview images in listings.
 	 *
@@ -126,11 +135,13 @@ class Directory_Listings {
 	 */
 	public function cleanup(): void {
 		// run this cleanup only once per hour, not on every request in wp-admin.
-		$transient_name = Init::get_instance()->get_prefix() . '_edlfw_cleanup';
-		if ( false !== get_transient( $transient_name ) ) {
+		// The time of the next cleanup is saved as autoloaded option: a transient with expiration is not autoloaded
+		// by WordPress and would need an own query in every request.
+		$option_name = $this->get_cleanup_option_name();
+		if ( absint( get_option( $option_name, 0 ) ) > time() ) {
 			return;
 		}
-		set_transient( $transient_name, 1, HOUR_IN_SECONDS );
+		update_option( $option_name, time() + HOUR_IN_SECONDS, true );
 
 		// get upload directory.
 		$upload_dir_data = wp_get_upload_dir();
